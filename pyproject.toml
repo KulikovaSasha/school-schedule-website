@@ -1,0 +1,17 @@
+[project]
+name = "school-schedule-website"
+version = "1.0.0"
+description = "Web application for managing school schedules"
+authors = [
+    {name = "KulikovaSasha", email = "your-email@example.com"}
+]
+dependencies = [
+    "flask",
+    "flask-sqlalchemy",
+    "flask-login",
+    "flask-migrate"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
