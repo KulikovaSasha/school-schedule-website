@@ -1,9 +1,26 @@
-venv/
-instance/
-*.db
-*.sqlite3
-__pycache__/
+# Распространенные файлы которые не нужно коммитить
 *.pyc
+__pycache__/
+instance/
+.webassets-cache
+
+# Environment variables
 .env
+.flaskenv
+
+# IDE
+.idea/
+.vscode/
+
+# Database
+*.sqlite
+*.db
+
+# OS
 .DS_Store
-uploads/
+Thumbs.db
+
+# Python
+venv/
+env/
+.venv/
