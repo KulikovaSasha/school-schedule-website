@@ -1,0 +1,464 @@
+
+/* Основные стили редактора расписания */
+.schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.schedule-header h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.schedule-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.schedule-actions .btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.schedule-actions .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.schedule-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #4CAF50;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-item strong {
+    color: #495057;
+    font-size: 14px;
+}
+
+.info-item span {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.bulk-actions {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.bulk-actions h4 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.bulk-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.bulk-controls .form-control {
+    margin-bottom: 0;
+}
+
+.schedule-editor-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.schedule-table th {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #dee2e6;
+}
+
+.time-header {
+    width: 140px;
+    min-width: 140px;
+}
+
+.day-header {
+    min-width: 200px;
+}
+
+.time-cell {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.time-display {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.lesson-cell {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    vertical-align: top;
+    min-height: 180px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.lesson-cell:hover {
+    box-shadow: inset 0 0 0 2px #4CAF50;
+    transform: scale(1.02);
+    z-index: 2;
+}
+
+.lesson-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+.subject-input {
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    transition: border-color 0.3s ease;
+}
+
+.subject-input:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.link-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-link-input,
+.link-text-input {
+    font-size: 12px;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.lesson-link-input:focus,
+.link-text-input:focus {
+    border-color: #2196F3;
+    outline: none;
+}
+
+.style-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.font-selector {
+    font-size: 12px;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: white;
+}
+
+.color-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-picker {
+    width: 40px;
+    height: 30px;
+    padding: 2px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.color-label {
+    font-size: 11px;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+/* Модальное окно платформ */
+.platform-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 15px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.close-modal:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.platform-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.platform-item:hover {
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    background-color: #f8fff8;
+}
+
+.platform-item i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #4CAF50;
+}
+
+.platform-item span {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .schedule-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .schedule-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .bulk-controls {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .schedule-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .schedule-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .time-header {
+        width: 100px;
+        min-width: 100px;
+    }
+    
+    .day-header {
+        min-width: 150px;
+    }
+    
+    .lesson-controls {
+        gap: 6px;
+    }
+    
+    .subject-input {
+        font-size: 12px;
+        padding: 6px;
+    }
+    
+    .platform-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .schedule-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .schedule-actions .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .platform-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+}
+
+/* Специальные классы для состояний */
+.lesson-cell.has-link::after {
+    content: '🔗';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.9);
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid #4CAF50;
+}
+
+.lesson-cell.empty {
+    background: linear-gradient(45deg, #f8f9fa 25%, #e9ecef 25%, #e9ecef 50%, #f8f9fa 50%, #f8f9fa 75%, #e9ecef 75%);
+    background-size: 20px 20px;
+}
+
+.lesson-cell.empty:hover {
+    background: linear-gradient(45deg, #e9ecef 25%, #dee2e6 25%, #dee2e6 50%, #e9ecef 50%, #e9ecef 75%, #dee2e6 75%);
+    background-size: 20px 20px;
+}
+
+/* Стили для выпадающих списков */
+datalist {
+    display: none;
+}
+
+.color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
+}
+
+.color-picker::-moz-color-swatch {
+    border: none;
+    border-radius: 3px;
+}
+
+/* Улучшенная читаемость для различных цветов фона */
+.lesson-cell {
+    position: relative;
+}
+
+.lesson-cell .lesson-controls > * {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.lesson-cell .lesson-controls .subject-input {
+    background: rgba(255, 255, 255, 0.98);
+}

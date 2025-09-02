@@ -1,0 +1,100 @@
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/schedule-view.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="schedule-header">
+        <h2>📋 {{ schedule.title }}</h2>
+        <div class="schedule-actions">
+            <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Редактировать
+            </a>
+            <a href="{{ url_for('main.export_pdf', schedule_id=schedule.id) }}" class="btn btn-secondary">
+                <i class="fas fa-download"></i> Скачать PDF
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+    </div>
+
+    <div class="schedule-info">
+        <div class="info-item">
+            <strong>📅 Дни недели:</strong> {{ days|join(', ') }}
+        </div>
+        <div class="info-item">
+            <strong>⏰ Уроков в день:</strong> {{ schedule.lessons_per_day }}
+        </div>
+        <div class="info-item">
+            <strong>🕘 Первый урок:</strong> {{ schedule.start_time }}
+        </div>
+        <div class="info-item">
+            <strong>⏱ Длительность урока:</strong> {{ schedule.lesson_duration }} минут
+        </div>
+    </div>
+
+    <div class="schedule-view-container">
+        <table class="schedule-table view-mode">
+            <thead>
+                <tr>
+                    <th class="time-header">Время</th>
+                    {% for day in days %}
+                    <th class="day-header">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lesson_index in range(schedule.lessons_per_day) %}
+                <tr>
+                    <td class="time-cell">
+                        <div class="time-display">
+                            {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
+                        </div>
+                    </td>
+                    
+                    {% for day_index in range(days|length) %}
+                    {% set lesson_key = day_index ~ '_' ~ lesson_index %}
+                    {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
+                    
+                    <td class="lesson-view-cell" style="background-color: {{ lesson.color if lesson else '#FFFFFF' }};">
+                        {% if lesson and lesson.subject_name %}
+                        <div class="lesson-content">
+                            <div class="subject-name" style="font-family: {{ lesson.font_family if lesson.font_family else 'Arial' }}">
+                                {{ lesson.subject_name }}
+                            </div>
+                            
+                            {% if lesson.lesson_link %}
+                            <div class="lesson-link-container">
+                                <a href="{{ lesson.lesson_link }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="lesson-link-btn">
+                                    <i class="fas fa-video"></i>
+                                    {{ lesson.link_text if lesson.link_text else 'Перейти к уроку' }}
+                                </a>
+                                <button class="copy-link-btn" onclick="copyLinkToClipboard('{{ lesson.lesson_link }}')"
+                                        title="Скопировать ссылку">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/schedule-view.js') }}"></script>
+{% endblock %}
+
