@@ -101,7 +101,7 @@
                                                     <strong>{{ schedule.title }}</strong>
                                                 </td>
                                                 <td>
-                                                    {{ schedule.days_of_week|count_days }}  {# Будем считать в Python #}
+                                                    {{ schedule.days_of_week|count_days }}
                                                 </td>
                                                 <td>
                                                     {{ schedule.lessons_per_day }}
@@ -115,18 +115,19 @@
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
-                                                        <a href="{{ url_for('main.view_schedule', schedule_id=schedule.id) }}" 
+                                                        <a href="{{ url_for('main.view_schedule', schedule_id=schedule.id) }}"
                                                            class="btn btn-outline-primary" title="Просмотреть">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
-                                                        <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}" 
+                                                        <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}"
                                                            class="btn btn-outline-secondary" title="Редактировать">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
-                                                        <form action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}" 
+                                                        <form action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}"
                                                               method="post" style="display: inline;">
-                                                            <button type="submit" class="btn btn-outline-danger" 
-                                                                    onclick="return confirm('Удалить расписание \"{{ schedule.title }}\"?')" 
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <button type="submit" class="btn btn-outline-danger"
+                                                                    onclick="return confirm('Удалить расписание \"{{ schedule.title }}\"?')"
                                                                     title="Удалить">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
@@ -160,7 +161,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <p class="mb-0">&copy; 2025 Школьное расписание. Все права защищены.</p>
+                    <p class="mb-0">&copy; 2024 Школьное расписание. Все права защищены.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <a href="{{ url_for('main.about') }}" class="text-muted me-3">О программе</a>

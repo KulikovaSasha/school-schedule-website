@@ -79,31 +79,14 @@ def dashboard():
     """Личный кабинет пользователя со списком расписаний"""
     schedules = Schedule.query.filter_by(user_id=current_user.id).all()
 
-    # Безопасная сортировка с обработкой всех None значений
-    def safe_sort_key(schedule):
-        # Получаем значение даты (пробуем разные возможные поля)
-        date_value = None
-
-        # Пробуем получить дату из различных полей
-        for field in ['created_at', 'updated_at', 'date_created']:
-            if hasattr(schedule, field):
-                date_value = getattr(schedule, field)
-                if date_value is not None:
-                    break
-
-        # Если дата найдена и не None, возвращаем её
-        if date_value is not None:
-            return date_value
-
-        # Если дата не найдена или None, возвращаем минимальную дату
-        return datetime.min
-
-    # Сортируем с использованием безопасного ключа
-    sorted_schedules = sorted(schedules, key=safe_sort_key, reverse=True)
+    # Безопасная сортировка с обработкой None значений
+    sorted_schedules = sorted(
+        schedules,
+        key=lambda x: x.created_at if x.created_at is not None else datetime.min,
+        reverse=True  # Сначала новые расписания
+    )
 
     return render_template('dashboard.html', schedules=sorted_schedules)
-
-
 
 # Создание нового расписания
 @main_bp.route('/create-schedule', methods=['GET', 'POST'])
