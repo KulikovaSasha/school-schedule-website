@@ -141,43 +141,7 @@
 
 <input type="hidden" id="schedule-id" value="{{ schedule.id }}">
 
-<!-- Модальное окно для популярных платформ -->
-<div class="modal platform-modal" id="platformModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>📱 Популярные платформы для уроков</h3>
-            <button class="close-modal" onclick="closePlatformModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="platform-grid">
-                <div class="platform-item" onclick="insertPlatformLink('zoom', 'Zoom')">
-                    <i class="fas fa-video"></i>
-                    <span>Zoom</span>
-                </div>
-                <div class="platform-item" onclick="insertPlatformLink('google_meet', 'Google Meet')">
-                    <i class="fab fa-google"></i>
-                    <span>Google Meet</span>
-                </div>
-                <div class="platform-item" onclick="insertPlatformLink('microsoft_teams', 'Microsoft Teams')">
-                    <i class="fas fa-users"></i>
-                    <span>Teams</span>
-                </div>
-                <div class="platform-item" onclick="insertPlatformLink('discord', 'Discord')">
-                    <i class="fab fa-discord"></i>
-                    <span>Discord</span>
-                </div>
-                <div class="platform-item" onclick="insertPlatformLink('skype', 'Skype')">
-                    <i class="fab fa-skype"></i>
-                    <span>Skype</span>
-                </div>
-                <div class="platform-item" onclick="insertPlatformLink('youtube', 'YouTube')">
-                    <i class="fab fa-youtube"></i>
-                    <span>YouTube</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 {% endblock %}
 
 {% block extra_js %}
