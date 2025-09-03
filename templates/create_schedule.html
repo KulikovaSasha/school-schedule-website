@@ -211,7 +211,7 @@
         <div class="form-row">
             <div class="form-group">
                 {{ form.lessons_per_day.label }}
-                {{ form.lessons_per_day(class="form-control", min=1, max=10, value=6) }}
+                {{ form.lessons_per_day(class="form-control", min=1, max=20, value=6) }}
                 {% if form.lessons_per_day.errors %}
                     <div class="error">{{ form.lessons_per_day.errors[0] }}</div>
                 {% endif %}

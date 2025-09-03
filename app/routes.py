@@ -422,4 +422,3 @@ def fix_old_data():
         flash(f'Ошибка при исправлении данных: {str(e)}', 'danger')
 
     return redirect(url_for('main.dashboard'))
-
