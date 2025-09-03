@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль пользователя - School Schedule Planner{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>👤 Профиль пользователя</h1>
+        <p>Управление вашей учетной записью</p>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-card">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+
+            <div class="profile-info">
+                <h2>{{ current_user.username }}</h2>
+                <p class="profile-email">{{ current_user.email }}</p>
+                <p class="profile-joined">Зарегистрирован: {{ current_user.created_at.strftime('%d.%m.%Y') }}</p>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ schedules_count }}</h3>
+                    <p>Созданных расписаний</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_lessons }}</h3>
+                    <p>Всего уроков</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <h3>Действия</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Мои расписания
+                </a>
+                <a href="{{ url_for('main.create_schedule') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Создать новое расписание
+                </a>
+                <button class="btn btn-outline" onclick="showChangePasswordForm()">
+                    <i class="fas fa-key"></i> Сменить пароль
+                </button>
+            </div>
+        </div>
+
+        <!-- Форма смены пароля (изначально скрыта) -->
+        <div id="changePasswordForm" class="password-form" style="display: none;">
+            <h3>Смена пароля</h3>
+            <form method="POST" action="{{ url_for('main.change_password') }}">
+                <div class="form-group">
+                    <label for="current_password">Текущий пароль</label>
+                    <input type="password" id="current_password" name="current_password"
+                           class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="new_password">Новый пароль</label>
+                    <input type="password" id="new_password" name="new_password"
+                           class="form-control" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Подтвердите новый пароль</label>
+                    <input type="password" id="confirm_password" name="confirm_password"
+                           class="form-control" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сменить пароль</button>
+                    <button type="button" class="btn btn-secondary"
+                            onclick="hideChangePasswordForm()">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-header h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    font-size: 4em;
+    color: #007bff;
+}
+
+.profile-info h2 {
+    margin: 0;
+    color: #333;
+}
+
+.profile-email {
+    color: #666;
+    margin: 5px 0;
+}
+
+.profile-joined {
+    color: #999;
+    font-size: 0.9em;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    font-size: 2em;
+    color: #007bff;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 50%;
+}
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 2em;
+    color: #333;
+}
+
+.stat-info p {
+    margin: 5px 0 0 0;
+    color: #666;
+}
+
+.profile-actions {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.profile-actions h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.password-form {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .profile-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showChangePasswordForm() {
+    document.getElementById('changePasswordForm').style.display = 'block';
+}
+
+function hideChangePasswordForm() {
+    document.getElementById('changePasswordForm').style.display = 'none';
+}
+
+// Валидация формы смены пароля
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('#changePasswordForm form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('Пароли не совпадают!');
+            }
+
+            if (newPassword.length < 6) {
+                e.preventDefault();
+                alert('Пароль должен содержать минимум 6 символов');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

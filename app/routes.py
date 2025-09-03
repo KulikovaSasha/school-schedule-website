@@ -456,3 +456,79 @@ def fix_old_data():
         flash(f'Ошибка при исправлении данных: {str(e)}', 'danger')
 
     return redirect(url_for('main.dashboard'))
+
+
+@main.route('/profile')
+@login_required
+def user_profile():  # Изменил имя на user_profile чтобы избежать конфликта
+    """Страница профиля пользователя"""
+    try:
+        print(f"DEBUG: Loading profile for user {current_user.id}")
+
+        # Получаем статистику пользователя
+        schedules_count = Schedule.query.filter_by(user_id=current_user.id).count()
+        print(f"DEBUG: Schedules count: {schedules_count}")
+
+        # Считаем общее количество уроков
+        total_lessons = 0
+        user_schedules = Schedule.query.filter_by(user_id=current_user.id).all()
+
+        for schedule in user_schedules:
+            try:
+                days_list = json.loads(schedule.days_of_week)
+                total_lessons += schedule.lessons_per_day * len(days_list)
+            except (json.JSONDecodeError, TypeError) as e:
+                print(f"DEBUG: Error parsing days for schedule {schedule.id}: {e}")
+                total_lessons += schedule.lessons_per_day * 5  # Default to 5 days
+
+        print(f"DEBUG: Total lessons: {total_lessons}")
+
+        return render_template('profile.html',
+                               schedules_count=schedules_count,
+                               total_lessons=total_lessons)
+
+    except Exception as e:
+        print(f"ERROR in user_profile: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        flash('Ошибка при загрузке профиля', 'error')
+        return redirect(url_for('main.dashboard'))
+
+
+@main.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    """Смена пароля пользователя"""
+    try:
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if not all([current_password, new_password, confirm_password]):
+            flash('Все поля обязательны для заполнения', 'danger')
+            return redirect(url_for('main.user_profile'))
+
+        if new_password != confirm_password:
+            flash('Пароли не совпадают', 'danger')
+            return redirect(url_for('main.user_profile'))
+
+        if len(new_password) < 6:
+            flash('Пароль должен содержать минимум 6 символов', 'danger')
+            return redirect(url_for('main.user_profile'))
+
+        # Проверяем текущий пароль
+        if not current_user.check_password(current_password):
+            flash('Неверный текущий пароль', 'danger')
+            return redirect(url_for('main.user_profile'))
+
+        # Устанавливаем новый пароль
+        current_user.set_password(new_password)
+        db.session.commit()
+
+        flash('Пароль успешно изменен', 'success')
+        return redirect(url_for('main.user_profile'))
+
+    except Exception as e:
+        db.session.rollback()
+        flash('Ошибка при изменении пароля', 'error')
+        return redirect(url_for('main.user_profile'))
