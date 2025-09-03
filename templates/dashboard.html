@@ -126,9 +126,9 @@
                                                         <form action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}"
                                                               method="post" style="display: inline;">
                                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                            <button type="submit" class="btn btn-outline-danger"
-                                                                    onclick="return confirm('Удалить расписание \"{{ schedule.title }}\"?')"
-                                                                    title="Удалить">
+                                                            <button type="button" class="btn btn-outline-danger"
+                                                                    onclick="confirmDelete({{ schedule.id }}, '{{ schedule.title }}')"
+                                                                    title="Удалить расписание">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </form>
@@ -175,5 +175,44 @@
     <!-- Скрипты -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить расписание <strong id="deleteScheduleTitle"></strong>?</p>
+                <p class="text-danger">Это действие нельзя отменить!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Функция для открытия модального окна подтверждения
+function confirmDelete(scheduleId, scheduleTitle) {
+    // Устанавливаем заголовок
+    document.getElementById('deleteScheduleTitle').textContent = scheduleTitle;
+
+    // Устанавливаем action формы
+    document.getElementById('deleteForm').action = `/schedule/${scheduleId}/delete`;
+
+    // Показываем модальное окно
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
+}
+</script>
+
 </body>
 </html>
