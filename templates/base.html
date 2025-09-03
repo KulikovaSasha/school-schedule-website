@@ -138,12 +138,20 @@
 
                 <div class="nav-menu">
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                        <!-- ИСПРАВЛЕНО: Главная ведет на главную страницу сайта -->
+                        <a href="{{ url_for('main.index') }}" class="nav-link">
                             <i class="fas fa-home"></i> Главная
                         </a>
+
+                        <!-- А это ведет на дашборд с расписаниями -->
+                        <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                            <i class="fas fa-calendar"></i> Мои расписания
+                        </a>
+
                         <a href="{{ url_for('main.create_schedule') }}" class="nav-link">
                             <i class="fas fa-plus"></i> Создать
                         </a>
+
                         <div class="user-menu">
                             <span class="user-greeting">Привет, {{ current_user.username }}!</span>
                             <div class="dropdown">
