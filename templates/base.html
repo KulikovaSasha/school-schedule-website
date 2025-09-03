@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,6 +17,9 @@
     <!-- Основные стили -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
+    <!-- Bootstrap CSS для dropdown -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -27,6 +29,102 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     {% block extra_css %}{% endblock %}
+
+    <style>
+        /* Стили для выпадающего меню */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background: #f8f9fa;
+            color: #007bff;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Стили для навигации */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-greeting {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .nav-link {
+            color: #007bff;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover {
+            background: #f8f9fa;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .user-menu {
+                flex-direction: column;
+            }
+            
+            .dropdown-content {
+                right: auto;
+                left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -111,8 +209,10 @@
                 <div class="footer-section">
                     <h4>Быстрые ссылки</h4>
                     <a href="{{ url_for('main.index') }}">Главная</a>
-                    <a href="{{ url_for('main.dashboard') }}">Мои расписания</a>
-                    <a href="{{ url_for('main.create_schedule') }}">Создать расписание</a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.dashboard') }}">Мои расписания</a>
+                        <a href="{{ url_for('main.create_schedule') }}">Создать расписание</a>
+                    {% endif %}
                 </div>
                 <div class="footer-section">
                     <h4>Поддержка</h4>
@@ -127,10 +227,10 @@
         </div>
     </footer>
 
-    <!-- Основные скрипты
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Bootstrap JS для dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    Глобальный CSRF Token для JavaScript -->
+    <!-- Глобальный CSRF Token для JavaScript -->
     <script>
         // Глобальная переменная с CSRF токеном
         window.csrfToken = "{{ csrf_token() }}";
@@ -162,6 +262,26 @@
             }
             return originalFetch(resource, options);
         };
+
+        // Инициализация dropdown меню
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const content = this.querySelector('.dropdown-content');
+                    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                });
+            });
+
+            // Закрытие dropdown при клике вне его
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.dropdown-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+            });
+        });
     </script>
 
     <!-- Скрипты для конкретных страниц -->
@@ -178,15 +298,5 @@
     {% endif %}
 
     {% block extra_js %}{% endblock %}
-
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GA_MEASUREMENT_ID');
-    </script>
 </body>
 </html>
-

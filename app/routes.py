@@ -185,22 +185,27 @@ def edit_schedule(schedule_id):
 @main.route('/schedule/<int:schedule_id>/save', methods=['POST'])
 @login_required
 def save_schedule(schedule_id):
-    """API endpoint для сохранения данных расписания"""
+    print(f"DEBUG: Save request received for schedule {schedule_id}")
+
     try:
         schedule = Schedule.query.get_or_404(schedule_id)
+        print(f"DEBUG: Schedule found: {schedule.title}")
 
         # Проверка прав доступа
         if schedule.user_id != current_user.id:
+            print("DEBUG: Access denied")
             return jsonify({'success': False, 'error': 'Access denied'}), 403
 
         data = request.get_json()
+        print(f"DEBUG: Received data for {len(data) if data else 0} lessons")
 
-        # Проверяем, что данные есть
         if not data:
+            print("DEBUG: No data provided")
             return jsonify({'success': False, 'error': 'No data provided'}), 400
 
-        # Удаляем существующие уроки для этого расписания
-        Lesson.query.filter_by(schedule_id=schedule_id).delete()
+        # Удаляем существующие уроки
+        deleted_count = Lesson.query.filter_by(schedule_id=schedule_id).delete()
+        print(f"DEBUG: Deleted {deleted_count} existing lessons")
 
         # Получаем дни недели из расписания
         try:
@@ -209,6 +214,7 @@ def save_schedule(schedule_id):
             days_list = ['mon', 'tue', 'wed', 'thu', 'fri']
 
         # Сохраняем новые данные
+        new_lessons_count = 0
         for day_index in range(len(days_list)):
             for lesson_index in range(schedule.lessons_per_day):
                 key = f"{day_index}_{lesson_index}"
@@ -226,12 +232,17 @@ def save_schedule(schedule_id):
                 )
 
                 db.session.add(lesson)
+                new_lessons_count += 1
 
         db.session.commit()
+        print(f"DEBUG: Successfully saved {new_lessons_count} lessons")
         return jsonify({'success': True})
 
     except Exception as e:
         db.session.rollback()
+        print(f"ERROR in save_schedule: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

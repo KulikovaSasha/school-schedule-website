@@ -1,7 +1,18 @@
 (function() {
     'use strict';
 
-    // УДАЛЕНО: currentLinkInput и все функции платформ
+    // Добавьте эту функцию в начало файла
+    function restoreButton(button, originalHTML) {
+        if (button && originalHTML) {
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+
+            // Дополнительно сбрасываем стили если меняли их
+            button.style.backgroundColor = '';
+            button.style.borderColor = '';
+            button.style.opacity = '';
+        }
+    }
 
     // Функция для инициализации кнопок выбора платформы - УДАЛЯЕМ
     function initPlatformButtons() {
@@ -115,9 +126,22 @@
     }
 
     function saveSchedule() {
-        const scheduleId = document.getElementById('schedule-id')?.value;
-        if (!scheduleId) return;
+        const saveButton = document.getElementById('save-schedule');
+        const originalHTML = saveButton?.innerHTML;
 
+        // Сохраняем оригинальное состояние
+        if (saveButton) {
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+            saveButton.disabled = true;
+        }
+
+        // Принудительное восстановление через 3 секунды на всякий случай
+        const safetyTimeout = setTimeout(() => {
+            restoreButton(saveButton, originalHTML);
+        }, 3000);
+
+        // Собираем данные
+        const scheduleId = document.getElementById('schedule-id')?.value;
         const lessons = {};
 
         document.querySelectorAll('.lesson-cell').forEach(cell => {
@@ -139,43 +163,27 @@
             };
         });
 
-        const saveButton = document.getElementById('save-schedule');
-        const originalText = saveButton?.innerHTML;
-        if (saveButton) {
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
-            saveButton.disabled = true;
-        }
-
-        fetch(`/schedule/${scheduleId}/save`, {
+        // Делаем запрос
+        fetch(`/schedule/${scheduleId}/save?t=${Date.now()}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(lessons)
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
-                });
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
+            clearTimeout(safetyTimeout); // Отменяем safety timeout
+            restoreButton(saveButton, originalHTML);
+
             if (data.success) {
-                showNotification('Расписание успешно сохранено!', 'success');
+                showNotification('Сохранено успешно!', 'success');
             } else {
-                showNotification('Ошибка при сохранении: ' + (data.error || 'неизвестная ошибка'), 'error');
+                showNotification('Ошибка сервера: ' + data.error, 'error');
             }
         })
         .catch(error => {
-            showNotification('Ошибка: ' + error.message, 'error');
-        })
-        .finally(() => {
-            if (saveButton) {
-                saveButton.innerHTML = originalText;
-                saveButton.disabled = false;
-            }
+            clearTimeout(safetyTimeout); // Отменяем safety timeout
+            restoreButton(saveButton, originalHTML);
+            showNotification('Ошибка сети', 'error');
         });
     }
 

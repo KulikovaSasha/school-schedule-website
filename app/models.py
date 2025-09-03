@@ -92,7 +92,7 @@ AVAILABLE_FONTS = [
     {'value': 'Tahoma', 'name': 'Tahoma', 'category': 'Без засечек'},
     {'value': 'Comic Sans MS', 'name': 'Comic Sans MS', 'category': 'Рукописный'},
     {'value': 'Trebuchet MS', 'name': 'Trebuchet MS', 'category': 'Без засечек'},
-    {'value': 'Impact', 'name': 'Impact', 'category': 'Без засечек'}
+    {'value': 'Bookman Old Style', 'name': 'Bookman Old Style', 'category': 'Без засечек'}
 ]
 
 COLOR_PALETTE = {
