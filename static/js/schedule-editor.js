@@ -129,9 +129,19 @@ function initFontSelectors() {
 function initSaveHandler() {
     const saveButton = document.getElementById('save-schedule');
     if (saveButton) {
-        saveButton.addEventListener('click', saveSchedule);
+        saveButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            saveSchedule();
+        });
     }
 }
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    initSaveHandler();
+    initPlatformButtons();
+    // ... другая инициализация ...
+});
 
 // Массовые действия
 function initBulkActions() {
@@ -188,8 +198,9 @@ function applyColorToAll(color = null) {
 // Сохранение расписания
 function saveSchedule() {
     const scheduleId = document.getElementById('schedule-id').value;
-    const lessons = [];
+    const lessons = {};
 
+    // Собираем данные в правильном формате
     document.querySelectorAll('.lesson-cell').forEach(cell => {
         const day = cell.dataset.day;
         const lessonIndex = cell.dataset.lesson;
@@ -199,46 +210,80 @@ function saveSchedule() {
         const fontSelector = cell.querySelector('.font-selector');
         const colorPicker = cell.querySelector('.color-picker');
 
-        lessons.push({
-            day: parseInt(day),
-            lesson_index: parseInt(lessonIndex),
-            subject_name: subjectInput.value,
-            lesson_link: linkInput.value,
+        const key = `${day}_${lessonIndex}`;
+        lessons[key] = {
+            subject: subjectInput.value,
+            link: linkInput.value,
             link_text: linkTextInput.value,
-            font_family: fontSelector.value,
+            font: fontSelector.value,
             color: colorPicker.value
-        });
+        };
     });
 
+    // Показываем индикатор загрузки
+    const saveButton = document.getElementById('save-schedule');
+    const originalText = saveButton.innerHTML;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+    saveButton.disabled = true;
+
     // Отправка данных на сервер
-    fetch(`/api/schedule/${scheduleId}/lessons`, {
+    fetch(`/schedule/${scheduleId}/save`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ lessons: lessons })
+        body: JSON.stringify(lessons)
     })
-    .then(response => response.json())
+    .then(response => {
+        // Сначала проверяем статус ответа
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+            });
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Success:', data);
         if (data.success) {
             showNotification('Расписание успешно сохранено!', 'success');
         } else {
-            showNotification('Ошибка при сохранении: ' + data.error, 'error');
+            showNotification('Ошибка при сохранении: ' + (data.error || 'неизвестная ошибка'), 'error');
         }
     })
     .catch(error => {
-        showNotification('Ошибка сети: ' + error, 'error');
+        console.error('Error:', error);
+        showNotification('Ошибка: ' + error.message, 'error');
+    })
+    .finally(() => {
+        // Восстанавливаем кнопку
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
     });
 }
 
 // Показать уведомление
 function showNotification(message, type = 'info') {
-    // Реализация показа уведомлений
-    alert(message); // Временная реализация
-}
+    // Создаем элемент уведомления
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '1000';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
 
-// Инициализация при загрузке документа
-document.addEventListener('DOMContentLoaded', function() {
-    initPlatformButtons();
-    initScheduleEditor();
-});
+    // Добавляем на страницу
+    document.body.appendChild(notification);
+
+    // Автоматически скрываем через 3 секунды
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 3000);
+}

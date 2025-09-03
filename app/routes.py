@@ -195,14 +195,18 @@ def save_schedule(schedule_id):
 
         data = request.get_json()
 
+        # Проверяем, что данные есть
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+
         # Удаляем существующие уроки для этого расписания
         Lesson.query.filter_by(schedule_id=schedule_id).delete()
 
-        # Получаем дни недели из расписания, а не из формы
+        # Получаем дни недели из расписания
         try:
             days_list = json.loads(schedule.days_of_week)
         except (json.JSONDecodeError, TypeError):
-            days_list = ['mon', 'tue', 'wed', 'thu', 'fri']  # Значение по умолчанию
+            days_list = ['mon', 'tue', 'wed', 'thu', 'fri']
 
         # Сохраняем новые данные
         for day_index in range(len(days_list)):
@@ -229,6 +233,9 @@ def save_schedule(schedule_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
 
 # Просмотр расписания
 @main.route('/schedule/<int:schedule_id>/view')
