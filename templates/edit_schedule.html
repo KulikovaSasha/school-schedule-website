@@ -74,23 +74,23 @@
                             {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
                         </div>
                     </td>
-                    
+
                     {% for day_index in range(days|length) %}
                     {% set lesson_key = day_index ~ '_' ~ lesson_index %}
                     {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
-                    
-                    <td class="lesson-cell" 
-                        data-day="{{ day_index }}" 
+
+                    <td class="lesson-cell"
+                        data-day="{{ day_index }}"
                         data-lesson="{{ lesson_index }}"
                         style="background-color: {{ lesson.color if lesson and lesson.color else '#FFFFFF' }};">
-                        
+
                         <div class="lesson-controls">
-                            <input type="text" 
+                            <input type="text"
                                    class="subject-input form-control"
-                                   placeholder="Название предмета"
+                                   placeholder="Предмет"
                                    value="{{ lesson.subject_name if lesson else '' }}"
                                    style="font-family: {{ lesson.font_family if lesson and lesson.font_family else 'Arial' }};">
-                            
+
                             <div class="link-section">
                                 <input type="url"
                                        class="lesson-link-input form-control"
@@ -101,19 +101,19 @@
                                        placeholder="Текст ссылки"
                                        value="{{ lesson.link_text if lesson and lesson.link_text else 'Перейти к уроку' }}">
                             </div>
-                            
+
                             <div class="style-controls">
                                 <select class="font-selector form-control">
                                     {% for font in available_fonts %}
-                                    <option value="{{ font.value }}" 
+                                    <option value="{{ font.value }}"
                                             {% if lesson and lesson.font_family == font.value %}selected{% endif %}>
                                         {{ font.name }}
                                     </option>
                                     {% endfor %}
                                 </select>
-                                
+
                                 <div class="color-control">
-                                    <input type="color" 
+                                    <input type="color"
                                            class="color-picker form-control"
                                            value="{{ lesson.color if lesson and lesson.color else '#B3E5FC' }}"
                                            list="colorPresets">

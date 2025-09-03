@@ -70,10 +70,10 @@ def create_app():
 
 def register_blueprints(app):
     """Регистрация всех blueprint'ов приложения"""
-    from app.routes import main_bp
+    from app.routes import main
     from app.auth import auth_bp
 
-    app.register_blueprint(main_bp)
+    app.register_blueprint(main)
     app.register_blueprint(auth_bp)
 
 

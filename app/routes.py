@@ -7,9 +7,9 @@ import json
 from datetime import datetime, timedelta
 
 # Создаем Blueprint с именем 'main'
-main_bp = Blueprint('main', __name__)
+main = Blueprint('main', __name__)
 
-@main_bp.app_template_filter('count_days')
+@main.app_template_filter('count_days')
 def count_days_filter(days_json):
     """Фильтр для подсчета дней из JSON строки"""
     try:
@@ -17,8 +17,6 @@ def count_days_filter(days_json):
         return len(days_list)
     except (json.JSONDecodeError, TypeError):
         return 0
-
-
 
 def calculate_lesson_times(start_time, duration_minutes, lessons_count):
     """Рассчитывает время начала и окончания каждого урока"""
@@ -38,7 +36,6 @@ def calculate_lesson_times(start_time, duration_minutes, lessons_count):
     except ValueError:
         # Если формат времени неверный, возвращаем простую нумерацию
         return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(lessons_count)]
-
 
 def get_day_display_name(day_code):
     """Безопасное получение отображаемого имени дня недели"""
@@ -64,16 +61,14 @@ def get_day_display_name(day_code):
     corrected_code = corrections.get(day_code, day_code)
     return day_mapping.get(corrected_code, f'День ({day_code})')
 
-
 # Главная страница
-@main_bp.route('/')
+@main.route('/')
 def index():
     """Главная страница приложения"""
     return render_template('index.html')
 
-
 # Панель управления пользователя
-@main_bp.route('/dashboard')
+@main.route('/dashboard')
 @login_required
 def dashboard():
     """Личный кабинет пользователя со списком расписаний"""
@@ -89,7 +84,7 @@ def dashboard():
     return render_template('dashboard.html', schedules=sorted_schedules)
 
 # Создание нового расписания
-@main_bp.route('/create-schedule', methods=['GET', 'POST'])
+@main.route('/create-schedule', methods=['GET', 'POST'])
 @login_required
 def create_schedule():
     """Страница создания нового расписания"""
@@ -97,11 +92,35 @@ def create_schedule():
 
     if form.validate_on_submit():
         try:
+            print(f"DEBUG: Form data - {form.data}")
+            print(f"DEBUG: Days of week data - {form.days_of_week.data}, type: {type(form.days_of_week.data)}")
+
+            # ИСПРАВЛЕНИЕ: Правильно обрабатываем строку с днями
+            if isinstance(form.days_of_week.data, str):
+                # Если это строка с разделителями, преобразуем в список
+                if ',' in form.days_of_week.data:
+                    days_list = form.days_of_week.data.split(',')
+                else:
+                    # Если это один день или JSON строка
+                    try:
+                        # Пробуем распарсить как JSON
+                        days_list = json.loads(form.days_of_week.data)
+                    except json.JSONDecodeError:
+                        # Если не JSON, создаем список из одного элемента
+                        days_list = [form.days_of_week.data]
+            else:
+                # Если это уже список
+                days_list = form.days_of_week.data
+
+            # Конвертируем в JSON строку
+            days_json = json.dumps(days_list)
+            print(f"DEBUG: Days JSON - {days_json}")
+
             # Создаем новое расписание
             schedule = Schedule(
                 title=form.title.data,
                 user_id=current_user.id,
-                days_of_week=json.dumps(form.days.data),
+                days_of_week=days_json,
                 lessons_per_day=form.lessons_per_day.data,
                 start_time=form.start_time.data,
                 lesson_duration=form.lesson_duration.data
@@ -115,24 +134,28 @@ def create_schedule():
 
         except Exception as e:
             db.session.rollback()
+            print(f"ERROR in create_schedule: {str(e)}")
+            import traceback
+            traceback.print_exc()
             flash(f'Ошибка при создании расписания: {str(e)}', 'danger')
 
     return render_template('create_schedule.html', form=form)
 
-
-# Редактирование расписания
-@main_bp.route('/schedule/<int:schedule_id>/edit')
+@main.route('/schedule/<int:schedule_id>/edit')
 @login_required
 def edit_schedule(schedule_id):
     """Страница редактирования расписания"""
     schedule = Schedule.query.get_or_404(schedule_id)
 
     # Проверяем, что пользователь имеет доступ к этому расписанию
-    if schedule.author != current_user:
+    if schedule.user_id != current_user.id:
         flash('У вас нет доступа к этому расписанию.', 'danger')
         return redirect(url_for('main.dashboard'))
 
-    days_list = json.loads(schedule.days_of_week)
+    try:
+        days_list = json.loads(schedule.days_of_week)
+    except (json.JSONDecodeError, TypeError):
+        days_list = ['mon', 'tue', 'wed', 'thu', 'fri']
 
     # Безопасное преобразование кодов дней в читаемые названия
     display_days = [get_day_display_name(day) for day in days_list]
@@ -158,9 +181,8 @@ def edit_schedule(schedule_id):
                            lessons=lessons,
                            available_fonts=AVAILABLE_FONTS)
 
-
 # Сохранение данных расписания (AJAX)
-@main_bp.route('/schedule/<int:schedule_id>/save', methods=['POST'])
+@main.route('/schedule/<int:schedule_id>/save', methods=['POST'])
 @login_required
 def save_schedule(schedule_id):
     """API endpoint для сохранения данных расписания"""
@@ -168,7 +190,7 @@ def save_schedule(schedule_id):
         schedule = Schedule.query.get_or_404(schedule_id)
 
         # Проверка прав доступа
-        if schedule.author != current_user:
+        if schedule.user_id != current_user.id:
             return jsonify({'success': False, 'error': 'Access denied'}), 403
 
         data = request.get_json()
@@ -176,9 +198,13 @@ def save_schedule(schedule_id):
         # Удаляем существующие уроки для этого расписания
         Lesson.query.filter_by(schedule_id=schedule_id).delete()
 
-        # Сохраняем новые данные
-        days_list = json.loads(schedule.days_of_week)
+        # Получаем дни недели из расписания, а не из формы
+        try:
+            days_list = json.loads(schedule.days_of_week)
+        except (json.JSONDecodeError, TypeError):
+            days_list = ['mon', 'tue', 'wed', 'thu', 'fri']  # Значение по умолчанию
 
+        # Сохраняем новые данные
         for day_index in range(len(days_list)):
             for lesson_index in range(schedule.lessons_per_day):
                 key = f"{day_index}_{lesson_index}"
@@ -204,20 +230,23 @@ def save_schedule(schedule_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
-
 # Просмотр расписания
-@main_bp.route('/schedule/<int:schedule_id>/view')
+@main.route('/schedule/<int:schedule_id>/view')
 @login_required
 def view_schedule(schedule_id):
     """Страница просмотра готового расписания"""
     schedule = Schedule.query.get_or_404(schedule_id)
 
     # Проверяем права доступа
-    if schedule.author != current_user:
+    if schedule.user_id != current_user.id:
         flash('У вас нет доступа к этому расписанию.', 'danger')
         return redirect(url_for('main.dashboard'))
 
-    days_list = json.loads(schedule.days_of_week)
+    try:
+        # ИСПРАВЛЕНО: days_list вместо days_list
+        days_list = json.loads(schedule.days_of_week)
+    except (json.JSONDecodeError, TypeError):
+        days_list = ['mon', 'tue', 'wed', 'thu', 'fri']  # Значение по умолчанию
 
     # Безопасное преобразование кодов дней
     display_days = [get_day_display_name(day) for day in days_list]
@@ -243,14 +272,14 @@ def view_schedule(schedule_id):
 
 
 # Удаление расписания
-@main_bp.route('/schedule/<int:schedule_id>/delete', methods=['POST'])
+@main.route('/schedule/<int:schedule_id>/delete', methods=['POST'])
 @login_required
 def delete_schedule(schedule_id):
     """Удаление расписания"""
     schedule = Schedule.query.get_or_404(schedule_id)
 
     # Проверяем права доступа
-    if schedule.author != current_user:
+    if schedule.user_id != current_user.id:  # Исправлено: user_id вместо author
         flash('У вас нет доступа к этому расписанию.', 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -268,9 +297,8 @@ def delete_schedule(schedule_id):
 
     return redirect(url_for('main.dashboard'))
 
-
 # Вход в систему
-@main_bp.route('/login', methods=['GET', 'POST'])
+@main.route('/login', methods=['GET', 'POST'])
 def login():
     """Вход в систему"""
     form = LoginForm()
@@ -284,9 +312,8 @@ def login():
             flash('Неверное имя пользователя или пароль.', 'danger')
     return render_template('login.html', form=form)
 
-
 # Регистрация
-@main_bp.route('/register', methods=['GET', 'POST'])
+@main.route('/register', methods=['GET', 'POST'])
 def register():
     """Регистрация нового пользователя"""
     form = RegistrationForm()
@@ -312,9 +339,8 @@ def register():
 
     return render_template('register.html', form=form)
 
-
 # Выход из системы
-@main_bp.route('/logout')
+@main.route('/logout')
 @login_required
 def logout():
     """Выход из системы"""
@@ -322,51 +348,44 @@ def logout():
     flash('Вы вышли из системы.', 'info')
     return redirect(url_for('main.index'))
 
-
 # Страница профиля
-@main_bp.route('/profile')
+@main.route('/profile')
 @login_required
 def profile():
     """Страница профиля пользователя"""
     return render_template('profile.html', user=current_user)
 
-
 # О программе
-@main_bp.route('/about')
+@main.route('/about')
 def about():
     """Страница о программе"""
     return render_template('about.html')
 
-
 # Помощь
-@main_bp.route('/help')
+@main.route('/help')
 def help():
     """Страница помощи"""
     return render_template('help.html')
 
-
 # Контакты
-@main_bp.route('/contact')
+@main.route('/contact')
 def contact():
     """Страница контактов"""
     return render_template('contact.html')
 
-
 # Обработчик ошибки 404
-@main_bp.app_errorhandler(404)
+@main.app_errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
 
-
 # Обработчик ошибки 500
-@main_bp.app_errorhandler(500)
+@main.app_errorhandler(500)
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
 
-
 # Health check
-@main_bp.route('/health')
+@main.route('/health')
 def health_check():
     """Проверка работоспособности приложения"""
     return jsonify({
@@ -375,26 +394,23 @@ def health_check():
         'timestamp': datetime.now().isoformat()
     })
 
-
 # Дополнительные маршруты для будущего использования
-@main_bp.route('/export-pdf/<int:schedule_id>')
+@main.route('/export-pdf/<int:schedule_id>')
 @login_required
 def export_pdf(schedule_id):
     """Экспорт в PDF (заглушка)"""
     flash('Функция экспорта в PDF будет реализована в ближайшее время.', 'info')
     return redirect(url_for('main.view_schedule', schedule_id=schedule_id))
 
-
-@main_bp.route('/sync-google/<int:schedule_id>')
+@main.route('/sync-google/<int:schedule_id>')
 @login_required
 def sync_google_calendar(schedule_id):
     """Синхронизация с Google Calendar (заглушка)"""
     flash('Функция синхронизации с Google Calendar будет реализована в ближайшее время.', 'info')
     return redirect(url_for('main.view_schedule', schedule_id=schedule_id))
 
-
 # Функция для исправления старых данных
-@main_bp.route('/fix-old-data')
+@main.route('/fix-old-data')
 @login_required
 def fix_old_data():
     """Исправление старых данных с опечаткой 'san'"""

@@ -2,7 +2,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
-from wtforms import ValidationError
+from wtforms import SelectMultipleField, widgets
+from datetime import datetime
+from app.models import User
 
 
 class LoginForm(FlaskForm):
@@ -27,19 +29,28 @@ class RegistrationForm(FlaskForm):
         # Валидация будет выполнена в роуте
         pass
 
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
 
 class ScheduleForm(FlaskForm):
-    title = StringField('Название расписания', validators=[DataRequired(), Length(max=100)])
+    title = StringField('Название расписания',
+                        validators=[DataRequired(), Length(max=100)])
 
-    days = SelectMultipleField('Дни недели', choices=[
-        ('mon', 'Понедельник'),
-        ('tue', 'Вторник'),
-        ('wed', 'Среда'),
-        ('thu', 'Четверг'),
-        ('fri', 'Пятница'),
-        ('sat', 'Суббота'),
-        ('sun', 'Воскресенье')
-    ], validators=[DataRequired()])
+    # Множественный выбор дней недели
+    days_of_week = MultiCheckboxField('Дни недели',
+                                      choices=[
+                                          ('mon', 'Понедельник'),
+                                          ('tue', 'Вторник'),
+                                          ('wed', 'Среда'),
+                                          ('thu', 'Четверг'),
+                                          ('fri', 'Пятница'),
+                                          ('sat', 'Суббота'),
+                                          ('sun', 'Воскресенье')
+                                      ],
+                                      validators=[DataRequired()],
+                                      default=['mon', 'tue', 'wed', 'thu', 'fri'])
 
     def validate_days(self, field):
         """Валидация выбранных дней недели"""
@@ -49,6 +60,22 @@ class ScheduleForm(FlaskForm):
                 raise ValidationError(f'Неверный день недели: {day}')
 
     lessons_per_day = IntegerField('Количество уроков в день', validators=[DataRequired()])
-    start_time = StringField('Время первого урока (например, 09:00)', validators=[DataRequired()])
+    start_time = SelectField('Время начала', choices=[], validators=[DataRequired()])
+    #end_time = SelectField('Время окончания', choices=[], validators=[DataRequired()])
     lesson_duration = IntegerField('Длительность урока (минуты)', validators=[DataRequired()])
     submit = SubmitField('Создать расписание')
+
+    def __init__(self, *args, **kwargs):
+        super(ScheduleForm, self).__init__(*args, **kwargs)
+        # Заполняем варианты времени
+        self.start_time.choices = self.get_time_choices()
+        #self.end_time.choices = self.get_time_choices()
+
+    def get_time_choices(self):
+        """Возвращает список времени с 8:00 до 20:45 с интервалом 5 минут"""
+        times = []
+        for hour in range(8, 21):
+            for minute in [0,5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]:
+                time_str = f"{hour:02d}:{minute:02d}"
+                times.append((time_str, time_str))
+        return times
