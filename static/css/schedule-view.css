@@ -1,57 +1,61 @@
-
 /* Стили для режима просмотра расписания */
 .schedule-view-container {
     background: white;
-    border-radius: 15px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    max-width: 100%;
 }
 
 .view-mode .schedule-table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    min-width: 600px; /* Уменьшили минимальную ширину */
 }
 
 .view-mode th {
     background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
     color: white;
-    padding: 15px;
+    padding: 10px 8px; /* Уменьшили отступы */
     text-align: center;
     font-weight: 600;
     border: 1px solid #dee2e6;
+    font-size: 0.9em; /* Уменьшили шрифт */
 }
 
 .view-mode .time-header {
-    width: 140px;
-    min-width: 140px;
+    width: 100px; /* Уже */
+    min-width: 100px;
 }
 
 .view-mode .day-header {
-    min-width: 180px;
+    min-width: 140px; /* Уже */
+    font-size: 0.85em;
 }
 
 .view-mode .time-cell {
     background: #f8f9fa;
-    padding: 15px;
+    padding: 10px 8px; /* Уменьшили отступы */
     text-align: center;
     border: 1px solid #dee2e6;
     font-weight: 600;
     color: #495057;
+    font-size: 0.85em;
 }
 
 .lesson-view-cell {
-    padding: 15px;
+    padding: 10px 8px; /* Уменьшили отступы */
     border: 1px solid #dee2e6;
     vertical-align: top;
-    min-height: 100px;
+    min-height: 80px; /* Ниже */
     transition: all 0.3s ease;
 }
 
 .lesson-view-cell:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.01); /* Более subtle эффект */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     z-index: 1;
 }
 
@@ -60,98 +64,240 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 4px; /* Добавили промежуток */
 }
 
 .subject-name {
     font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
+    font-size: 14px; /* Уменьшили шрифт */
+    margin-bottom: 6px;
     color: #2c3e50;
     word-break: break-word;
+    line-height: 1.2;
+}
+
+.lesson-meta {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 4px;
 }
 
 .lesson-link-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px; /* Уменьшили промежуток */
     margin-top: auto;
+    flex-wrap: wrap;
 }
 
 .lesson-link-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
+    gap: 4px; /* Уменьшили промежуток */
+    padding: 6px 10px; /* Уменьшили отступы */
     background-color: rgba(255, 255, 255, 0.9);
     color: #4CAF50;
     text-decoration: none;
-    border-radius: 6px;
-    font-size: 14px;
+    border-radius: 4px;
+    font-size: 12px; /* Уменьшили шрифт */
     transition: all 0.3s ease;
     border: 1px solid #4CAF50;
     flex-grow: 1;
+    min-width: 0;
 }
 
 .lesson-link-btn:hover {
     background-color: #4CAF50;
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .copy-link-btn {
-    padding: 8px;
+    padding: 6px; /* Уменьшили отступы */
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 12px;
 }
 
 .copy-link-btn:hover {
     background-color: #f0f0f0;
-    transform: scale(1.1);
+    transform: scale(1.05);
+}
+
+/* Обертка для горизонтальной прокрутки */
+.schedule-table-wrapper {
+    overflow-x: auto;
+    margin: 0 -10px;
+    padding: 0 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Индикатор прокрутки */
+.schedule-table-wrapper::after {
+    content: '← → Проведите для прокрутки';
+    display: block;
+    text-align: center;
+    font-size: 0.8em;
+    color: #666;
+    padding: 8px 0;
+    opacity: 0.7;
 }
 
 /* Адаптивность */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+    .view-mode .schedule-table {
+        min-width: 550px;
+    }
+    
     .view-mode .time-header {
-        width: 100px;
-        min-width: 100px;
+        width: 90px;
+        min-width: 90px;
+    }
+    
+    .view-mode .day-header {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .schedule-view-container {
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .view-mode .schedule-table {
+        min-width: 500px;
+    }
+
+    .view-mode .time-header {
+        width: 80px;
+        min-width: 80px;
+        padding: 8px 6px;
+        font-size: 0.8em;
     }
 
     .view-mode .day-header {
-        min-width: 140px;
+        min-width: 110px;
+        font-size: 0.8em;
+        padding: 8px 6px;
+    }
+    
+    .view-mode .time-cell {
+        padding: 8px 6px;
+        font-size: 0.8em;
+    }
+
+    .lesson-view-cell {
+        padding: 8px 6px;
+        min-height: 70px;
+    }
+    
+    .subject-name {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+    
+    .lesson-meta {
+        font-size: 0.75em;
     }
 
     .lesson-link-container {
-        flex-direction: column;
-        gap: 5px;
+        gap: 4px;
+        flex-direction: row; /* Оставляем в строку */
     }
 
     .lesson-link-btn {
+        font-size: 11px;
+        padding: 5px 8px;
+        gap: 3px;
+    }
+
+    .copy-link-btn {
+        padding: 5px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .view-mode .schedule-table {
+        min-width: 450px;
+    }
+    
+    .view-mode .time-header {
+        width: 70px;
+        min-width: 70px;
+    }
+    
+    .view-mode .day-header {
+        min-width: 100px;
+        font-size: 0.75em;
+    }
+    
+    .subject-name {
         font-size: 12px;
-        padding: 6px 10px;
+    }
+    
+    .lesson-link-btn {
+        font-size: 10px;
+        padding: 4px 6px;
     }
 }
 
 /* Анимации */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 .lesson-view-cell {
-    animation: fadeIn 0.5s ease;
+    animation: fadeIn 0.3s ease;
 }
 
-.lesson-view-cell:nth-child(even) {
-    animation-delay: 0.1s;
+/* Стили для печати */
+@media print {
+    .schedule-view-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .view-mode .schedule-table {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .lesson-link-btn {
+        background: none !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+    }
+    
+    .schedule-table-wrapper::after {
+        display: none;
+    }
 }
 
-.lesson-view-cell:nth-child(odd) {
-    animation-delay: 0.2s;
+/* Улучшенная компактность для содержимого */
+.compact-mode .lesson-view-cell {
+    padding: 6px 4px;
+    min-height: 60px;
 }
 
+.compact-mode .subject-name {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.compact-mode .lesson-meta {
+    font-size: 0.7em;
+}
+
+.compact-mode .lesson-link-btn {
+    padding: 4px 6px;
+    font-size: 10px;
+}
