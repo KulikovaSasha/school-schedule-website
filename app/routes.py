@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 # Создаем Blueprint с именем 'main'
 main = Blueprint('main', __name__)
 
+
 @main.app_template_filter('count_days')
 def count_days_filter(days_json):
     """Фильтр для подсчета дней из JSON строки"""
@@ -17,6 +18,7 @@ def count_days_filter(days_json):
         return len(days_list)
     except (json.JSONDecodeError, TypeError):
         return 0
+
 
 def calculate_lesson_times(start_time, duration_minutes, lessons_count):
     """Рассчитывает время начала и окончания каждого урока"""
@@ -36,6 +38,7 @@ def calculate_lesson_times(start_time, duration_minutes, lessons_count):
     except ValueError:
         # Если формат времени неверный, возвращаем простую нумерацию
         return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(lessons_count)]
+
 
 def get_day_display_name(day_code):
     """Безопасное получение отображаемого имени дня недели"""
@@ -61,11 +64,13 @@ def get_day_display_name(day_code):
     corrected_code = corrections.get(day_code, day_code)
     return day_mapping.get(corrected_code, f'День ({day_code})')
 
+
 # Главная страница
 @main.route('/')
 def index():
     """Главная страница приложения"""
     return render_template('index.html')
+
 
 # Панель управления пользователя
 @main.route('/dashboard')
@@ -82,6 +87,7 @@ def dashboard():
     )
 
     return render_template('dashboard.html', schedules=sorted_schedules)
+
 
 # Создание нового расписания
 @main.route('/create-schedule', methods=['GET', 'POST'])
@@ -141,6 +147,7 @@ def create_schedule():
 
     return render_template('create_schedule.html', form=form)
 
+
 @main.route('/schedule/<int:schedule_id>/edit')
 @login_required
 def edit_schedule(schedule_id):
@@ -166,12 +173,37 @@ def edit_schedule(schedule_id):
         schedule.lessons_per_day
     )
 
-    # Загружаем существующие уроки если они есть
+    # Загружаем существующие уроки если они есть и преобразуем в словари
     lessons = {}
     existing_lessons = Lesson.query.filter_by(schedule_id=schedule_id).all()
     for lesson in existing_lessons:
         key = f"{lesson.day_index}_{lesson.lesson_index}"
-        lessons[key] = lesson
+        lessons[key] = {
+            'subject_name': lesson.subject_name,
+            'color': lesson.color,
+            'lesson_link': lesson.lesson_link,
+            'link_text': lesson.link_text,
+            'font_family': lesson.font_family
+        }
+
+    # Список доступных предметов для красивого выбора
+    available_subjects = [
+        "Математика", "Русский язык", "Литература", "История", "Обществознание",
+        "География", "Биология", "Физика", "Химия", "Информатика",
+        "Английский язык", "Немецкий язык", "Французский язык", "Испанский язык",
+        "Физкультура", "ОБЖ", "Технология", "ИЗО", "Музыка", "МХК",
+        "Астрономия", "Экономика", "Право", "Психология", "Экология",
+        "Черчение", "Робототехника", "Программирование", "Веб-дизайн",
+        "Основы предпринимательства", "Финансовая грамотность", "Краеведение"
+    ]
+
+    # Популярные цвета для уроков
+    popular_colors = [
+        "#FF6B6B", "#4ECDC4", "#45B7D1", "#F9A826", "#6C5CE7",
+        "#FD79A8", "#00B894", "#FDCB6E", "#E17055", "#546DE5",
+        "#D63031", "#00CEC9", "#FAB1A0", "#74B9FF", "#A29BFE",
+        "#FFEAA7", "#B2BEC3", "#636E72", "#2D3436", "#FFFFFF"
+    ]
 
     return render_template('edit_schedule.html',
                            schedule=schedule,
@@ -179,33 +211,29 @@ def edit_schedule(schedule_id):
                            day_codes=days_list,
                            lesson_times=lesson_times,
                            lessons=lessons,
+                           available_subjects=available_subjects,
+                           popular_colors=popular_colors,
                            available_fonts=AVAILABLE_FONTS)
 
-# Сохранение данных расписания (AJAX)
+
 @main.route('/schedule/<int:schedule_id>/save', methods=['POST'])
 @login_required
 def save_schedule(schedule_id):
-    print(f"DEBUG: Save request received for schedule {schedule_id}")
-
+    """Сохранение данных расписания"""
     try:
         schedule = Schedule.query.get_or_404(schedule_id)
-        print(f"DEBUG: Schedule found: {schedule.title}")
 
         # Проверка прав доступа
         if schedule.user_id != current_user.id:
-            print("DEBUG: Access denied")
-            return jsonify({'success': False, 'error': 'Access denied'}), 403
+            return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
 
         data = request.get_json()
-        print(f"DEBUG: Received data for {len(data) if data else 0} lessons")
 
         if not data:
-            print("DEBUG: No data provided")
-            return jsonify({'success': False, 'error': 'No data provided'}), 400
+            return jsonify({'success': False, 'error': 'Нет данных для сохранения'}), 400
 
         # Удаляем существующие уроки
-        deleted_count = Lesson.query.filter_by(schedule_id=schedule_id).delete()
-        print(f"DEBUG: Deleted {deleted_count} existing lessons")
+        Lesson.query.filter_by(schedule_id=schedule_id).delete()
 
         # Получаем дни недели из расписания
         try:
@@ -213,39 +241,92 @@ def save_schedule(schedule_id):
         except (json.JSONDecodeError, TypeError):
             days_list = ['mon', 'tue', 'wed', 'thu', 'fri']
 
-        # Сохраняем новые данные
-        new_lessons_count = 0
-        for day_index in range(len(days_list)):
-            for lesson_index in range(schedule.lessons_per_day):
-                key = f"{day_index}_{lesson_index}"
-                cell_data = data.get(key, {})
+        # Сохраняем новые уроки
+        for key, lesson_data in data.items():
+            if '_' in key:
+                day_index, lesson_index = map(int, key.split('_'))
 
                 lesson = Lesson(
                     schedule_id=schedule_id,
                     day_index=day_index,
                     lesson_index=lesson_index,
-                    subject_name=cell_data.get('subject', ''),
-                    lesson_link=cell_data.get('link', ''),
-                    link_text=cell_data.get('link_text', 'Перейти к уроку'),
-                    font_family=cell_data.get('font', 'Bookman Old Style'),
-                    color=cell_data.get('color', '#FFFFFF')
+                    subject_name=lesson_data.get('subject_name', ''),
+                    color=lesson_data.get('color', '#FFFFFF'),
+                    lesson_link=lesson_data.get('lesson_link', ''),
+                    link_text=lesson_data.get('link_text', ''),
+                    font_family=lesson_data.get('font_family', 'Bookman Old Style')
                 )
-
                 db.session.add(lesson)
-                new_lessons_count += 1
 
         db.session.commit()
-        print(f"DEBUG: Successfully saved {new_lessons_count} lessons")
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'message': 'Расписание сохранено'})
 
     except Exception as e:
         db.session.rollback()
         print(f"ERROR in save_schedule: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# Обновление отдельного урока (AJAX)
+@main.route('/schedule/<int:schedule_id>/update_lesson', methods=['POST'])
+@login_required
+def update_lesson(schedule_id):
+    """Обновление отдельного урока"""
+    try:
+        schedule = Schedule.query.get_or_404(schedule_id)
+
+        # Проверка прав доступа
+        if schedule.user_id != current_user.id:
+            return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
+
+        data = request.get_json()
+        day_index = data.get('day_index')
+        lesson_index = data.get('lesson_index')
+        subject_name = data.get('subject_name', '').strip()
+        color = data.get('color', '#FFFFFF')
+        lesson_link = data.get('lesson_link', '').strip()
+        link_text = data.get('link_text', '').strip()
+
+        # Валидация данных
+        if day_index is None or lesson_index is None:
+            return jsonify({'success': False, 'error': 'Не указаны индексы дня и урока'}), 400
+
+        # Проверяем существование урока
+        lesson = Lesson.query.filter_by(
+            schedule_id=schedule_id,
+            day_index=day_index,
+            lesson_index=lesson_index
+        ).first()
+
+        if lesson:
+            # Обновляем существующий урок
+            lesson.subject_name = subject_name
+            lesson.color = color
+            lesson.lesson_link = lesson_link
+            lesson.link_text = link_text
+        else:
+            # Создаем новый урок
+            lesson = Lesson(
+                schedule_id=schedule_id,
+                day_index=day_index,
+                lesson_index=lesson_index,
+                subject_name=subject_name,
+                color=color,
+                lesson_link=lesson_link,
+                link_text=link_text,
+                font_family='Bookman Old Style'  # Значение по умолчанию
+            )
+            db.session.add(lesson)
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Урок успешно сохранен'})
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR in update_lesson: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 # Просмотр расписания
@@ -261,7 +342,6 @@ def view_schedule(schedule_id):
         return redirect(url_for('main.dashboard'))
 
     try:
-        # ИСПРАВЛЕНО: days_list вместо days_list
         days_list = json.loads(schedule.days_of_week)
     except (json.JSONDecodeError, TypeError):
         days_list = ['mon', 'tue', 'wed', 'thu', 'fri']  # Значение по умолчанию
@@ -275,12 +355,18 @@ def view_schedule(schedule_id):
         schedule.lessons_per_day
     )
 
-    # Загружаем уроки
+    # Загружаем уроки и преобразуем в словари
     lessons = {}
     existing_lessons = Lesson.query.filter_by(schedule_id=schedule_id).all()
     for lesson in existing_lessons:
         key = f"{lesson.day_index}_{lesson.lesson_index}"
-        lessons[key] = lesson
+        lessons[key] = {
+            'subject_name': lesson.subject_name,
+            'color': lesson.color,
+            'lesson_link': lesson.lesson_link,
+            'link_text': lesson.link_text,
+            'font_family': lesson.font_family
+        }
 
     current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
 
@@ -318,6 +404,7 @@ def delete_schedule(schedule_id):
 
     return redirect(url_for('main.dashboard'))
 
+
 # Вход в систему
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -332,6 +419,7 @@ def login():
         else:
             flash('Неверное имя пользователя или пароль.', 'danger')
     return render_template('login.html', form=form)
+
 
 # Регистрация
 @main.route('/register', methods=['GET', 'POST'])
@@ -360,6 +448,7 @@ def register():
 
     return render_template('register.html', form=form)
 
+
 # Выход из системы
 @main.route('/logout')
 @login_required
@@ -369,6 +458,7 @@ def logout():
     flash('Вы вышли из системы.', 'info')
     return redirect(url_for('main.index'))
 
+
 # Страница профиля
 @main.route('/profile')
 @login_required
@@ -376,11 +466,13 @@ def profile():
     """Страница профиля пользователя"""
     return render_template('profile.html', user=current_user)
 
+
 # О программе
 @main.route('/about')
 def about():
     """Страница о программе"""
     return render_template('about.html')
+
 
 # Помощь
 @main.route('/help')
@@ -388,22 +480,26 @@ def help():
     """Страница помощи"""
     return render_template('help.html')
 
+
 # Контакты
 @main.route('/contact')
 def contact():
     """Страница контактов"""
     return render_template('contact.html')
 
+
 # Обработчик ошибки 404
 @main.app_errorhandler(404)
 def not_found_error(error):
     return render_template('404.html'), 404
+
 
 # Обработчик ошибки 500
 @main.app_errorhandler(500)
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
 
 # Health check
 @main.route('/health')
@@ -415,6 +511,7 @@ def health_check():
         'timestamp': datetime.now().isoformat()
     })
 
+
 # Дополнительные маршруты для будущего использования
 @main.route('/export-pdf/<int:schedule_id>')
 @login_required
@@ -423,12 +520,14 @@ def export_pdf(schedule_id):
     flash('Функция экспорта в PDF будет реализована в ближайшее время.', 'info')
     return redirect(url_for('main.view_schedule', schedule_id=schedule_id))
 
+
 @main.route('/sync-google/<int:schedule_id>')
 @login_required
 def sync_google_calendar(schedule_id):
     """Синхронизация с Google Calendar (заглушка)"""
     flash('Функция синхронизации с Google Calendar будет реализована в ближайшее время.', 'info')
     return redirect(url_for('main.view_schedule', schedule_id=schedule_id))
+
 
 # Функция для исправления старых данных
 @main.route('/fix-old-data')
