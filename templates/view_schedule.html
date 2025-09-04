@@ -93,8 +93,20 @@
     font-weight: bold;
 }
 
+.btn-pdf {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
 .btn-print:hover {
     background: linear-gradient(45deg, #218838, #1aa179);
+    transform: translateY(-2px);
+}
+
+.btn-pdf:hover {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
     transform: translateY(-2px);
 }
 
@@ -192,6 +204,146 @@
         background-image: none !important;
     }
 }
+
+/* Специальный контейнер для PDF с улучшенным дизайном */
+.pdf-container {
+    display: none;
+}
+
+.pdf-style {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 15px;
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pdf-header {
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.pdf-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.pdf-subtitle {
+    font-size: 12px;
+    opacity: 0.9;
+    margin: 3px 0 0 0;
+}
+
+.pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 15px 0;
+    font-size: 11px;
+}
+
+.pdf-table th {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 8px 4px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    height: 30px;
+}
+
+.pdf-table td {
+    padding: 6px 3px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    font-size: 10px;
+    font-weight: 500;
+    height: 35px;
+    vertical-align: middle;
+    line-height: 1.2;
+}
+
+.pdf-time-header {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    font-weight: 600 !important;
+    width: 60px;
+}
+
+.pdf-day-header {
+    background: linear-gradient(135deg, #27ae60, #229954) !important;
+}
+
+.pdf-time-cell {
+    background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    width: 60px;
+}
+
+.pdf-lesson-cell {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.pdf-footer {
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 10px;
+    color: #6c757d;
+}
+
+.pdf-watermark {
+    position: absolute;
+    opacity: 0.03;
+    font-size: 80px;
+    font-weight: bold;
+    color: #000;
+    pointer-events: none;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* Компактные стили для PDF */
+.pdf-compact .pdf-table th,
+.pdf-compact .pdf-table td {
+    padding: 4px 2px;
+    font-size: 9px;
+    height: 28px;
+}
+
+.pdf-compact .pdf-title {
+    font-size: 18px;
+}
+
+.pdf-compact .pdf-subtitle {
+    font-size: 10px;
+}
+
+.pdf-compact .pdf-header {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.pdf-compact .pdf-footer {
+    padding: 8px;
+    margin-top: 10px;
+}
 </style>
 {% endblock %}
 
@@ -241,6 +393,59 @@
         </table>
     </div>
 
+    <!-- Контейнер для PDF с улучшенным дизайном -->
+    <div id="pdfContainer" class="pdf-container pdf-compact">
+        <div class="pdf-style">
+            <div class="pdf-header">
+                <h1 class="pdf-title">📚 Расписание занятий</h1>
+                <div class="pdf-subtitle">{{ schedule.title }} | {{ current_time }}</div>
+            </div>
+
+            <div class="pdf-watermark">{{ schedule.title }}</div>
+
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th class="pdf-time-header">⏰ Время</th>
+                        {% for day in days %}
+                        <th class="pdf-day-header">{{ day[:3] }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson_index in range(schedule.lessons_per_day) %}
+                    <tr>
+                        <td class="pdf-time-cell">
+                            {{ lesson_times[lesson_index]['start'] }}<br>-<br>{{ lesson_times[lesson_index]['end'] }}
+                        </td>
+
+                        {% for day_index in range(days|length) %}
+                        {% set lesson_key = day_index ~ '_' ~ lesson_index %}
+                        {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
+
+                        <td class="pdf-lesson-cell"
+                            style="background: {% if lesson and lesson.color %}linear-gradient(135deg, {{ lesson.color }}, {{ lesson.color }}99){% else %}#f8f9fa{% endif %} !important;
+                                   color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 160 %}#000000{% else %}#ffffff{% endif %}{% else %}#000000{% endif %} !important;
+                                   border: 1px solid #e0e0e0 !important;">
+                            {% if lesson and lesson.subject_name %}
+                                <strong>{{ lesson.subject_name }}</strong>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="pdf-footer">
+                <div>Дни: {{ days|join(', ') }}</div>
+                <div>Уроков: {{ schedule.lessons_per_day }} | Начало: {{ schedule.start_time }}</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Основной контент для экрана -->
     <div class="schedule-header">
         <h2>📋 {{ schedule.title }}</h2>
@@ -248,11 +453,11 @@
             <button onclick="printSchedule()" class="btn btn-print">
                 <i class="fas fa-print"></i> Печать
             </button>
+            <button onclick="downloadPDF()" class="btn btn-pdf">
+                <i class="fas fa-file-pdf"></i> Скачать PDF
+            </button>
             <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Редактировать
-            </a>
-            <a href="{{ url_for('main.export_pdf', schedule_id=schedule.id) }}" class="btn btn-secondary">
-                <i class="fas fa-download"></i> Скачать PDF
             </a>
             <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline">
                 <i class="fas fa-arrow-left"></i> Назад
@@ -334,7 +539,91 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Подключаем библиотеку jsPDF и html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
+// Инициализация jsPDF
+const { jsPDF } = window.jspdf;
+
+// Функция для скачивания PDF
+function downloadPDF() {
+    console.log('Генерация компактного PDF...');
+
+    // Показываем контейнер для PDF временно
+    const pdfContainer = document.getElementById('pdfContainer');
+    const originalDisplay = pdfContainer.style.display;
+    pdfContainer.style.display = 'block';
+
+    // Устанавливаем фиксированную ширину для компактности
+    pdfContainer.style.width = '900px';
+
+    // Используем html2canvas для создания изображения с высоким качеством
+    html2canvas(pdfContainer, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        width: 900,
+        windowWidth: 900,
+        onclone: function(clonedDoc) {
+            const clonedContainer = clonedDoc.getElementById('pdfContainer');
+            if (clonedContainer) {
+                clonedContainer.style.display = 'block';
+                clonedContainer.style.width = '900px';
+            }
+        }
+    }).then(canvas => {
+        // Скрываем контейнер обратно и восстанавливаем стили
+        pdfContainer.style.display = originalDisplay;
+        pdfContainer.style.width = '';
+
+        // Создаем PDF с улучшенными настройками
+        const imgData = canvas.toDataURL('image/jpeg', 0.9);
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        // Рассчитываем размеры изображения для PDF
+        const imgWidth = pdfWidth - 10; // Минимальные отступы
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        // Проверяем, помещается ли на одну страницу
+        if (imgHeight <= pdfHeight - 10) {
+            // Помещается на одну страницу
+            pdf.addImage(imgData, 'JPEG', 5, 5, imgWidth, imgHeight);
+        } else {
+            // Не помещается - уменьшаем масштаб
+            const scaleFactor = (pdfHeight - 10) / imgHeight;
+            pdf.addImage(imgData, 'JPEG', 5, 5, imgWidth * scaleFactor, imgHeight * scaleFactor);
+        }
+
+        // Добавляем метаданные
+        pdf.setProperties({
+            title: 'Расписание: {{ schedule.title }}',
+            subject: 'Расписание занятий',
+            author: 'School Schedule App'
+        });
+
+        // Сохраняем PDF
+        const fileName = `Расписание - {{ schedule.title }}.pdf`;
+        pdf.save(fileName);
+
+    }).catch(error => {
+        console.error('Ошибка при создании PDF:', error);
+        pdfContainer.style.display = originalDisplay;
+        pdfContainer.style.width = '';
+        alert('Ошибка при создании PDF файла');
+    });
+}
+
 // Функция для печати расписания
 function printSchedule() {
     console.log('Печать расписания...');
@@ -359,19 +648,19 @@ function printSchedule() {
             <title>Расписание: {{ schedule.title }}</title>
             <style>
                 body {
-                    font-family: Bookman Old Style, sans-serif;
-                    margin: 20px;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    margin: 15px;
                     background: white;
                 }
                 .print-table {
                     width: 100%;
                     border: 2px solid #000;
                     border-collapse: collapse;
-                    font-size: 12px;
+                    font-size: 11px;
                 }
                 .print-table th, .print-table td {
                     border: 1px solid #000;
-                    padding: 8px;
+                    padding: 6px;
                     text-align: center;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
@@ -386,14 +675,14 @@ function printSchedule() {
                 }
                 .print-header {
                     text-align: center;
-                    margin-bottom: 20px;
-                    font-size: 18px;
+                    margin-bottom: 15px;
+                    font-size: 16px;
                     font-weight: bold;
                 }
                 .print-date {
-                    font-size: 12px;
+                    font-size: 11px;
                     color: #666;
-                    margin-top: 5px;
+                    margin-top: 3px;
                 }
                 * {
                     -webkit-print-color-adjust: exact;
@@ -435,11 +724,16 @@ function copyLinkToClipboard(link) {
     });
 }
 
-// Подсказка для кнопки печати
+// Подсказка для кнопок
 document.addEventListener('DOMContentLoaded', function() {
     const printBtn = document.querySelector('.btn-print');
+    const pdfBtn = document.querySelector('.btn-pdf');
+
     if (printBtn) {
         printBtn.title = 'Печать (Ctrl+P)';
+    }
+    if (pdfBtn) {
+        pdfBtn.title = 'Скачать в формате PDF';
     }
 });
 </script>
