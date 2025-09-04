@@ -19,7 +19,7 @@
 }
 
 .schedule-table th {
-    background: linear-gradient(45deg, #4a6fa5, #2c4d7a);
+    background: linear-gradient(45deg, #4a6fa5, #ffffff);
     color: white;
     padding: 12px;
     text-align: center;
@@ -34,7 +34,7 @@
 }
 
 .time-cell {
-    background: linear-gradient(45deg, #6c757d, #495057);
+    background: linear-gradient(45deg, #ffffff, #dcdddd);
     color: white;
     font-weight: bold;
     border: 1px solid #dee2e6;
@@ -226,7 +226,7 @@
                     {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
 
                     <td style="background-color: {{ lesson.color if lesson else '#FFFFFF' }} !important;
-                              color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 128 %}#000000{% else %}#FFFFFF{% endif %}{% else %}#000000{% endif %} !important;
+                              color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 128 %}#000000{% else %}#000000{% endif %}{% else %}#000000{% endif %} !important;
                               -webkit-print-color-adjust: exact !important;
                               print-color-adjust: exact !important;
                               border: 1px solid #000 !important;">
@@ -377,11 +377,11 @@ function printSchedule() {
                     print-color-adjust: exact;
                 }
                 .print-time-header, .print-day-header {
-                    background: #d3d3d3;
+                    background: #f6effd;
                     font-weight: bold;
                 }
                 .print-time-cell {
-                    background: #b0b0b0;
+                    background: #d7e3fe;
                     font-weight: bold;
                 }
                 .print-header {
