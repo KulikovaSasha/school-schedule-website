@@ -634,3 +634,34 @@ def change_password():
         db.session.rollback()
         flash('Ошибка при изменении пароля', 'error')
         return redirect(url_for('main.user_profile'))
+
+
+@main.route('/schedule/<int:schedule_id>/update_title', methods=['POST'])
+@login_required
+def update_schedule_title(schedule_id):
+    """Обновление названия расписания"""
+    try:
+        schedule = Schedule.query.get_or_404(schedule_id)
+
+        # Проверка прав доступа
+        if schedule.user_id != current_user.id:
+            return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
+
+        data = request.get_json()
+        new_title = data.get('title', '').strip()
+
+        if not new_title:
+            return jsonify({'success': False, 'error': 'Название не может быть пустым'}), 400
+
+        if len(new_title) > 100:
+            return jsonify({'success': False, 'error': 'Название слишком длинное'}), 400
+
+        schedule.title = new_title
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': 'Название сохранено'})
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR in update_schedule_title: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500

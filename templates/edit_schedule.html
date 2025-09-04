@@ -17,6 +17,7 @@
     border-radius: 15px;
     margin-bottom: 25px;
     box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    position: relative;
 }
 
 .schedule-title {
@@ -24,6 +25,73 @@
     font-weight: bold;
     margin: 0;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.title-text {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.title-text:hover {
+    opacity: 0.8;
+}
+
+.title-edit-form {
+    display: none;
+    gap: 10px;
+    align-items: center;
+}
+
+.title-input {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #2c3e50;
+    min-width: 300px;
+    transition: all 0.3s ease;
+}
+
+.title-input:focus {
+    outline: none;
+    border-color: white;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.title-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.title-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.title-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.title-btn.save {
+    background: rgba(40, 167, 69, 0.8);
+}
+
+.title-btn.cancel {
+    background: rgba(220, 53, 69, 0.8);
 }
 
 .schedule-actions {
@@ -384,22 +452,33 @@
     .schedule-actions {
         flex-direction: column;
     }
-    
+
     .btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .edit-table {
         font-size: 12px;
     }
-    
+
     .time-cell, .time-header {
         width: 80px;
     }
-    
+
     .lesson-content {
         padding: 8px;
+    }
+
+    .schedule-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .title-input {
+        min-width: 200px;
+        font-size: 1.5em;
     }
 }
 
@@ -438,8 +517,25 @@
 {% block content %}
 <div class="edit-container">
     <div class="schedule-header">
-        <h1 class="schedule-title">✏️ Редактирование: {{ schedule.title }}</h1>
-        
+        <h1 class="schedule-title">
+            <span class="title-text" onclick="enableTitleEdit()" title="Кликните для редактирования названия">
+                ✏️ {{ schedule.title }}
+            </span>
+
+            <div class="title-edit-form" id="titleEditForm">
+                <input type="text" id="titleInput" class="title-input" value="{{ schedule.title }}"
+                       placeholder="Введите название расписания" maxlength="100">
+                <div class="title-buttons">
+                    <button type="button" class="title-btn save" onclick="saveTitle()">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" class="title-btn cancel" onclick="cancelTitleEdit()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </h1>
+
         <div class="schedule-actions">
             <button onclick="saveSchedule()" class="btn btn-success">
                 <i class="fas fa-save"></i> Сохранить расписание
@@ -524,28 +620,28 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h3>📝 Редактирование урока</h3>
-            
+
             <form id="lessonForm">
                 <input type="hidden" id="editDayIndex" name="day_index">
                 <input type="hidden" id="editLessonIndex" name="lesson_index">
-                
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="subjectName">Предмет:</label>
-                        <input type="text" id="subjectName" class="form-control" 
+                        <input type="text" id="subjectName" class="form-control"
                                list="subjectsList" placeholder="Выберите или введите предмет" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="subjectColor">Цвет фона:</label>
                         <div class="color-picker-group">
                             <input type="color" id="subjectColor" class="color-preview">
-                            <input type="text" id="colorHex" class="form-control" placeholder="#FFFFFF" 
+                            <input type="text" id="colorHex" class="form-control" placeholder="#FFFFFF"
                                    pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
                         </div>
                         <div class="color-options">
                             {% for color in popular_colors %}
-                            <div class="color-option" style="background-color: {{ color }}" 
+                            <div class="color-option" style="background-color: {{ color }}"
                                  data-color="{{ color }}" onclick="setColor('{{ color }}')"></div>
                             {% endfor %}
                         </div>
@@ -555,13 +651,13 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="lessonLink">Ссылка на урок:</label>
-                        <input type="url" id="lessonLink" class="form-control" 
+                        <input type="url" id="lessonLink" class="form-control"
                                placeholder="https://example.com">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="linkText">Текст ссылки:</label>
-                        <input type="text" id="linkText" class="form-control" 
+                        <input type="text" id="linkText" class="form-control"
                                placeholder="Перейти к уроку">
                     </div>
                 </div>
@@ -590,6 +686,7 @@
 let lessonsData = {{ lessons|tojson }};
 let currentEditingCell = null;
 const popularColors = {{ popular_colors|tojson }};
+let originalTitle = "{{ schedule.title }}";
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
@@ -601,11 +698,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeColorPicker() {
     const colorInput = document.getElementById('subjectColor');
     const hexInput = document.getElementById('colorHex');
-    
+
     colorInput.addEventListener('input', function() {
         hexInput.value = this.value;
     });
-    
+
     hexInput.addEventListener('input', function() {
         if (this.value.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
             colorInput.value = this.value;
@@ -636,9 +733,77 @@ function setupEventListeners() {
         saveLesson();
     });
 
-    // Горячая клавиша Escape
+    // Горячие клавиши
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') closeModal();
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveSchedule();
+        }
+    });
+}
+
+// Редактирование названия расписания
+function enableTitleEdit() {
+    const titleText = document.querySelector('.title-text');
+    const titleForm = document.getElementById('titleEditForm');
+    const titleInput = document.getElementById('titleInput');
+
+    titleText.style.display = 'none';
+    titleForm.style.display = 'flex';
+    titleInput.focus();
+    titleInput.select();
+}
+
+function cancelTitleEdit() {
+    const titleText = document.querySelector('.title-text');
+    const titleForm = document.getElementById('titleEditForm');
+    const titleInput = document.getElementById('titleInput');
+
+    titleInput.value = originalTitle;
+    titleForm.style.display = 'none';
+    titleText.style.display = 'block';
+}
+
+function saveTitle() {
+    const titleInput = document.getElementById('titleInput');
+    const newTitle = titleInput.value.trim();
+
+    if (!newTitle) {
+        showNotification('Название расписания не может быть пустым', 'error');
+        return;
+    }
+
+    if (newTitle === originalTitle) {
+        cancelTitleEdit();
+        return;
+    }
+
+    // Сохраняем название на сервере
+    fetch('{{ url_for("main.update_schedule_title", schedule_id=schedule.id) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ title: newTitle })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            originalTitle = newTitle;
+            document.querySelector('.title-text').textContent = '✏️ ' + newTitle;
+            cancelTitleEdit();
+            showNotification('Название расписания сохранено', 'success');
+        } else {
+            showNotification('Ошибка при сохранении названия: ' + data.error, 'error');
+            titleInput.value = originalTitle;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Ошибка при сохранении названия', 'error');
+        titleInput.value = originalTitle;
     });
 }
 
@@ -647,10 +812,10 @@ function openEditModal(cell) {
     currentEditingCell = cell;
     const dayIndex = cell.getAttribute('data-day');
     const lessonIndex = cell.getAttribute('data-lesson');
-    
+
     const lessonKey = `${dayIndex}_${lessonIndex}`;
     const currentLesson = lessonsData[lessonKey] || {};
-    
+
     // Заполняем форму
     document.getElementById('editDayIndex').value = dayIndex;
     document.getElementById('editLessonIndex').value = lessonIndex;
@@ -660,7 +825,7 @@ function openEditModal(cell) {
     document.getElementById('lessonLink').value = currentLesson.lesson_link || '';
     document.getElementById('linkText').value = currentLesson.link_text || '';
     document.getElementById('fontFamily').value = currentLesson.font_family || 'Bookman Old Style';
-    
+
     document.getElementById('editModal').style.display = 'block';
 }
 
@@ -685,12 +850,12 @@ function saveLesson() {
     const lessonLink = document.getElementById('lessonLink').value;
     const linkText = document.getElementById('linkText').value;
     const fontFamily = document.getElementById('fontFamily').value;
-    
+
     if (!subjectName.trim()) {
         showNotification('Пожалуйста, введите название предмета', 'error');
         return;
     }
-    
+
     const lessonKey = `${dayIndex}_${lessonIndex}`;
     lessonsData[lessonKey] = {
         subject_name: subjectName,
@@ -699,13 +864,13 @@ function saveLesson() {
         link_text: linkText,
         font_family: fontFamily
     };
-    
+
     // Обновляем интерфейс
     if (currentEditingCell) {
         const lessonContent = currentEditingCell.querySelector('.lesson-content');
         const brightness = calculateBrightness(color);
         const textColor = brightness > 160 ? '#000000' : '#ffffff';
-        
+
         lessonContent.style.backgroundColor = color;
         lessonContent.style.color = textColor;
         lessonContent.innerHTML = `
@@ -715,29 +880,29 @@ function saveLesson() {
             </a>` : ''}
         `;
     }
-    
+
     showNotification('Урок сохранен! Не забудьте сохранить всё расписание.', 'success');
     closeModal();
 }
 
-// Расчет яркости цвета для определения цвета текста
+// Расчет яркости цвета
 function calculateBrightness(hex) {
     hex = hex.replace('#', '');
     if (hex.length === 3) {
         hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
     }
-    
+
     const r = parseInt(hex.substr(0, 2), 16);
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
-    
+
     return (r * 299 + g * 587 + b * 114) / 1000;
 }
 
 // Сохранение всего расписания
 function saveSchedule() {
     showNotification('Сохранение расписания...', 'success');
-    
+
     fetch('{{ url_for("main.save_schedule", schedule_id=schedule.id) }}', {
         method: 'POST',
         headers: {
@@ -750,7 +915,6 @@ function saveSchedule() {
     .then(data => {
         if (data.success) {
             showNotification('Расписание успешно сохранено!', 'success');
-            // Обновляем страницу через 2 секунды
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
@@ -766,36 +930,20 @@ function saveSchedule() {
 
 // Показать уведомление
 function showNotification(message, type) {
-    // Удаляем предыдущие уведомления
     document.querySelectorAll('.notification').forEach(notif => notif.remove());
-    
+
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(notification);
-    
-    // Автоматическое скрытие через 5 секунд
+
     setTimeout(() => {
         notification.remove();
     }, 5000);
 }
-
-// Горячие клавиши
-document.addEventListener('keydown', function(e) {
-    // Ctrl+S для сохранения
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        saveSchedule();
-    }
-    
-    // Escape для закрытия модального окна
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
 </script>
 {% endblock %}
