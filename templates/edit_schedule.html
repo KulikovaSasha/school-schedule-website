@@ -89,12 +89,12 @@
                                    class="subject-input form-control"
                                    placeholder="Предмет"
                                    value="{{ lesson.subject_name if lesson else '' }}"
-                                   style="font-family: {{ lesson.font_family if lesson and lesson.font_family else 'Arial' }};">
+                                   style="font-family: {{ lesson.font_family if lesson and lesson.font_family else 'Bookman Old Style' }};">
 
                             <div class="link-section">
                                 <input type="url"
                                        class="lesson-link-input form-control"
-                                       placeholder="https://meet.google.com/abc-def-ghi"
+                                       placeholder="Ссылка на урок"
                                        value="{{ lesson.lesson_link if lesson else '' }}">
                                 <input type="text"
                                        class="link-text-input form-control"

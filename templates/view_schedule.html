@@ -63,7 +63,7 @@
                     <td class="lesson-view-cell" style="background-color: {{ lesson.color if lesson else '#FFFFFF' }};">
                         {% if lesson and lesson.subject_name %}
                         <div class="lesson-content">
-                            <div class="subject-name" style="font-family: {{ lesson.font_family if lesson.font_family else 'Arial' }}">
+                            <div class="subject-name" style="font-family: {{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}">
                                 {{ lesson.subject_name }}
                             </div>
                             
@@ -97,4 +97,3 @@
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/schedule-view.js') }}"></script>
 {% endblock %}
-

@@ -158,7 +158,7 @@
                 subject: subjectInput?.value || '',
                 link: linkInput?.value || '',
                 link_text: linkTextInput?.value || 'Перейти к уроку',
-                font: fontSelector?.value || 'Arial',
+                font: fontSelector?.value || 'Bookman Old Style',
                 color: colorPicker?.value || '#FFFFFF'
             };
         });

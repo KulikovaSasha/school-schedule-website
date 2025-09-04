@@ -66,7 +66,7 @@ class Lesson(db.Model):
     lesson_index = db.Column(db.Integer)
     subject_name = db.Column(db.String(100))
     color = db.Column(db.String(7), default='#FFFFFF')
-    font_family = db.Column(db.String(50), default='Arial')
+    font_family = db.Column(db.String(50), default='Bookman Old Style')
     lesson_link = db.Column(db.String(500))
     link_text = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

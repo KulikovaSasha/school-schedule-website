@@ -227,7 +227,7 @@ def save_schedule(schedule_id):
                     subject_name=cell_data.get('subject', ''),
                     lesson_link=cell_data.get('link', ''),
                     link_text=cell_data.get('link_text', 'Перейти к уроку'),
-                    font_family=cell_data.get('font', 'Arial'),
+                    font_family=cell_data.get('font', 'Bookman Old Style'),
                     color=cell_data.get('color', '#FFFFFF')
                 )
 
