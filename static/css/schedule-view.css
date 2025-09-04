@@ -301,3 +301,14 @@
     padding: 4px 6px;
     font-size: 10px;
 }
+
+@media screen {
+    .lesson-link-container,
+    .lesson-link-btn,
+    .copy-link-btn,
+    .fa-video,
+    .fa-copy {
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+}
