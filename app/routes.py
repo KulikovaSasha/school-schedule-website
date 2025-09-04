@@ -220,20 +220,28 @@ def edit_schedule(schedule_id):
 @login_required
 def save_schedule(schedule_id):
     """Сохранение данных расписания"""
+    print(f"DEBUG: Save request received for schedule {schedule_id}")
+
     try:
         schedule = Schedule.query.get_or_404(schedule_id)
+        print(f"DEBUG: Schedule found: {schedule.title}")
 
         # Проверка прав доступа
         if schedule.user_id != current_user.id:
-            return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
+            print("DEBUG: Access denied")
+            return jsonify({'success': False, 'error': 'Access denied'}), 403
 
         data = request.get_json()
+        print(f"DEBUG: Received data type: {type(data)}")
+        print(f"DEBUG: Received data keys: {list(data.keys()) if data else 'None'}")
 
         if not data:
-            return jsonify({'success': False, 'error': 'Нет данных для сохранения'}), 400
+            print("DEBUG: No data provided")
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
 
         # Удаляем существующие уроки
-        Lesson.query.filter_by(schedule_id=schedule_id).delete()
+        deleted_count = Lesson.query.filter_by(schedule_id=schedule_id).delete()
+        print(f"DEBUG: Deleted {deleted_count} existing lessons")
 
         # Получаем дни недели из расписания
         try:
@@ -242,28 +250,41 @@ def save_schedule(schedule_id):
             days_list = ['mon', 'tue', 'wed', 'thu', 'fri']
 
         # Сохраняем новые уроки
+        new_lessons_count = 0
         for key, lesson_data in data.items():
             if '_' in key:
-                day_index, lesson_index = map(int, key.split('_'))
+                try:
+                    day_index, lesson_index = map(int, key.split('_'))
 
-                lesson = Lesson(
-                    schedule_id=schedule_id,
-                    day_index=day_index,
-                    lesson_index=lesson_index,
-                    subject_name=lesson_data.get('subject_name', ''),
-                    color=lesson_data.get('color', '#FFFFFF'),
-                    lesson_link=lesson_data.get('lesson_link', ''),
-                    link_text=lesson_data.get('link_text', ''),
-                    font_family=lesson_data.get('font_family', 'Bookman Old Style')
-                )
-                db.session.add(lesson)
+                    # Проверяем, что индексы в допустимых пределах
+                    if (0 <= day_index < len(days_list) and
+                            0 <= lesson_index < schedule.lessons_per_day):
+                        lesson = Lesson(
+                            schedule_id=schedule_id,
+                            day_index=day_index,
+                            lesson_index=lesson_index,
+                            subject_name=lesson_data.get('subject_name', ''),
+                            color=lesson_data.get('color', '#FFFFFF'),
+                            lesson_link=lesson_data.get('lesson_link', ''),
+                            link_text=lesson_data.get('link_text', ''),
+                            font_family=lesson_data.get('font_family', 'Bookman Old Style')
+                        )
+                        db.session.add(lesson)
+                        new_lessons_count += 1
+
+                except (ValueError, TypeError) as e:
+                    print(f"DEBUG: Error processing key {key}: {e}")
+                    continue
 
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Расписание сохранено'})
+        print(f"DEBUG: Successfully saved {new_lessons_count} lessons")
+        return jsonify({'success': True, 'message': f'Сохранено {new_lessons_count} уроков'})
 
     except Exception as e:
         db.session.rollback()
         print(f"ERROR in save_schedule: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
