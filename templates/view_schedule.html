@@ -1,15 +1,295 @@
-
 {% extends "base.html" %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/schedule-view.css') }}">
+<style>
+/* Стили для печати */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .container, .container * {
+        visibility: visible;
+    }
+
+    .container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .schedule-header, .schedule-info {
+        display: block !important;
+        visibility: visible;
+        page-break-after: avoid;
+    }
+
+    /* Скрываем ненужные элементы при печати */
+    .schedule-actions, .btn, .lesson-link-btn, .copy-link-btn,
+    .navbar, .footer, .separate-btn, .fa-video, .fa-copy,
+    .lesson-link-container {
+        display: none !important;
+    }
+
+    /* Стили для таблицы при печати */
+    .schedule-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        border: 3px solid #000 !important;
+        font-size: 12px !important;
+        page-break-inside: avoid;
+    }
+
+    .schedule-table th, .schedule-table td {
+        border: 2px solid #000 !important;
+        padding: 8px !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .time-header, .day-header {
+        background: #f8f9fa !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        border: 2px solid #000 !important;
+    }
+
+    .time-cell {
+        background: #e9ecef !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        border: 2px solid #000 !important;
+    }
+
+    .time-display {
+        font-weight: bold !important;
+        font-size: 11px !important;
+    }
+
+    .subject-name {
+        font-weight: bold !important;
+        font-size: 14px !important;
+        margin-bottom: 4px !important;
+        text-align: center !important;
+        color: #000 !important;
+    }
+
+    .lesson-content {
+        text-align: center !important;
+        height: 100%;
+    }
+
+    /* Сохраняем оригинальные цвета ячеек при печати с границами */
+    .lesson-view-cell {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: 2px solid #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        height: 60px !important;
+        vertical-align: middle !important;
+    }
+
+    /* Двойные границы для заголовков */
+    .schedule-table thead th {
+        border-bottom: 3px double #000 !important;
+    }
+
+    /* Границы между строками */
+    .schedule-table tbody tr {
+        border-bottom: 1px solid #000 !important;
+    }
+
+    /* Улучшаем читаемость текста на темном фоне */
+    .lesson-view-cell[style*="background-color: #"] .subject-name,
+    .lesson-view-cell[style*="background-color: rgb"] .subject-name,
+    .lesson-view-cell[style*="background-color: hsl"] .subject-name {
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+        font-weight: 800 !important;
+    }
+
+    /* Заголовок для печати */
+    .print-header {
+        display: block;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border-bottom: 3px double #000;
+        padding-bottom: 10px;
+    }
+
+    .print-date {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+        font-style: italic;
+    }
+
+    /* Информация о расписании */
+    .schedule-info {
+        margin-bottom: 20px !important;
+        padding: 15px !important;
+        border: 2px solid #000 !important;
+        background: #f8f9fa !important;
+        border-radius: 5px !important;
+    }
+
+    .info-item {
+        margin-bottom: 8px !important;
+        font-size: 13px !important;
+        padding: 3px 0 !important;
+        border-bottom: 1px dotted #ccc !important;
+    }
+
+    .info-item:last-child {
+        border-bottom: none !important;
+    }
+
+    /* Убедимся, что все фоны печатаются */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Границы для пустых ячеек */
+    .lesson-view-cell:empty {
+        background: #ffffff !important;
+        border: 2px solid #000 !important;
+    }
+}
+
+/* Стили для экрана */
+@media screen {
+    .print-header {
+        display: none;
+    }
+
+    .schedule-table {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+        border: 1px solid #dee2e6;
+    }
+}
+
+/* Кнопка печати */
+.btn-print {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-print:hover {
+    background: linear-gradient(45deg, #218838, #1aa179);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Улучшаем внешний вид таблицы на экране */
+.schedule-table {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.schedule-table th {
+    background: linear-gradient(45deg, #4a6fa5, #2c4d7a);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+}
+
+.time-cell {
+    background: linear-gradient(45deg, #6c757d, #495057);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.lesson-view-cell {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    vertical-align: middle;
+    height: 80px;
+}
+
+.lesson-view-cell:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 2;
+    position: relative;
+}
+
+.subject-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+/* Улучшаем читаемость на темных фонах */
+.lesson-view-cell[style*="background-color: #000"],
+.lesson-view-cell[style*="background-color: #333"],
+.lesson-view-cell[style*="background-color: #444"],
+.lesson-view-cell[style*="background-color: #555"],
+.lesson-view-cell[style*="background-color: #2c3e50"],
+.lesson-view-cell[style*="background-color: #34495e"],
+.lesson-view-cell[style*="background-color: #2c3e50"],
+.lesson-view-cell[style*="background-color: #16a085"],
+.lesson-view-cell[style*="background-color: #27ae60"],
+.lesson-view-cell[style*="background-color: #2980b9"],
+.lesson-view-cell[style*="background-color: #8e44ad"],
+.lesson-view-cell[style*="background-color: #2c3e50"],
+.lesson-view-cell[style*="background-color: #d35400"] {
+    color: white !important;
+}
+
+.lesson-view-cell[style*="background-color: #000"] .subject-name,
+.lesson-view-cell[style*="background-color: #333"] .subject-name,
+.lesson-view-cell[style*="background-color: #444"] .subject-name,
+.lesson-view-cell[style*="background-color: #555"] .subject-name,
+.lesson-view-cell[style*="background-color: #2c3e50"] .subject-name,
+.lesson-view-cell[style*="background-color: #34495e"] .subject-name,
+.lesson-view-cell[style*="background-color: #16a085"] .subject-name,
+.lesson-view-cell[style*="background-color: #27ae60"] .subject-name,
+.lesson-view-cell[style*="background-color: #2980b9"] .subject-name,
+.lesson-view-cell[style*="background-color: #8e44ad"] .subject-name,
+.lesson-view-cell[style*="background-color: #d35400"] .subject-name {
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
+    <!-- Заголовок для печати -->
+    <div class="print-header">
+        <h2>Расписание: {{ schedule.title }}</h2>
+        <div class="print-date">Напечатано: {{ current_time }}</div>
+    </div>
+
     <div class="schedule-header">
         <h2>📋 {{ schedule.title }}</h2>
         <div class="schedule-actions">
+            <!-- Добавляем кнопку печати -->
+            <button onclick="printSchedule()" class="btn btn-print">
+                <i class="fas fa-print"></i> Печать
+            </button>
             <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Редактировать
             </a>
@@ -55,22 +335,22 @@
                             {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
                         </div>
                     </td>
-                    
+
                     {% for day_index in range(days|length) %}
                     {% set lesson_key = day_index ~ '_' ~ lesson_index %}
                     {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
-                    
-                    <td class="lesson-view-cell" style="background-color: {{ lesson.color if lesson else '#FFFFFF' }};">
+
+                    <td class="lesson-view-cell" style="background-color: {{ lesson.color if lesson else '#FFFFFF' }}; color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 128 %}#000000{% else %}#000000{% endif %}{% else %}#000000{% endif %};">
                         {% if lesson and lesson.subject_name %}
                         <div class="lesson-content">
-                            <div class="subject-name" style="font-family: {{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}">
+                            <div class="subject-name" style="font-family: {{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}; color: inherit;">
                                 {{ lesson.subject_name }}
                             </div>
-                            
+
                             {% if lesson.lesson_link %}
                             <div class="lesson-link-container">
-                                <a href="{{ lesson.lesson_link }}" 
-                                   target="_blank" 
+                                <a href="{{ lesson.lesson_link }}"
+                                   target="_blank"
                                    rel="noopener noreferrer"
                                    class="lesson-link-btn">
                                     <i class="fas fa-video"></i>
@@ -96,4 +376,50 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', filename='js/schedule-view.js') }}"></script>
+<script>
+// Функция для печати расписания
+function printSchedule() {
+    window.print();
+}
+
+// Горячая клавиша Ctrl+P для печати
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        printSchedule();
+    }
+});
+
+// Показываем подсказку о горячей клавише
+document.addEventListener('DOMContentLoaded', function() {
+    const printBtn = document.querySelector('.btn-print');
+    if (printBtn) {
+        printBtn.title = 'Печать (Ctrl+P)';
+    }
+});
+
+// Функция для копирования ссылки
+function copyLinkToClipboard(link) {
+    navigator.clipboard.writeText(link).then(function() {
+        alert('Ссылка скопирована в буфер обмена!');
+    }).catch(function(err) {
+        console.error('Ошибка при копировании:', err);
+    });
+}
+
+// Улучшаем внешний вид при наведении
+document.addEventListener('DOMContentLoaded', function() {
+    const cells = document.querySelectorAll('.lesson-view-cell');
+    cells.forEach(cell => {
+        cell.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+            this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
+        });
+        cell.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+            this.style.boxShadow = 'none';
+        });
+    });
+});
+</script>
 {% endblock %}

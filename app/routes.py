@@ -282,11 +282,14 @@ def view_schedule(schedule_id):
         key = f"{lesson.day_index}_{lesson.lesson_index}"
         lessons[key] = lesson
 
+    current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
+
     return render_template('view_schedule.html',
                            schedule=schedule,
                            days=display_days,
                            lesson_times=lesson_times,
-                           lessons=lessons)
+                           lessons=lessons,
+                           current_time=current_time)
 
 
 # Удаление расписания
