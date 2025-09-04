@@ -3,186 +3,89 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/schedule-view.css') }}">
 <style>
-/* Стили для печати */
-@media print {
-    body * {
-        visibility: hidden;
-    }
-
-    .container, .container * {
-        visibility: visible;
-    }
-
-    .container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
-    .schedule-header, .schedule-info {
-        display: block !important;
-        visibility: visible;
-        page-break-after: avoid;
-    }
-
-    /* Скрываем ненужные элементы при печати */
-    .schedule-actions, .btn, .lesson-link-btn, .copy-link-btn,
-    .navbar, .footer, .separate-btn, .fa-video, .fa-copy,
-    .lesson-link-container {
-        display: none !important;
-    }
-
-    /* Стили для таблицы при печати */
-    .schedule-table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        border: 3px solid #000 !important;
-        font-size: 12px !important;
-        page-break-inside: avoid;
-    }
-
-    .schedule-table th, .schedule-table td {
-        border: 2px solid #000 !important;
-        padding: 8px !important;
-        color: #000 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    .time-header, .day-header {
-        background: #f8f9fa !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        border: 2px solid #000 !important;
-    }
-
-    .time-cell {
-        background: #e9ecef !important;
-        font-weight: bold !important;
-        text-align: center !important;
-        border: 2px solid #000 !important;
-    }
-
-    .time-display {
-        font-weight: bold !important;
-        font-size: 11px !important;
-    }
-
-    .subject-name {
-        font-weight: bold !important;
-        font-size: 14px !important;
-        margin-bottom: 4px !important;
-        text-align: center !important;
-        color: #000 !important;
-    }
-
-    .lesson-content {
-        text-align: center !important;
-        height: 100%;
-    }
-
-    /* Сохраняем оригинальные цвета ячеек при печати с границами */
-    .lesson-view-cell {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        border: 2px solid #000 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        height: 60px !important;
-        vertical-align: middle !important;
-    }
-
-    /* Двойные границы для заголовков */
-    .schedule-table thead th {
-        border-bottom: 3px double #000 !important;
-    }
-
-    /* Границы между строками */
-    .schedule-table tbody tr {
-        border-bottom: 1px solid #000 !important;
-    }
-
-    /* Улучшаем читаемость текста на темном фоне */
-    .lesson-view-cell[style*="background-color: #"] .subject-name,
-    .lesson-view-cell[style*="background-color: rgb"] .subject-name,
-    .lesson-view-cell[style*="background-color: hsl"] .subject-name {
-        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
-        font-weight: 800 !important;
-    }
-
-    /* Заголовок для печати */
-    .print-header {
-        display: block;
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 18px;
-        font-weight: bold;
-        border-bottom: 3px double #000;
-        padding-bottom: 10px;
-    }
-
-    .print-date {
-        font-size: 12px;
-        color: #666;
-        margin-top: 5px;
-        font-style: italic;
-    }
-
-    /* Информация о расписании */
-    .schedule-info {
-        margin-bottom: 20px !important;
-        padding: 15px !important;
-        border: 2px solid #000 !important;
-        background: #f8f9fa !important;
-        border-radius: 5px !important;
-    }
-
-    .info-item {
-        margin-bottom: 8px !important;
-        font-size: 13px !important;
-        padding: 3px 0 !important;
-        border-bottom: 1px dotted #ccc !important;
-    }
-
-    .info-item:last-child {
-        border-bottom: none !important;
-    }
-
-    /* Убедимся, что все фоны печатаются */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    /* Границы для пустых ячеек */
-    .lesson-view-cell:empty {
-        background: #ffffff !important;
-        border: 2px solid #000 !important;
-    }
-}
-
 /* Стили для экрана */
-@media screen {
-    .print-header {
-        display: none;
-    }
-
-    .schedule-table {
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .schedule-table th,
-    .schedule-table td {
-        border: 1px solid #dee2e6;
-    }
+.print-only {
+    display: none;
 }
 
-/* Кнопка печати */
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.schedule-table th {
+    background: linear-gradient(45deg, #4a6fa5, #2c4d7a);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+}
+
+.schedule-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+.time-cell {
+    background: linear-gradient(45deg, #6c757d, #495057);
+    color: white;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+}
+
+.lesson-view-cell {
+    height: 70px;
+    vertical-align: middle;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+
+.subject-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Стили для ссылок и кнопок */
+.lesson-link-container {
+    margin-top: 5px;
+}
+
+.lesson-link-btn {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.lesson-link-btn:hover {
+    background: #0056b3;
+}
+
+.copy-link-btn {
+    padding: 3px 6px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.copy-link-btn:hover {
+    background: #545b62;
+}
+
 .btn-print {
     background: linear-gradient(45deg, #28a745, #20c997);
     border: none;
@@ -193,100 +96,155 @@
 .btn-print:hover {
     background: linear-gradient(45deg, #218838, #1aa179);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Улучшаем внешний вид таблицы на экране */
-.schedule-table {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+/* Стили для печати */
+@media print {
+    /* Скрываем ВСЁ содержимое body */
+    body * {
+        display: none !important;
+    }
 
-.schedule-table th {
-    background: linear-gradient(45deg, #4a6fa5, #2c4d7a);
-    color: white;
-    text-align: center;
-    padding: 12px;
-    font-weight: bold;
-    border: 1px solid #dee2e6;
-}
+    /* Показываем ТОЛЬКО контейнер для печати */
+    .print-container,
+    .print-container * {
+        display: block !important;
+        visibility: visible !important;
+    }
 
-.time-cell {
-    background: linear-gradient(45deg, #6c757d, #495057);
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 12px;
-    border: 1px solid #dee2e6;
-}
+    /* Особые правила для таблицы */
+    .print-container table {
+        display: table !important;
+        width: 100% !important;
+    }
+    .print-container tr {
+        display: table-row !important;
+    }
+    .print-container th,
+    .print-container td {
+        display: table-cell !important;
+    }
 
-.lesson-view-cell {
-    transition: all 0.3s ease;
-    border: 1px solid #dee2e6;
-    text-align: center;
-    vertical-align: middle;
-    height: 80px;
-}
+    .print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: white;
+    }
 
-.lesson-view-cell:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 2;
-    position: relative;
-}
+    /* Стили для печатной таблицы */
+    .print-table {
+        width: 100% !important;
+        border: 2px solid #000 !important;
+        border-collapse: collapse !important;
+        font-size: 12px;
+        page-break-inside: avoid;
+    }
 
-.subject-name {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 5px;
-    text-align: center;
-}
+    .print-table th,
+    .print-table td {
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+        text-align: center !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 
-/* Улучшаем читаемость на темных фонах */
-.lesson-view-cell[style*="background-color: #000"],
-.lesson-view-cell[style*="background-color: #333"],
-.lesson-view-cell[style*="background-color: #444"],
-.lesson-view-cell[style*="background-color: #555"],
-.lesson-view-cell[style*="background-color: #2c3e50"],
-.lesson-view-cell[style*="background-color: #34495e"],
-.lesson-view-cell[style*="background-color: #2c3e50"],
-.lesson-view-cell[style*="background-color: #16a085"],
-.lesson-view-cell[style*="background-color: #27ae60"],
-.lesson-view-cell[style*="background-color: #2980b9"],
-.lesson-view-cell[style*="background-color: #8e44ad"],
-.lesson-view-cell[style*="background-color: #2c3e50"],
-.lesson-view-cell[style*="background-color: #d35400"] {
-    color: white !important;
-}
+    .print-time-header {
+        background: #d3d3d3 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
 
-.lesson-view-cell[style*="background-color: #000"] .subject-name,
-.lesson-view-cell[style*="background-color: #333"] .subject-name,
-.lesson-view-cell[style*="background-color: #444"] .subject-name,
-.lesson-view-cell[style*="background-color: #555"] .subject-name,
-.lesson-view-cell[style*="background-color: #2c3e50"] .subject-name,
-.lesson-view-cell[style*="background-color: #34495e"] .subject-name,
-.lesson-view-cell[style*="background-color: #16a085"] .subject-name,
-.lesson-view-cell[style*="background-color: #27ae60"] .subject-name,
-.lesson-view-cell[style*="background-color: #2980b9"] .subject-name,
-.lesson-view-cell[style*="background-color: #8e44ad"] .subject-name,
-.lesson-view-cell[style*="background-color: #d35400"] .subject-name {
-    color: white !important;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    .print-day-header {
+        background: #d3d3d3 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+
+    .print-time-cell {
+        background: #b0b0b0 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+
+    .print-header {
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+
+    .print-date {
+        font-size: 12px !important;
+        color: #666 !important;
+        margin-top: 5px !important;
+    }
+
+    /* Убираем всё лишнее */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        background-image: none !important;
+    }
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
-    <!-- Заголовок для печати -->
-    <div class="print-header">
-        <h2>Расписание: {{ schedule.title }}</h2>
-        <div class="print-date">Напечатано: {{ current_time }}</div>
+    <!-- Контейнер для печати (скрыт на экране) -->
+    <div class="print-container print-only">
+        <div class="print-header">
+            <h2>Расписание: {{ schedule.title }}</h2>
+            <div class="print-date">Напечатано: {{ current_time }}</div>
+        </div>
+
+        <!-- ОТДЕЛЬНАЯ ТАБЛИЦА ДЛЯ ПЕЧАТИ -->
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th class="print-time-header">Время</th>
+                    {% for day in days %}
+                    <th class="print-day-header">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lesson_index in range(schedule.lessons_per_day) %}
+                <tr>
+                    <td class="print-time-cell">
+                        {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
+                    </td>
+
+                    {% for day_index in range(days|length) %}
+                    {% set lesson_key = day_index ~ '_' ~ lesson_index %}
+                    {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
+
+                    <td style="background-color: {{ lesson.color if lesson else '#FFFFFF' }} !important;
+                              color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 128 %}#000000{% else %}#FFFFFF{% endif %}{% else %}#000000{% endif %} !important;
+                              -webkit-print-color-adjust: exact !important;
+                              print-color-adjust: exact !important;
+                              border: 1px solid #000 !important;">
+                        {% if lesson and lesson.subject_name %}
+                            {{ lesson.subject_name }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
+    <!-- Основной контент для экрана -->
     <div class="schedule-header">
         <h2>📋 {{ schedule.title }}</h2>
         <div class="schedule-actions">
-            <!-- Добавляем кнопку печати -->
             <button onclick="printSchedule()" class="btn btn-print">
                 <i class="fas fa-print"></i> Печать
             </button>
@@ -317,8 +275,9 @@
         </div>
     </div>
 
+    <!-- Основная таблица для экрана -->
     <div class="schedule-view-container">
-        <table class="schedule-table view-mode">
+        <table class="schedule-table">
             <thead>
                 <tr>
                     <th class="time-header">Время</th>
@@ -340,10 +299,10 @@
                     {% set lesson_key = day_index ~ '_' ~ lesson_index %}
                     {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
 
-                    <td class="lesson-view-cell" style="background-color: {{ lesson.color if lesson else '#FFFFFF' }}; color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 128 %}#000000{% else %}#000000{% endif %}{% else %}#000000{% endif %};">
+                    <td class="lesson-view-cell" style="background-color: {{ lesson.color if lesson else '#FFFFFF' }}; color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 128 %}#000000{% else %}#FFFFFF{% endif %}{% else %}#000000{% endif %};">
                         {% if lesson and lesson.subject_name %}
                         <div class="lesson-content">
-                            <div class="subject-name" style="font-family: {{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}; color: inherit;">
+                            <div class="subject-name">
                                 {{ lesson.subject_name }}
                             </div>
 
@@ -375,26 +334,95 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', filename='js/schedule-view.js') }}"></script>
 <script>
 // Функция для печати расписания
 function printSchedule() {
-    window.print();
+    console.log('Печать расписания...');
+
+    // Создаем iframe для печати
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+    // Копируем содержимое print-container в iframe
+    iframeDoc.open();
+    iframeDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Расписание: {{ schedule.title }}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    background: white;
+                }
+                .print-table {
+                    width: 100%;
+                    border: 2px solid #000;
+                    border-collapse: collapse;
+                    font-size: 12px;
+                }
+                .print-table th, .print-table td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: center;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .print-time-header, .print-day-header {
+                    background: #d3d3d3;
+                    font-weight: bold;
+                }
+                .print-time-cell {
+                    background: #b0b0b0;
+                    font-weight: bold;
+                }
+                .print-header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+                .print-date {
+                    font-size: 12px;
+                    color: #666;
+                    margin-top: 5px;
+                }
+                * {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            </style>
+        </head>
+        <body>
+            ${document.querySelector('.print-container').outerHTML}
+        </body>
+        </html>
+    `);
+    iframeDoc.close();
+
+    // Печатаем из iframe
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+
+    // Удаляем iframe после печати
+    setTimeout(() => {
+        document.body.removeChild(iframe);
+    }, 100);
 }
 
-// Горячая клавиша Ctrl+P для печати
+// Горячая клавиша Ctrl+P
 document.addEventListener('keydown', function(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
         printSchedule();
-    }
-});
-
-// Показываем подсказку о горячей клавише
-document.addEventListener('DOMContentLoaded', function() {
-    const printBtn = document.querySelector('.btn-print');
-    if (printBtn) {
-        printBtn.title = 'Печать (Ctrl+P)';
     }
 });
 
@@ -407,19 +435,12 @@ function copyLinkToClipboard(link) {
     });
 }
 
-// Улучшаем внешний вид при наведении
+// Подсказка для кнопки печати
 document.addEventListener('DOMContentLoaded', function() {
-    const cells = document.querySelectorAll('.lesson-view-cell');
-    cells.forEach(cell => {
-        cell.addEventListener('mouseenter', function() {
-            this.style.zIndex = '10';
-            this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)';
-        });
-        cell.addEventListener('mouseleave', function() {
-            this.style.zIndex = '1';
-            this.style.boxShadow = 'none';
-        });
-    });
+    const printBtn = document.querySelector('.btn-print');
+    if (printBtn) {
+        printBtn.title = 'Печать (Ctrl+P)';
+    }
 });
 </script>
 {% endblock %}
