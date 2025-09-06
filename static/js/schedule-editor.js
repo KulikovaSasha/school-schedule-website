@@ -1,350 +1,314 @@
-(function() {
-    'use strict';
 
-    // Добавьте эту функцию в начало файла
-    function restoreButton(button, originalHTML) {
-        if (button && originalHTML) {
-            button.innerHTML = originalHTML;
-            button.disabled = false;
 
-            // Дополнительно сбрасываем стили если меняли их
-            button.style.backgroundColor = '';
-            button.style.borderColor = '';
-            button.style.opacity = '';
-        }
+// Хранилище данных уроков
+let lessonsData = {};
+let currentEditingCell = null;
+
+// В начале файла, после объявления переменных
+console.log('🔍 Checking DOM elements:');
+console.log('fontFamily element:', document.getElementById('fontFamily'));
+console.log('subjectColor element:', document.getElementById('subjectColor'));
+console.log('lessonForm element:', document.getElementById('lessonForm'));
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📋 Schedule editor initialized');
+
+    // Инициализируем данные из глобальной переменной
+    if (typeof window.lessonsData !== 'undefined') {
+        lessonsData = window.lessonsData;
+        console.log('📦 Lessons data loaded:', lessonsData);
+
+        // Немедленно применяем шрифты после загрузки данных
+        setTimeout(applyFontsOnLoad, 100);
     }
 
-    // Функция для инициализации кнопок выбора платформы - УДАЛЯЕМ
-    function initPlatformButtons() {
-        // Эту функцию полностью удаляем
-    }
+    initializeEventListeners();
+});
 
-    // Остаются только эти функции:
-    function initColorPickers() {
-        const colorPickers = document.querySelectorAll('.color-picker');
-        colorPickers.forEach(picker => {
-            picker.addEventListener('input', function() {
-                const cell = this.closest('.lesson-cell');
-                if (cell) {
-                    cell.style.backgroundColor = this.value;
-                }
-            });
-        });
-    }
+// Инициализация обработчиков событий
+function initializeEventListeners() {
+    console.log('🔗 Setting up event listeners');
 
-    function initFontSelectors() {
-        const fontSelectors = document.querySelectorAll('.font-selector');
-        fontSelectors.forEach(selector => {
-            selector.addEventListener('change', function() {
-                const input = this.closest('.lesson-controls').querySelector('.subject-input');
-                if (input) {
-                    input.style.fontFamily = this.value;
-                }
-
-                // Также применяем шрифт к названию предмета в ячейке
-                const cell = this.closest('.lesson-cell');
-                if (cell) {
-                    const subjectName = cell.querySelector('.subject-name');
-                    if (subjectName) {
-                        subjectName.style.fontFamily = this.value;
-                    }
-                }
-            });
-        });
-    }
-
-    function initSaveHandler() {
-        const saveButton = document.getElementById('save-schedule');
-        if (saveButton) {
-            saveButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                saveSchedule();
-            });
-        }
-    }
-
-    function initBulkActions() {
-        const bulkFontSelector = document.getElementById('bulk-font-selector');
-        const bulkColorPicker = document.getElementById('bulk-color-picker');
-
-        if (bulkFontSelector) {
-            bulkFontSelector.addEventListener('change', function() {
-                if (this.value) {
-                    applyFontToAll(this.value);
-                }
-            });
-        }
-
-        if (bulkColorPicker) {
-            bulkColorPicker.addEventListener('input', function() {
-                applyColorToAll(this.value);
-            });
-        }
-    }
-
-    function applyFontToAll(fontFamily = null) {
-        const fontValue = fontFamily || document.getElementById('bulk-font-selector')?.value;
-        if (!fontValue) return;
-
-        const inputs = document.querySelectorAll('.subject-input');
-        inputs.forEach(input => {
-            input.style.fontFamily = fontValue;
-        });
-
-        const selectors = document.querySelectorAll('.font-selector');
-        selectors.forEach(selector => {
-            selector.value = fontValue;
-        });
-
-        // Также применяем шрифт ко всем названиям предметов
-        const subjectNames = document.querySelectorAll('.subject-name');
-        subjectNames.forEach(name => {
-            name.style.fontFamily = fontValue;
-        });
-    }
-
-    function applyColorToAll(color = null) {
-        const colorValue = color || document.getElementById('bulk-color-picker')?.value;
-        if (!colorValue) return;
-
-        const cells = document.querySelectorAll('.lesson-cell');
-        cells.forEach(cell => {
-            cell.style.backgroundColor = colorValue;
-        });
-
-        const pickers = document.querySelectorAll('.color-picker');
-        pickers.forEach(picker => {
-            picker.value = colorValue;
-        });
-    }
-
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show`;
-        notification.style.position = 'fixed';
-        notification.style.top = '20px';
-        notification.style.right = '20px';
-        notification.style.zIndex = '1000';
-        notification.style.minWidth = '300px';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 3000);
-    }
-
-    function saveSchedule() {
-        const saveButton = document.getElementById('save-schedule');
-        const originalHTML = saveButton?.innerHTML;
-
-        // Сохраняем оригинальное состояние
-        if (saveButton) {
-            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
-            saveButton.disabled = true;
-        }
-
-        // Принудительное восстановление через 3 секунды на всякий случай
-        const safetyTimeout = setTimeout(() => {
-            restoreButton(saveButton, originalHTML);
-        }, 3000);
-
-        // Собираем данные
-        const scheduleId = document.getElementById('schedule-id')?.value;
-        const lessons = {};
-
-        document.querySelectorAll('.lesson-cell').forEach(cell => {
-            const day = cell.dataset.day;
-            const lessonIndex = cell.dataset.lesson;
-            const subjectInput = cell.querySelector('.subject-input');
-            const linkInput = cell.querySelector('.lesson-link-input');
-            const linkTextInput = cell.querySelector('.link-text-input');
-            const fontSelector = cell.querySelector('.font-selector');
-            const colorPicker = cell.querySelector('.color-picker');
-
-            const key = `${day}_${lessonIndex}`;
-            lessons[key] = {
-                subject: subjectInput?.value || '',
-                link: linkInput?.value || '',
-                link_text: linkTextInput?.value || 'Перейти к уроку',
-                font: fontSelector?.value || 'Bookman Old Style',
-                color: colorPicker?.value || '#FFFFFF'
-            };
-        });
-
-        // Делаем запрос
-        fetch(`/schedule/${scheduleId}/save?t=${Date.now()}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken() // Добавляем CSRF токен
-            },
-            body: JSON.stringify(lessons)
-        })
-        .then(response => response.json())
-        .then(data => {
-            clearTimeout(safetyTimeout); // Отменяем safety timeout
-            restoreButton(saveButton, originalHTML);
-
-            if (data.success) {
-                showNotification('Сохранено успешно!', 'success');
-            } else {
-                showNotification('Ошибка сервера: ' + data.error, 'error');
-            }
-        })
-        .catch(error => {
-            clearTimeout(safetyTimeout); // Отменяем safety timeout
-            restoreButton(saveButton, originalHTML);
-            showNotification('Ошибка сети', 'error');
-        });
-    }
-
-    // Функция для получения CSRF токена
-    function getCSRFToken() {
-        const metaTag = document.querySelector('meta[name="csrf-token"]');
-        return metaTag ? metaTag.getAttribute('content') : '';
-    }
-
-    // Функция для открытия модального окна редактирования
-    function openEditModal(cell) {
-        const dayIndex = cell.getAttribute('data-day');
-        const lessonIndex = cell.getAttribute('data-lesson');
-
-        // Заполняем форму данными из ячейки
-        const subjectName = cell.querySelector('.subject-name')?.textContent || '';
-        const lessonLink = cell.querySelector('.lesson-link')?.href || '';
-        const linkText = cell.querySelector('.lesson-link')?.textContent || '';
-        const backgroundColor = cell.style.backgroundColor || '#f8f9fa';
-        const fontFamily = cell.querySelector('.subject-name')?.style.fontFamily || 'Bookman Old Style';
-
-        // Заполняем модальное окно
-        document.getElementById('editDayIndex').value = dayIndex;
-        document.getElementById('editLessonIndex').value = lessonIndex;
-        document.getElementById('subjectName').value = subjectName;
-        document.getElementById('subjectColor').value = rgbToHex(backgroundColor);
-        document.getElementById('colorHex').value = rgbToHex(backgroundColor);
-        document.getElementById('lessonLink').value = lessonLink;
-        document.getElementById('linkText').value = linkText.replace('Ссылка', '').trim();
-        document.getElementById('fontFamily').value = fontFamily.replace(/['"]/g, '');
-
-        // Показываем модальное окно
-        document.getElementById('editModal').style.display = 'block';
-    }
-
-    // Функция для преобразования RGB в HEX
-    function rgbToHex(rgb) {
-        if (rgb.startsWith('#')) return rgb;
-
-        const rgbMatch = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-        if (rgbMatch) {
-            return '#' +
-                parseInt(rgbMatch[1]).toString(16).padStart(2, '0') +
-                parseInt(rgbMatch[2]).toString(16).padStart(2, '0') +
-                parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
-        }
-        return '#FFFFFF';
-    }
-
-    // Функция для установки цвета
-    function setColor(color) {
-        document.getElementById('subjectColor').value = color;
-        document.getElementById('colorHex').value = color;
-    }
-
-    function initScheduleEditor() {
-        // УДАЛЕНО: initPlatformButtons()
-        initColorPickers();
-        initFontSelectors();
-        initSaveHandler();
-        initBulkActions();
-
-        // Добавляем обработчики для ячеек уроков
-        document.querySelectorAll('.lesson-cell').forEach(cell => {
-            cell.addEventListener('click', function(e) {
-                if (e.target.tagName !== 'A') {
-                    openEditModal(this);
-                }
-            });
-        });
-
-        // Обработчик закрытия модального окна
-        document.querySelector('.close').addEventListener('click', function() {
-            document.getElementById('editModal').style.display = 'none';
-        });
-
-        // Обработчик клика вне модального окна
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
+    // Клик по ячейке урока
+    document.querySelectorAll('.lesson-cell').forEach(cell => {
+        cell.addEventListener('click', function(e) {
+            if (!e.target.closest('a')) {
+                openEditModal(this);
             }
         });
+    });
 
-        // Обработчик формы урока
-        document.getElementById('lessonForm').addEventListener('submit', function(e) {
+    // Закрытие модального окна
+    const closeBtn = document.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
+    // Клик вне модального окна
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('editModal');
+        if (modal && e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Обработка формы урока
+    const lessonForm = document.getElementById('lessonForm');
+    if (lessonForm) {
+        lessonForm.addEventListener('submit', function(e) {
             e.preventDefault();
             saveLesson();
         });
     }
 
-    function saveLesson() {
-        const dayIndex = document.getElementById('editDayIndex').value;
-        const lessonIndex = document.getElementById('editLessonIndex').value;
-        const subjectName = document.getElementById('subjectName').value;
-        const color = document.getElementById('subjectColor').value;
-        const lessonLink = document.getElementById('lessonLink').value;
-        const linkText = document.getElementById('linkText').value;
-        const fontFamily = document.getElementById('fontFamily').value;
-
-        if (!subjectName.trim()) {
-            showNotification('Пожалуйста, введите название предмета', 'error');
-            return;
-        }
-
-        // Находим ячейку и обновляем её содержимое
-        const cell = document.querySelector(`.lesson-cell[data-day="${dayIndex}"][data-lesson="${lessonIndex}"]`);
-        if (cell) {
-            const brightness = calculateBrightness(color);
-            const textColor = brightness > 160 ? '#000000' : '#ffffff';
-
-            cell.style.backgroundColor = color;
-            cell.innerHTML = `
-                <div class="subject-name" style="font-family: '${fontFamily}'; color: ${textColor}">
-                    ${subjectName}
-                </div>
-                ${lessonLink ? `
-                <a href="${lessonLink}" class="lesson-link" target="_blank" style="color: ${textColor}">
-                    <i class="fas fa-link"></i> ${linkText || 'Ссылка'}
-                </a>
-                ` : ''}
-            `;
-        }
-
-        showNotification('Урок сохранен!', 'success');
-        document.getElementById('editModal').style.display = 'none';
-    }
-
-    // Функция для расчета яркости цвета
-    function calculateBrightness(hex) {
-        hex = hex.replace('#', '');
-        if (hex.length === 3) {
-            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-        }
-
-        const r = parseInt(hex.substr(0, 2), 16);
-        const g = parseInt(hex.substr(2, 2), 16);
-        const b = parseInt(hex.substr(4, 2), 16);
-
-        return (r * 299 + g * 587 + b * 114) / 1000;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        initScheduleEditor();
+    // Горячие клавиши
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
     });
 
-})();
+    // Обработчики для цветовых опций
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const color = this.getAttribute('data-color');
+            setColor(color);
+        });
+    });
+}
+
+// Применение шрифтов при загрузке
+function applyFontsOnLoad() {
+    console.log('🎨 Applying fonts on load');
+
+    let appliedCount = 0;
+
+    document.querySelectorAll('.lesson-cell').forEach(cell => {
+        const subjectName = cell.querySelector('.subject-name');
+        if (subjectName && subjectName.textContent !== '+ Добавить урок') {
+            const dayIndex = cell.getAttribute('data-day');
+            const lessonIndex = cell.getAttribute('data-lesson');
+            const lessonKey = `${dayIndex}_${lessonIndex}`;
+            const lesson = lessonsData[lessonKey];
+
+            if (lesson && lesson.font_family) {
+                subjectName.style.fontFamily = `'${lesson.font_family}'`;
+                console.log(`✅ Applied font: '${lesson.font_family}' to ${lessonKey}`);
+                appliedCount++;
+            } else {
+                subjectName.style.fontFamily = "'Bookman Old Style'";
+            }
+        }
+    });
+
+    console.log(`🎯 Applied fonts to ${appliedCount} lessons`);
+}
+
+// Открытие модального окна редактирования
+function openEditModal(cell) {
+    console.log('📝 Opening edit modal');
+
+    currentEditingCell = cell;
+    const dayIndex = cell.getAttribute('data-day');
+    const lessonIndex = cell.getAttribute('data-lesson');
+    const lessonKey = `${dayIndex}_${lessonIndex}`;
+
+    const currentLesson = lessonsData[lessonKey] || {};
+    const subjectNameElement = cell.querySelector('.subject-name');
+
+    // Определяем текущий шрифт
+    let currentFontFamily = 'Bookman Old Style';
+    if (subjectNameElement && subjectNameElement.style.fontFamily) {
+        currentFontFamily = subjectNameElement.style.fontFamily.replace(/['"]/g, '');
+    } else if (currentLesson.font_family) {
+        currentFontFamily = currentLesson.font_family;
+    }
+
+    console.log('🔤 Current font family:', currentFontFamily);
+
+    // Заполняем форму данными
+    document.getElementById('editDayIndex').value = dayIndex;
+    document.getElementById('editLessonIndex').value = lessonIndex;
+    document.getElementById('subjectName').value = currentLesson.subject_name || '';
+    document.getElementById('subjectColor').value = currentLesson.color || '#4a6fa5';
+    document.getElementById('colorHex').value = currentLesson.color || '#4a6fa5';
+    document.getElementById('lessonLink').value = currentLesson.lesson_link || '';
+    document.getElementById('linkText').value = currentLesson.link_text || '';
+    document.getElementById('fontFamily').value = currentFontFamily;
+
+    // Показываем модальное окно
+    document.getElementById('editModal').style.display = 'block';
+}
+
+// Закрытие модального окна
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+    currentEditingCell = null;
+}
+
+// Установка цвета
+function setColor(color) {
+    document.getElementById('subjectColor').value = color;
+    document.getElementById('colorHex').value = color;
+}
+
+// Сохранение урока
+function saveLesson() {
+    const dayIndex = document.getElementById('editDayIndex').value;
+    const lessonIndex = document.getElementById('editLessonIndex').value;
+    const subjectName = document.getElementById('subjectName').value;
+    const color = document.getElementById('subjectColor').value;
+    const lessonLink = document.getElementById('lessonLink').value;
+    const linkText = document.getElementById('linkText').value;
+
+    // ИСПРАВЛЕНИЕ 1: Правильное получение значения шрифта
+    const fontFamilySelect = document.getElementById('fontFamily');
+    const fontFamily = fontFamilySelect ? fontFamilySelect.value : 'Bookman Old Style';
+
+    console.log('💾 Saving lesson:', {
+        dayIndex,
+        lessonIndex,
+        subjectName,
+        fontFamily  // Добавляем в лог
+    });
+
+    if (!subjectName.trim()) {
+        showNotification('Пожалуйста, введите название предмета', 'error');
+        return;
+    }
+
+    const lessonKey = `${dayIndex}_${lessonIndex}`;
+    lessonsData[lessonKey] = {
+        subject_name: subjectName,
+        color: color,
+        lesson_link: lessonLink,
+        link_text: linkText,
+        font_family: fontFamily  // Сохраняем только значение
+    };
+
+    console.log('📊 Updated lessonsData:', lessonsData[lessonKey]);
+
+    // Обновляем интерфейс
+    if (currentEditingCell) {
+        updateLessonCell(currentEditingCell, subjectName, color, lessonLink, linkText, fontFamily);
+    }
+
+    showNotification('✅ Урок сохранен! Не забудьте сохранить всё расписание.', 'success');
+    closeModal();
+}
+
+// Обновление ячейки урока
+// Обновление ячейки урока
+function updateLessonCell(cell, subjectName, color, lessonLink, linkText, fontFamily) {
+    console.log('🔄 Updating cell with font:', fontFamily);
+
+    const brightness = calculateBrightness(color);
+    const textColor = brightness > 160 ? '#000000' : '#ffffff';
+
+    const lessonContent = cell.querySelector('.lesson-content');
+    if (lessonContent) {
+        lessonContent.style.backgroundColor = color;
+        lessonContent.style.color = textColor;
+
+        // Убедимся, что fontFamily - это строка, а не объект
+        const cleanFontFamily = typeof fontFamily === 'string' ? fontFamily : 'Bookman Old Style';
+
+        lessonContent.innerHTML = `
+            <div class="subject-name" style="font-family: '${cleanFontFamily}'">${subjectName}</div>
+            ${lessonLink ? `<a href="${lessonLink}" class="lesson-link" target="_blank" style="color: ${textColor}">
+                <i class="fas fa-link"></i> ${linkText || 'Ссылка'}
+            </a>` : ''}
+        `;
+    }
+}
+
+// Расчет яркости цвета
+function calculateBrightness(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
+// Сохранение всего расписания
+function saveSchedule() {
+    console.log('💾 Saving entire schedule:', lessonsData);
+    showNotification('⏳ Сохранение расписания...', 'success');
+
+    // Проверяем, есть ли данные о шрифтах
+    let hasFontData = false;
+    for (const key in lessonsData) {
+        if (lessonsData[key]?.font_family) {
+            hasFontData = true;
+            console.log(`📝 Lesson ${key} has font: ${lessonsData[key].font_family}`);
+            break;
+        }
+    }
+    console.log('📋 Schedule contains font data:', hasFontData);
+
+    fetch(window.saveScheduleUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify(lessonsData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✅ Расписание успешно сохранено!', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showNotification('❌ Ошибка при сохранении: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error:', error);
+        showNotification('❌ Ошибка при сохранении расписания', 'error');
+    });
+}
+
+// Функция для получения CSRF токена
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : '';
+}
+
+// Показать уведомление
+function showNotification(message, type) {
+    // Удаляем старые уведомления
+    document.querySelectorAll('.notification').forEach(notif => notif.remove());
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        ${message}
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Делаем функции глобальными
+window.openEditModal = openEditModal;
+window.setColor = setColor;
+window.saveLesson = saveLesson;
+window.saveSchedule = saveSchedule;
+window.closeModal = closeModal;
+window.enableTitleEdit = enableTitleEdit;
+window.cancelTitleEdit = cancelTitleEdit;
+window.saveTitle = saveTitle;

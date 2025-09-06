@@ -183,8 +183,10 @@ def edit_schedule(schedule_id):
             'color': lesson.color,
             'lesson_link': lesson.lesson_link,
             'link_text': lesson.link_text,
-            'font_family': lesson.font_family
+            'font_family': lesson.font_family  # Убедитесь, что это поле есть
         }
+        # Отладочная информация
+        print(f"Lesson {key}: font_family = {lesson.font_family}")
 
     # Список доступных предметов для красивого выбора
     available_subjects = [
@@ -200,7 +202,6 @@ def edit_schedule(schedule_id):
     # Популярные цвета для уроков
     popular_colors = [
         "#d6d4fb", "#fcbfe7", "#ffffff", "#caf2c0", "#f5d5fb", "#fbffbd"
-
     ]
 
     return render_template('edit_schedule.html',
@@ -217,29 +218,24 @@ def edit_schedule(schedule_id):
 @main.route('/schedule/<int:schedule_id>/save', methods=['POST'])
 @login_required
 def save_schedule(schedule_id):
-    """Сохранение данных расписания"""
-    print(f"DEBUG: Save request received for schedule {schedule_id}")
+    print(f"🔍 DEBUG: Save request received for schedule {schedule_id}")
 
     try:
         schedule = Schedule.query.get_or_404(schedule_id)
-        print(f"DEBUG: Schedule found: {schedule.title}")
+        print(f"🔍 DEBUG: Schedule found: {schedule.title}")
 
         # Проверка прав доступа
         if schedule.user_id != current_user.id:
-            print("DEBUG: Access denied")
             return jsonify({'success': False, 'error': 'Access denied'}), 403
 
         data = request.get_json()
-        print(f"DEBUG: Received data type: {type(data)}")
-        print(f"DEBUG: Received data keys: {list(data.keys()) if data else 'None'}")
+        print(f"🔍 DEBUG: Received data: {data}")  # Добавьте эту строку!
 
         if not data:
-            print("DEBUG: No data provided")
             return jsonify({'success': False, 'error': 'No data provided'}), 400
 
         # Удаляем существующие уроки
-        deleted_count = Lesson.query.filter_by(schedule_id=schedule_id).delete()
-        print(f"DEBUG: Deleted {deleted_count} existing lessons")
+        Lesson.query.filter_by(schedule_id=schedule_id).delete()
 
         # Получаем дни недели из расписания
         try:
@@ -254,9 +250,13 @@ def save_schedule(schedule_id):
                 try:
                     day_index, lesson_index = map(int, key.split('_'))
 
-                    # Проверяем, что индексы в допустимых пределах
+                    # ИСПРАВЛЕНИЕ: Правильное имя переменной
                     if (0 <= day_index < len(days_list) and
-                            0 <= lesson_index < schedule.lessons_per_day):
+                            0 <= lesson_index < schedule.lessons_per_day):  # Было lessonIndex, должно быть lesson_index
+
+                        font_family = lesson_data.get('font_family', 'Bookman Old Style')
+                        print(f"🔍 DEBUG: Saving lesson {key} with font: '{font_family}'")
+
                         lesson = Lesson(
                             schedule_id=schedule_id,
                             day_index=day_index,
@@ -265,24 +265,24 @@ def save_schedule(schedule_id):
                             color=lesson_data.get('color', '#FFFFFF'),
                             lesson_link=lesson_data.get('lesson_link', ''),
                             link_text=lesson_data.get('link_text', ''),
-                            font_family=lesson_data.get('font_family', 'Bookman Old Style')  # Исправлено: добавлено сохранение шрифта
+                            font_family=font_family
                         )
                         db.session.add(lesson)
                         new_lessons_count += 1
 
                 except (ValueError, TypeError) as e:
-                    print(f"DEBUG: Error processing key {key}: {e}")
+                    print(f"🔍 DEBUG: Error processing key {key}: {e}")
                     continue
 
         db.session.commit()
-        print(f"DEBUG: Successfully saved {new_lessons_count} lessons")
+        print(f"🔍 DEBUG: Successfully saved {new_lessons_count} lessons")
         return jsonify({'success': True, 'message': f'Сохранено {new_lessons_count} уроков'})
 
     except Exception as e:
         db.session.rollback()
-        print(f"ERROR in save_schedule: {str(e)}")
+        print(f"❌ ERROR in save_schedule: {str(e)}")
         import traceback
-        traceback.print_exc()
+        traceback.print_exc()  # Эта строка покажет полную трассировку ошибки
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -311,42 +311,35 @@ def update_lesson(schedule_id):
         if day_index is None or lesson_index is None:
             return jsonify({'success': False, 'error': 'Не указаны индексы дня и урока'}), 400
 
-        # Проверяем существование урока
-        lesson = Lesson.query.filter_by(
-            schedule_id=schedule_id,
-            day_index=day_index,
-            lesson_index=lesson_index
-        ).first()
+        for key, lesson_data in data.items():
+            if '_' in key:
+                try:
+                    day_index, lesson_index = map(int, key.split('_'))
 
-        if lesson:
-            # Обновляем существующий урок
-            lesson.subject_name = subject_name
-            lesson.color = color
-            lesson.lesson_link = lesson_link
-            lesson.link_text = link_text
-            lesson.font_family = font_family  # Добавлено: обновление шрифта
-        else:
-            # Создаем новый урок
-            lesson = Lesson(
-                schedule_id=schedule_id,
-                day_index=day_index,
-                lesson_index=lesson_index,
-                subject_name=subject_name,
-                color=color,
-                lesson_link=lesson_link,
-                link_text=link_text,
-                font_family=font_family  # Исправлено: сохранение шрифта
-            )
-            db.session.add(lesson)
+                    # ВАЖНО: убедитесь, что font_family извлекается правильно
+                    font_family = lesson_data.get('font_family', 'Bookman Old Style')
+                    print(f"DEBUG: Saving lesson {key} with font: {font_family}")
+
+                    lesson = Lesson(
+                        schedule_id=schedule_id,
+                        day_index=day_index,
+                        lesson_index=lesson_index,
+                        subject_name=lesson_data.get('subject_name', ''),
+                        color=lesson_data.get('color', '#FFFFFF'),
+                        lesson_link=lesson_data.get('lesson_link', ''),
+                        link_text=lesson_data.get('link_text', ''),
+                        font_family=font_family  # Это критически важно!
+                    )
+                    db.session.add(lesson)
+
+                except (ValueError, TypeError) as e:
+                    continue
 
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Урок успешно сохранен'})
+        return jsonify({'success': True, 'message': 'Расписание сохранено'})
 
     except Exception as e:
         db.session.rollback()
-        print(f"ERROR in update_lesson: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
