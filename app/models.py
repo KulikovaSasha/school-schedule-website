@@ -75,6 +75,13 @@ class Lesson(db.Model):
     def __repr__(self):
         return f'<Lesson {self.subject_name}>'
 
+    @property
+    def font_family_safe(self):
+        """Безопасное значение font-family для CSS"""
+        if self.font_family and self.font_family in [font['value'] for font in AVAILABLE_FONTS]:
+            return f"'{self.font_family}'"
+        return "'Bookman Old Style'"
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -92,8 +99,21 @@ AVAILABLE_FONTS = [
     {'value': 'Tahoma', 'name': 'Tahoma', 'category': 'Без засечек'},
     {'value': 'Comic Sans MS', 'name': 'Comic Sans MS', 'category': 'Рукописный'},
     {'value': 'Trebuchet MS', 'name': 'Trebuchet MS', 'category': 'Без засечек'},
-    {'value': 'Bookman Old Style', 'name': 'Bookman Old Style', 'category': 'Без засечек'}
+    {'value': 'Bookman Old Style', 'name': 'Bookman Old Style', 'category': 'Без засечек'},
+    {'value': 'Impact', 'name': 'Impact', 'category': 'Без засечек'},
+    {'value': 'Palatino Linotype', 'name': 'Palatino', 'category': 'С засечками'},
+    {'value': 'Garamond', 'name': 'Garamond', 'category': 'С засечками'},
+    {'value': 'Lucida Sans Unicode', 'name': 'Lucida Sans', 'category': 'Без засечек'},
+    {'value': 'MS Sans Serif', 'name': 'MS Sans Serif', 'category': 'Без засечек'},
+    {'value': 'MS Serif', 'name': 'MS Serif', 'category': 'С засечками'},
+    {'value': 'Symbol', 'name': 'Symbol', 'category': 'Декоративный'},
+    {'value': 'Webdings', 'name': 'Webdings', 'category': 'Декоративный'},
+    {'value': 'Wingdings', 'name': 'Wingdings', 'category': 'Декоративный'},
+    {'value': 'System', 'name': 'Системный шрифт', 'category': 'Системный'}
 ]
+
+# Упрощенный список для выпадающего меню
+FONT_CHOICES = [font['value'] for font in AVAILABLE_FONTS]
 
 COLOR_PALETTE = {
     'yellow': '#FFF9C4',
@@ -116,4 +136,14 @@ DAY_NAMES = {
     'fri': 'Пятница',
     'sat': 'Суббота',
     'sun': 'Воскресенье'
+}
+
+# Группировка шрифтов по категориям для удобного отображения
+FONT_CATEGORIES = {
+    'Без засечек': ['Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Bookman Old Style', 'Impact', 'Lucida Sans Unicode', 'MS Sans Serif'],
+    'С засечками': ['Times New Roman', 'Georgia', 'Palatino Linotype', 'Garamond', 'MS Serif'],
+    'Моноширинный': ['Courier New'],
+    'Рукописный': ['Comic Sans MS'],
+    'Декоративный': ['Symbol', 'Webdings', 'Wingdings'],
+    'Системный': ['System']
 }

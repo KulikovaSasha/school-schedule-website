@@ -188,21 +188,19 @@ def edit_schedule(schedule_id):
 
     # Список доступных предметов для красивого выбора
     available_subjects = [
-        "Математика", "Русский язык", "Литература", "История", "Обществознание",
-        "География", "Биология", "Физика", "Химия", "Информатика",
-        "Английский язык", "Немецкий язык", "Французский язык", "Испанский язык",
-        "Физкультура", "ОБЖ", "Технология", "ИЗО", "Музыка", "МХК",
-        "Астрономия", "Экономика", "Право", "Психология", "Экология",
-        "Черчение", "Робототехника", "Программирование", "Веб-дизайн",
-        "Основы предпринимательства", "Финансовая грамотность", "Краеведение"
+        "Алгебра", "Английский язык", "Астрономия", "Биология", "География",
+        "Геометрия", "ИЗО", "Информатика", "Испанский язык", "История",
+        "Литература", "Литературное чтение", "Математика", "Музыка",
+        "Немецкий язык", "Обществознание", "Окружающий мир", "Программирование", "Программирование в Python",
+        "Разработка сайтов в Python", "Русский язык", "Теория вероятностей и статистика", "Технология",
+        "Физика", "Физическая культура", "Химия", "Черчение",
+        "Японский язык"
     ]
 
     # Популярные цвета для уроков
     popular_colors = [
-        "#FF6B6B", "#4ECDC4", "#45B7D1", "#F9A826", "#6C5CE7",
-        "#FD79A8", "#00B894", "#FDCB6E", "#E17055", "#546DE5",
-        "#D63031", "#00CEC9", "#FAB1A0", "#74B9FF", "#A29BFE",
-        "#FFEAA7", "#B2BEC3", "#636E72", "#2D3436", "#FFFFFF"
+        "#d6d4fb", "#fcbfe7", "#ffffff", "#caf2c0", "#f5d5fb", "#fbffbd"
+
     ]
 
     return render_template('edit_schedule.html',
@@ -267,7 +265,7 @@ def save_schedule(schedule_id):
                             color=lesson_data.get('color', '#FFFFFF'),
                             lesson_link=lesson_data.get('lesson_link', ''),
                             link_text=lesson_data.get('link_text', ''),
-                            font_family=lesson_data.get('font_family', 'Bookman Old Style')
+                            font_family=lesson_data.get('font_family', 'Bookman Old Style')  # Исправлено: добавлено сохранение шрифта
                         )
                         db.session.add(lesson)
                         new_lessons_count += 1
@@ -307,6 +305,7 @@ def update_lesson(schedule_id):
         color = data.get('color', '#FFFFFF')
         lesson_link = data.get('lesson_link', '').strip()
         link_text = data.get('link_text', '').strip()
+        font_family = data.get('font_family', 'Bookman Old Style')  # Добавлено: получение шрифта
 
         # Валидация данных
         if day_index is None or lesson_index is None:
@@ -325,6 +324,7 @@ def update_lesson(schedule_id):
             lesson.color = color
             lesson.lesson_link = lesson_link
             lesson.link_text = link_text
+            lesson.font_family = font_family  # Добавлено: обновление шрифта
         else:
             # Создаем новый урок
             lesson = Lesson(
@@ -335,7 +335,7 @@ def update_lesson(schedule_id):
                 color=color,
                 lesson_link=lesson_link,
                 link_text=link_text,
-                font_family='Bookman Old Style'  # Значение по умолчанию
+                font_family=font_family  # Исправлено: сохранение шрифта
             )
             db.session.add(lesson)
 
@@ -386,7 +386,7 @@ def view_schedule(schedule_id):
             'color': lesson.color,
             'lesson_link': lesson.lesson_link,
             'link_text': lesson.link_text,
-            'font_family': lesson.font_family
+            'font_family': lesson.font_family  # Добавлено: включение шрифта в данные
         }
 
     current_time = datetime.now().strftime("%d.%m.%Y %H:%M")

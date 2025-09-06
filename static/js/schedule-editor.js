@@ -40,6 +40,15 @@
                 if (input) {
                     input.style.fontFamily = this.value;
                 }
+
+                // Также применяем шрифт к названию предмета в ячейке
+                const cell = this.closest('.lesson-cell');
+                if (cell) {
+                    const subjectName = cell.querySelector('.subject-name');
+                    if (subjectName) {
+                        subjectName.style.fontFamily = this.value;
+                    }
+                }
             });
         });
     }
@@ -85,6 +94,12 @@
         const selectors = document.querySelectorAll('.font-selector');
         selectors.forEach(selector => {
             selector.value = fontValue;
+        });
+
+        // Также применяем шрифт ко всем названиям предметов
+        const subjectNames = document.querySelectorAll('.subject-name');
+        subjectNames.forEach(name => {
+            name.style.fontFamily = fontValue;
         });
     }
 
@@ -166,7 +181,10 @@
         // Делаем запрос
         fetch(`/schedule/${scheduleId}/save?t=${Date.now()}`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() // Добавляем CSRF токен
+            },
             body: JSON.stringify(lessons)
         })
         .then(response => response.json())
@@ -187,12 +205,142 @@
         });
     }
 
+    // Функция для получения CSRF токена
+    function getCSRFToken() {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        return metaTag ? metaTag.getAttribute('content') : '';
+    }
+
+    // Функция для открытия модального окна редактирования
+    function openEditModal(cell) {
+        const dayIndex = cell.getAttribute('data-day');
+        const lessonIndex = cell.getAttribute('data-lesson');
+
+        // Заполняем форму данными из ячейки
+        const subjectName = cell.querySelector('.subject-name')?.textContent || '';
+        const lessonLink = cell.querySelector('.lesson-link')?.href || '';
+        const linkText = cell.querySelector('.lesson-link')?.textContent || '';
+        const backgroundColor = cell.style.backgroundColor || '#f8f9fa';
+        const fontFamily = cell.querySelector('.subject-name')?.style.fontFamily || 'Bookman Old Style';
+
+        // Заполняем модальное окно
+        document.getElementById('editDayIndex').value = dayIndex;
+        document.getElementById('editLessonIndex').value = lessonIndex;
+        document.getElementById('subjectName').value = subjectName;
+        document.getElementById('subjectColor').value = rgbToHex(backgroundColor);
+        document.getElementById('colorHex').value = rgbToHex(backgroundColor);
+        document.getElementById('lessonLink').value = lessonLink;
+        document.getElementById('linkText').value = linkText.replace('Ссылка', '').trim();
+        document.getElementById('fontFamily').value = fontFamily.replace(/['"]/g, '');
+
+        // Показываем модальное окно
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    // Функция для преобразования RGB в HEX
+    function rgbToHex(rgb) {
+        if (rgb.startsWith('#')) return rgb;
+
+        const rgbMatch = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (rgbMatch) {
+            return '#' +
+                parseInt(rgbMatch[1]).toString(16).padStart(2, '0') +
+                parseInt(rgbMatch[2]).toString(16).padStart(2, '0') +
+                parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+        }
+        return '#FFFFFF';
+    }
+
+    // Функция для установки цвета
+    function setColor(color) {
+        document.getElementById('subjectColor').value = color;
+        document.getElementById('colorHex').value = color;
+    }
+
     function initScheduleEditor() {
         // УДАЛЕНО: initPlatformButtons()
         initColorPickers();
         initFontSelectors();
         initSaveHandler();
         initBulkActions();
+
+        // Добавляем обработчики для ячеек уроков
+        document.querySelectorAll('.lesson-cell').forEach(cell => {
+            cell.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'A') {
+                    openEditModal(this);
+                }
+            });
+        });
+
+        // Обработчик закрытия модального окна
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        // Обработчик клика вне модального окна
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        // Обработчик формы урока
+        document.getElementById('lessonForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveLesson();
+        });
+    }
+
+    function saveLesson() {
+        const dayIndex = document.getElementById('editDayIndex').value;
+        const lessonIndex = document.getElementById('editLessonIndex').value;
+        const subjectName = document.getElementById('subjectName').value;
+        const color = document.getElementById('subjectColor').value;
+        const lessonLink = document.getElementById('lessonLink').value;
+        const linkText = document.getElementById('linkText').value;
+        const fontFamily = document.getElementById('fontFamily').value;
+
+        if (!subjectName.trim()) {
+            showNotification('Пожалуйста, введите название предмета', 'error');
+            return;
+        }
+
+        // Находим ячейку и обновляем её содержимое
+        const cell = document.querySelector(`.lesson-cell[data-day="${dayIndex}"][data-lesson="${lessonIndex}"]`);
+        if (cell) {
+            const brightness = calculateBrightness(color);
+            const textColor = brightness > 160 ? '#000000' : '#ffffff';
+
+            cell.style.backgroundColor = color;
+            cell.innerHTML = `
+                <div class="subject-name" style="font-family: '${fontFamily}'; color: ${textColor}">
+                    ${subjectName}
+                </div>
+                ${lessonLink ? `
+                <a href="${lessonLink}" class="lesson-link" target="_blank" style="color: ${textColor}">
+                    <i class="fas fa-link"></i> ${linkText || 'Ссылка'}
+                </a>
+                ` : ''}
+            `;
+        }
+
+        showNotification('Урок сохранен!', 'success');
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    // Функция для расчета яркости цвета
+    function calculateBrightness(hex) {
+        hex = hex.replace('#', '');
+        if (hex.length === 3) {
+            hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        }
+
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+
+        return (r * 299 + g * 587 + b * 114) / 1000;
     }
 
     document.addEventListener('DOMContentLoaded', function() {

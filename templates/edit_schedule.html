@@ -597,7 +597,9 @@
                     <td class="lesson-cell" data-day="{{ day_index }}" data-lesson="{{ lesson_index }}">
                         <div class="lesson-content" style="background-color: {{ lesson.color if lesson else '#f8f9fa' }}; color: {% if lesson and lesson.color %}{% set bg_color = lesson.color.replace('#', '') %}{% if bg_color|length == 3 %}{% set r = bg_color[0] * 2 %}{% set g = bg_color[1] * 2 %}{% set b = bg_color[2] * 2 %}{% else %}{% set r = bg_color[0:2] %}{% set g = bg_color[2:4] %}{% set b = bg_color[4:6] %}{% endif %}{% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}{% if brightness > 160 %}#000000{% else %}#ffffff{% endif %}{% else %}#000000{% endif %};">
                             {% if lesson and lesson.subject_name %}
-                                <div class="subject-name">{{ lesson.subject_name }}</div>
+                                <div class="subject-name" style="font-family: '{{ lesson.font_family if lesson.font_family else "Bookman Old Style" }}'">
+                                    {{ lesson.subject_name }}
+                                </div>
                                 {% if lesson.lesson_link %}
                                 <a href="{{ lesson.lesson_link }}" class="lesson-link" target="_blank">
                                     <i class="fas fa-link"></i> {{ lesson.link_text if lesson.link_text else 'Ссылка' }}
@@ -820,8 +822,8 @@ function openEditModal(cell) {
     document.getElementById('editDayIndex').value = dayIndex;
     document.getElementById('editLessonIndex').value = lessonIndex;
     document.getElementById('subjectName').value = currentLesson.subject_name || '';
-    document.getElementById('subjectColor').value = currentLesson.color || '#4a6fa5';
-    document.getElementById('colorHex').value = currentLesson.color || '#4a6fa5';
+    document.getElementById('subjectColor').value = currentLesson.color || '#e3e3e3';
+    document.getElementById('colorHex').value = currentLesson.color || '#e3e3e3';
     document.getElementById('lessonLink').value = currentLesson.lesson_link || '';
     document.getElementById('linkText').value = currentLesson.link_text || '';
     document.getElementById('fontFamily').value = currentLesson.font_family || 'Bookman Old Style';
@@ -874,7 +876,7 @@ function saveLesson() {
         lessonContent.style.backgroundColor = color;
         lessonContent.style.color = textColor;
         lessonContent.innerHTML = `
-            <div class="subject-name">${subjectName}</div>
+            <div class="subject-name" style="font-family: '${fontFamily}'">${subjectName}</div>
             ${lessonLink ? `<a href="${lessonLink}" class="lesson-link" target="_blank" style="color: ${textColor}">
                 <i class="fas fa-link"></i> ${linkText || 'Ссылка'}
             </a>` : ''}
