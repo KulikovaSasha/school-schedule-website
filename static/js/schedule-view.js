@@ -738,6 +738,7 @@
         initScheduleView();
     }
 
+
     // Экспортируем функции для глобального доступа
     window.ScheduleView = {
         printSchedule: printScheduleWithLargeFontAlternative,

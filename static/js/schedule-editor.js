@@ -1,5 +1,4 @@
 
-
 // Хранилище данных уроков
 let lessonsData = {};
 let currentEditingCell = null;

@@ -88,6 +88,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+
 # Константы для использования в формах и шаблонах
 AVAILABLE_FONTS = [
     {'value': 'Arial', 'name': 'Arial', 'category': 'Без засечек'},

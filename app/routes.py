@@ -355,6 +355,7 @@ def view_schedule(schedule_id):
         flash('У вас нет доступа к этому расписанию.', 'danger')
         return redirect(url_for('main.dashboard'))
 
+
     try:
         days_list = json.loads(schedule.days_of_week)
     except (json.JSONDecodeError, TypeError):
