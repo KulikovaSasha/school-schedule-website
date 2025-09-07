@@ -86,31 +86,90 @@
     background: #545b62;
 }
 
-.btn-print {
-    background: linear-gradient(45deg, #28a745, #20c997);
+/* Единый стиль для всех кнопок */
+.schedule-actions .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin: 0 8px 8px 0;
+    transition: all 0.3s ease;
     border: none;
     color: white;
-    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.btn-pdf {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-    border: none;
-    color: white;
-    font-weight: bold;
+.schedule-actions .btn i {
+    font-size: 16px;
+}
+
+.btn-print {
+    background: linear-gradient(45deg, #28a745, #20c997);
 }
 
 .btn-print:hover {
     background: linear-gradient(45deg, #218838, #1aa179);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-pdf {
+    background: linear-gradient(45deg, #dc3545, #fd7e14);
 }
 
 .btn-pdf:hover {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    background: linear-gradient(45deg, #c82333, #e65c10);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
-/* Стили для печати */
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0069d9, #004a9f);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-outline {
+    background: linear-gradient(45deg, #6c757d, #495057);
+}
+
+.btn-outline:hover {
+    background: linear-gradient(45deg, #5a6268, #343a40);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* Красивое и контрастное отображение названия расписания */
+.schedule-title {
+    font-family: 'Bookman Old Style', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Градиенты для ячеек с уроками на странице просмотра */
+.lesson-view-cell[style*="background-color"] {
+    background: linear-gradient(135deg, #FFFFFF 0%, var(--lesson-color) 100%) !important;
+}
+
+/* Стили для печати - с увеличенным шрифтом */
 @media print {
     /* Скрываем ВСЁ содержимое body */
     body * {
@@ -124,92 +183,89 @@
         visibility: visible !important;
     }
 
-    /* Особые правила для таблица */
-    .print-container table {
-        display: table !important;
-        width: 100% !important;
-    }
-    .print-container tr {
-        display: table-row !important;
-    }
-    .print-container th,
-    .print-container td {
-        display: table-cell !important;
-    }
-
     .print-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 20px;
-        background: white;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10mm !important;
+        background: white !important;
+        font-family: 'Bookman Old Style', serif !important;
+        font-size: 14px !important;
     }
 
-    /* Стили для печатной таблицы - стандартные размеры ячеек, КРУПНЫЙ ШРИФТ */
+    /* Увеличиваем размер шрифта для печатной таблицы */
     .print-table {
         width: 100% !important;
         border: 2px solid #000 !important;
         border-collapse: collapse !important;
-        font-size: 12px;
-        page-break-inside: avoid;
+        font-size: 14px !important;
+        page-break-inside: avoid !important;
     }
 
     .print-table th,
     .print-table td {
         border: 1px solid #000 !important;
-        padding: 8px !important;
+        padding: 8px 4px !important;
         text-align: center !important;
         vertical-align: middle !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+        height: auto !important;
     }
 
     .print-time-header {
-        background: #d3d3d3 !important;
+        background: linear-gradient(135deg, #3498db, #2980b9) !important;
         font-weight: bold !important;
-        color: #000 !important;
+        color: white !important;
         font-size: 14px !important;
+        padding: 10px 4px !important;
     }
 
     .print-day-header {
-        background: #d3d3d3 !important;
+        background: linear-gradient(135deg, #27ae60, #229954) !important;
         font-weight: bold !important;
-        color: #000 !important;
+        color: white !important;
         font-size: 14px !important;
+        padding: 10px 4px !important;
     }
 
     .print-time-cell {
-        background: #b0b0b0 !important;
+        background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
         font-weight: bold !important;
-        color: #000 !important;
+        color: #2c3e50 !important;
         font-size: 13px !important;
+        padding: 10px 4px !important;
+        width: 80px !important;
     }
 
-    /* ОСНОВНОЙ СТИЛЬ ДЛЯ НАЗВАНИЙ УРОКОВ - ОЧЕНЬ КРУПНЫЙ ШРИФТ */
+    /* Увеличиваем размер шрифта для ячеек с уроками */
     .print-table td {
-        font-size: 20px !important;
-        font-weight: bold !important;
+        font-size: 14px !important;
+        font-weight: normal !important;
         color: #000 !important;
-        line-height: 1.2 !important;
+        line-height: 1.3 !important;
         text-align: center !important;
         vertical-align: middle !important;
-        padding: 12px 8px !important;
+        padding: 10px 4px !important;
+        height: auto !important;
+        min-height: 40px !important;
     }
 
     .print-header {
         text-align: center !important;
-        margin-bottom: 20px !important;
-        font-size: 22px !important;
+        margin-bottom: 15px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
-        color: #000 !important;
+        color: #2c3e50 !important;
+        font-family: 'Bookman Old Style', serif !important;
     }
 
     .print-date {
-        font-size: 14px !important;
-        color: #666 !important;
-        margin-top: 5px !important;
+        display: none !important;
     }
 
     /* Убираем всё лишнее */
@@ -218,64 +274,53 @@
         text-shadow: none !important;
         background-image: none !important;
     }
+
+    /* Увеличиваем отступы страницы для лучшего вида */
+    @page {
+        margin: 10mm !important;
+    }
 }
 
-/* Специальный контейнер для PDF с улучшенным дизайном */
+/* Специальный контейнер для PDF - с названием и таблицей */
 .pdf-container {
     display: none;
 }
 
 .pdf-style {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Bookman Old Style', serif;
     padding: 15px;
     background: white;
     width: 100%;
     box-sizing: border-box;
 }
 
-.pdf-header {
-    text-align: center;
-    margin-bottom: 15px;
-    padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
 .pdf-title {
-    font-size: 22px;
+    text-align: center;
+    font-size: 20px;
     font-weight: bold;
-    margin: 0;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-.pdf-subtitle {
-    font-size: 12px;
-    opacity: 0.9;
-    margin: 3px 0 0 0;
+    color: #2c3e50 !important;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
 }
 
 .pdf-table {
     width: 100%;
     border-collapse: collapse;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin: 15px 0;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .pdf-table th {
     background: linear-gradient(135deg, #2c3e50, #34495e);
     color: white;
-    padding: 8px 4px;
+    padding: 6px 3px;
     text-align: center;
     font-weight: 600;
     font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
     height: 30px;
+    border: 1px solid #e0e0e0;
 }
 
 .pdf-table td {
@@ -283,16 +328,16 @@
     text-align: center;
     border: 1px solid #e0e0e0;
     font-size: 10px;
-    font-weight: 500;
+    font-weight: normal;
     height: 35px;
     vertical-align: middle;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .pdf-time-header {
     background: linear-gradient(135deg, #3498db, #2980b9) !important;
     font-weight: 600 !important;
-    width: 60px;
+    width: 70px;
 }
 
 .pdf-day-header {
@@ -304,75 +349,47 @@
     background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
     font-weight: 600 !important;
     color: #2c3e50 !important;
-    width: 60px;
+    width: 70px;
 }
 
 .pdf-lesson-cell {
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-/* Градиенты от белого к выбранному цвету */
-.pdf-lesson-cell-with-content {
-    color: #000000 !important;
-    border: 1px solid #e0e0e0 !important;
     font-family: 'Bookman Old Style', serif !important;
-    font-size: 14px !important;
+    font-size: 10px !important;
     font-weight: normal !important;
+    color: #000000 !important;
 }
 
 .pdf-empty-cell {
     background: #FFFFFF !important;
-    border: 1px solid #e0e0e0 !important;
 }
 
-.pdf-footer {
-    text-align: center;
-    margin-top: 15px;
-    padding: 10px;
-    background: #f8f9fa;
+/* Кнопки выбора ориентации печати */
+.print-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.orientation-btn {
+    padding: 8px 15px;
+    border: 2px solid #007bff;
+    background: white;
+    color: #007bff;
     border-radius: 6px;
-    font-size: 10px;
-    color: #6c757d;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.pdf-watermark {
-    position: absolute;
-    opacity: 0.03;
-    font-size: 80px;
-    font-weight: bold;
-    color: #000;
-    pointer-events: none;
-    z-index: -1;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-45deg);
+.orientation-btn.active {
+    background: #007bff;
+    color: white;
 }
 
-/* Компактные стили для PDF */
-.pdf-compact .pdf-table th,
-.pdf-compact .pdf-table td {
-    padding: 4px 2px;
-    font-size: 9px;
-    height: 28px;
-}
-
-.pdf-compact .pdf-title {
-    font-size: 18px;
-}
-
-.pdf-compact .pdf-subtitle {
-    font-size: 10px;
-}
-
-.pdf-compact .pdf-header {
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.pdf-compact .pdf-footer {
-    padding: 8px;
-    margin-top: 10px;
+.orientation-btn:hover {
+    background: #0056b3;
+    color: white;
 }
 </style>
 {% endblock %}
@@ -383,10 +400,9 @@
     <div class="print-container print-only">
         <div class="print-header">
             <h2>Расписание: {{ schedule.title }}</h2>
-            <div class="print-date">Напечатано: {{ current_time }}</div>
         </div>
 
-        <!-- ОТДЕЛЬНАя ТАБЛИЦА ДЛЯ ПЕЧАТИ -->
+        <!-- ТАБЛИЦА ДЛЯ ПЕЧАТИ И PDF -->
         <table class="print-table">
             <thead>
                 <tr>
@@ -407,15 +423,16 @@
                     {% set lesson_key = day_index ~ '_' ~ lesson_index %}
                     {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
 
-                    <td style="background-color: {{ lesson.color if lesson else '#FFFFFF' }} !important;
+                    <td style="--lesson-color: {{ lesson.color if lesson and lesson.color else '#FFFFFF' }};
+                              background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson and lesson.color else '#FFFFFF' }} 100%) !important;
                               color: #000000 !important;
                               -webkit-print-color-adjust: exact !important;
                               print-color-adjust: exact !important;
                               border: 1px solid #000 !important;
                               font-family: '{{ lesson.font_family if lesson and lesson.font_family else "Bookman Old Style" }}' !important;
-                              font-size: 20px !important;
-                              font-weight: bold !important;
-                              line-height: 1.2 !important;
+                              font-size: 14px !important;
+                              font-weight: normal !important;
+                              line-height: 1.3 !important;
                               text-align: center !important;
                               vertical-align: middle !important;">
                         {% if lesson and lesson.subject_name %}
@@ -429,20 +446,14 @@
         </table>
     </div>
 
-    <!-- Контейнер для PDF с улучшенным дизайном -->
-    <div id="pdfContainer" class="pdf-container pdf-compact">
+    <!-- Контейнер для PDF - с названием и таблицей -->
+    <div id="pdfContainer" class="pdf-container">
         <div class="pdf-style">
-            <div class="pdf-header">
-                <h1 class="pdf-title">📚 Расписание занятий</h1>
-                <div class="pdf-subtitle">{{ schedule.title }} | {{ current_time }}</div>
-            </div>
-
-            <div class="pdf-watermark">{{ schedule.title }}</div>
-
+            <div class="pdf-title">Расписание: {{ schedule.title }}</div>
             <table class="pdf-table">
                 <thead>
                     <tr>
-                        <th class="pdf-time-header">⏰ Время</th>
+                        <th class="pdf-time-header">Время</th>
                         {% for day in days %}
                         <th class="pdf-day-header">{{ day }}</th>
                         {% endfor %}
@@ -460,9 +471,8 @@
                         {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
 
                         {% if lesson and lesson.subject_name %}
-                        <td class="pdf-lesson-cell pdf-lesson-cell-with-content"
-                            style="font-family: '{{ lesson.font_family if lesson and lesson.font_family else "Bookman Old Style" }}' !important;
-                                   background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson.color else '#667eea' }} 100%) !important;">
+                        <td class="pdf-lesson-cell"
+                            style="background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson.color else '#667eea' }} 100%) !important;">
                             {{ lesson.subject_name }}
                         </td>
                         {% else %}
@@ -475,17 +485,23 @@
                     {% endfor %}
                 </tbody>
             </table>
-
-            <div class="pdf-footer">
-                <div>Дни: {{ days|join(', ') }}</div>
-                <div>Уроков: {{ schedule.lessons_per_day }} | Начало: {{ schedule.start_time }}</div>
-            </div>
         </div>
     </div>
 
     <!-- Основной контент для экрана -->
     <div class="schedule-header">
-        <h2>📋 {{ schedule.title }}</h2>
+        <h1 class="schedule-title">{{ schedule.title }}</h1>
+
+        <!-- Кнопки выбора ориентации печати -->
+        <div class="print-options">
+            <button class="orientation-btn active" data-orientation="landscape">
+                <i class="fas fa-arrows-alt-h"></i> Альбомная
+            </button>
+            <button class="orientation-btn" data-orientation="portrait">
+                <i class="fas fa-arrows-alt-v"></i> Книжная
+            </button>
+        </div>
+
         <div class="schedule-actions">
             <button onclick="printSchedule()" class="btn btn-print">
                 <i class="fas fa-print"></i> Печать
@@ -509,7 +525,7 @@
         <div class="info-item">
             <strong>⏰ Уроков в день:</strong> {{ schedule.lessons_per_day }}
         </div>
-        <div class="info-item %}
+        <div class="info-item">
             <strong>🕘 Первый урок:</strong> {{ schedule.start_time }}
         </div>
         <div class="info-item">
@@ -560,7 +576,10 @@
                         {% set text_color = '#000000' %}
                     {% endif %}
 
-                    <td class="lesson-view-cell" style="background-color: {{ bg_color }}; color: {{ text_color }};">
+                    <td class="lesson-view-cell"
+                        style="--lesson-color: {{ bg_color }};
+                               background: linear-gradient(135deg, #FFFFFF 0%, {{ bg_color }} 100%);
+                               color: {{ text_color }};">
                         {% if lesson and lesson.subject_name %}
                         <div class="lesson-content">
                             <!-- ВАЖНО: Применяем выбранный шрифт -->
@@ -595,65 +614,6 @@
         </table>
     </div>
 </div>
-
-<!-- Скрытый контейнер для правильной печати -->
-<div id="printTemplate" style="display: none;">
-    <style>
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .print-version, .print-version * {
-                visibility: visible;
-            }
-            .print-version {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-        }
-    </style>
-    <div class="print-version">
-        <h2 style="font-size: 22px; text-align: center; margin-bottom: 20px;">Расписание: {{ schedule.title }}</h2>
-        <div style="font-size: 14px; text-align: center; color: #666; margin-bottom: 20px;">Напечатано: {{ current_time }}</div>
-        <table style="width: 100%; border: 2px solid #000; border-collapse: collapse; font-size: 12px;">
-            <thead>
-                <tr>
-                    <th style="background: #d3d3d3; font-weight: bold; color: #000; font-size: 14px; padding: 8px; border: 1px solid #000; text-align: center;">Время</th>
-                    {% for day in days %}
-                    <th style="background: #d3d3d3; font-weight: bold; color: #000; font-size: 14px; padding: 8px; border: 1px solid #000; text-align: center;">{{ day }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for lesson_index in range(schedule.lessons_per_day) %}
-                <tr>
-                    <td style="background: #b0b0b0; font-weight: bold; color: #000; font-size: 13px; padding: 8px; border: 1px solid #000; text-align: center;">
-                        {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
-                    </td>
-                    {% for day_index in range(days|length) %}
-                    {% set lesson_key = day_index ~ '_' ~ lesson_index %}
-                    {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
-                    <td style="font-family: '{{ lesson.font_family if lesson and lesson.font_family else 'Bookman Old Style' }}' !important;
-                         font-size: 20px !important;
-                         font-weight: bold !important;
-                         color: #000000 !important;
-                         line-height: 1.2 !important;
-                         text-align: center !important;
-                         vertical-align: middle !important;
-                         padding: 8px !important;
-                         border: 1px solid #000 !important;
-                         background-color: {{ lesson.color if lesson else '#FFFFFF' }} !important;">
-                        {% if lesson and lesson.subject_name %}{{ lesson.subject_name }}{% endif %}
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -665,19 +625,32 @@
 // Инициализация jsPDF
 const { jsPDF } = window.jspdf;
 
+// Переменная для хранения выбранной ориентации
+let printOrientation = 'landscape';
+
+// Функция для выбора ориентации печати
+function setupPrintOrientation() {
+    const buttons = document.querySelectorAll('.orientation-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            buttons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            printOrientation = this.dataset.orientation;
+        });
+    });
+}
+
 // Функция для скачивания PDF
 function downloadPDF() {
-    console.log('Генерация красивого PDF с градиентами...');
+    console.log('Генерация PDF...');
 
     // Показываем контейнер для PDF временно
     const pdfContainer = document.getElementById('pdfContainer');
     const originalDisplay = pdfContainer.style.display;
     pdfContainer.style.display = 'block';
-
-    // Устанавливаем фиксированную ширину для компактности
     pdfContainer.style.width = '900px';
 
-    // Используем html2canvas для создания изображения с высоким качеством
+    // Используем html2canvas для создания изображения
     html2canvas(pdfContainer, {
         scale: 3,
         useCORS: true,
@@ -685,47 +658,16 @@ function downloadPDF() {
         backgroundColor: '#ffffff',
         allowTaint: true,
         width: 900,
-        windowWidth: 900,
-        onclone: function(clonedDoc) {
-            const clonedContainer = clonedDoc.getElementById('pdfContainer');
-            if (clonedContainer) {
-                clonedContainer.style.display = 'block';
-                clonedContainer.style.width = '900px';
-
-                // Создаем красивые градиенты от белого к выбранному цвету
-                const lessonCells = clonedContainer.querySelectorAll('.pdf-lesson-cell');
-                lessonCells.forEach((cell, index) => {
-                    if (cell.textContent.trim() !== '') {
-                        // Получаем цвет из стиля ячейки
-                        const bgStyle = cell.style.background;
-                        const colorMatch = bgStyle.match(/linear-gradient\(135deg, #FFFFFF 0%, (#[0-9A-Fa-f]{6}) 100%\)/);
-
-                        if (colorMatch && colorMatch[1]) {
-                            const lessonColor = colorMatch[1];
-                            // Создаем более мягкий градиент
-                            cell.style.background = `linear-gradient(135deg, #FFFFFF 0%, ${lessonColor} 70%) !important`;
-                        }
-
-                        cell.style.color = '#000000 !important';
-                        cell.style.fontSize = '14px !important';
-                        cell.style.fontWeight = 'normal !important';
-                        cell.style.border = '1px solid #ddd !important';
-                    } else {
-                        // Пустые ячейки - белые
-                        cell.style.background = '#FFFFFF !important';
-                    }
-                });
-            }
-        }
+        windowWidth: 900
     }).then(canvas => {
-        // Скрываем контейнер обратно и восстанавливаем стили
+        // Скрываем контейнер обратно
         pdfContainer.style.display = originalDisplay;
         pdfContainer.style.width = '';
 
-        // Создаем PDF с улучшенными настройками
+        // Создаем PDF с выбранной ориентацией
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const pdf = new jsPDF({
-            orientation: 'landscape',
+            orientation: printOrientation,
             unit: 'mm',
             format: 'a4'
         });
@@ -733,17 +675,12 @@ function downloadPDF() {
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
 
-        // Рассчитываем размеры изображения для PDF
-        const imgWidth = pdfWidth - 10;
+        // Рассчитываем размеры изображения
+        const imgWidth = pdfWidth - 20;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        // Проверяем, помещается ли на одну страницу
-        if (imgHeight <= pdfHeight - 10) {
-            pdf.addImage(imgData, 'JPEG', 5, 5, imgWidth, imgHeight);
-        } else {
-            const scaleFactor = (pdfHeight - 10) / imgHeight;
-            pdf.addImage(imgData, 'JPEG', 5, 5, imgWidth * scaleFactor, imgHeight * scaleFactor);
-        }
+        // Добавляем изображение
+        pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
 
         // Добавляем метаданные
         pdf.setProperties({
@@ -764,81 +701,82 @@ function downloadPDF() {
     });
 }
 
-// Функция для печати расписания с КРУПНЫМ ШРИФТОМ
+// Функция для печати расписания
 function printSchedule() {
-    console.log('Печать расписания с крупным шрифтом...');
+    console.log('Печать расписания...');
 
-    // Создаем iframe для печати
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = 'none';
+    // Создаем временный контейнер для печати
+    const printContent = document.querySelector('.print-container').outerHTML;
+    const printWindow = window.open('', '_blank');
 
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-    // Копируем содержимое print-container в iframe
-    iframeDoc.open();
-    iframeDoc.write(`
+    printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
             <title>Расписание: {{ schedule.title }}</title>
             <style>
                 body {
-                    font-family: Arial, sans-serif;
                     margin: 0;
-                    padding: 20px;
+                    padding: 10mm;
+                    font-family: 'Bookman Old Style', serif;
                     background: white;
+                    font-size: 14px;
+                }
+                @page {
+                    size: ${printOrientation};
+                    margin: 10mm;
                 }
                 .print-table {
                     width: 100%;
                     border: 2px solid #000;
                     border-collapse: collapse;
-                    font-size: 12px;
+                    font-size: 14px;
                 }
                 .print-table th, .print-table td {
                     border: 1px solid #000;
-                    padding: 8px;
+                    padding: 8px 4px;
                     text-align: center;
                     vertical-align: middle;
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
+                    font-size: 13px;
+                    line-height: 1.3;
                 }
-                .print-time-header, .print-day-header {
-                    background: #d3d3d3;
+                .print-time-header {
+                    background: linear-gradient(135deg, #3498db, #2980b9);
                     font-weight: bold;
-                    color: #000;
+                    color: white;
                     font-size: 14px;
+                    padding: 10px 4px;
+                }
+                .print-day-header {
+                    background: linear-gradient(135deg, #27ae60, #229954);
+                    font-weight: bold;
+                    color: white;
+                    font-size: 14px;
+                    padding: 10px 4px;
                 }
                 .print-time-cell {
-                    background: #b0b0b0;
+                    background: linear-gradient(135deg, #bdc3c7, #95a5a6);
                     font-weight: bold;
-                    color: #000;
+                    color: #2c3e50;
                     font-size: 13px;
+                    padding: 10px 4px;
+                    width: 80px;
+                }
+                .print-table td {
+                    font-size: 14px;
+                    font-weight: normal;
+                    color: #000;
+                    line-height: 1.3;
+                    padding: 10px 4px;
+                    min-height: 40px;
                 }
                 .print-header {
                     text-align: center;
-                    margin-bottom: 20px;
-                    font-size: 22px;
+                    margin-bottom: 15px;
+                    font-size: 20px;
                     font-weight: bold;
-                    color: #000;
-                }
-                .print-date {
-                    font-size: 14px;
-                    color: #666;
-                    margin-top: 5px;
-                }
-                /* ОЧЕНЬ КРУПНЫЙ ШРИФТ ДЛЯ УРОКОВ */
-                .print-table td {
-                    font-size: 20px !important;
-                    font-weight: bold !important;
-                    color: #000 !important;
-                    line-height: 1.2 !important;
-                    text-align: center !important;
-                    vertical-align: middle !important;
+                    color: #2c3e50;
+                    font-family: 'Bookman Old Style', serif;
                 }
                 * {
                     -webkit-print-color-adjust: exact;
@@ -847,20 +785,18 @@ function printSchedule() {
             </style>
         </head>
         <body>
-            ${document.querySelector('.print-container').outerHTML}
+            ${printContent}
         </body>
         </html>
     `);
-    iframeDoc.close();
 
-    // Печатаем из iframe
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
+    printWindow.document.close();
 
-    // Удаляем iframe после печати
+    // Даем время на загрузку и затем печатаем
     setTimeout(() => {
-        document.body.removeChild(iframe);
-    }, 100);
+        printWindow.print();
+        printWindow.close();
+    }, 500);
 }
 
 // Горячая клавиша Ctrl+P
@@ -880,8 +816,10 @@ function copyLinkToClipboard(link) {
     });
 }
 
-// Подсказка для кнопок
+// Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
+    setupPrintOrientation();
+
     const printBtn = document.querySelector('.btn-print');
     const pdfBtn = document.querySelector('.btn-pdf');
 
