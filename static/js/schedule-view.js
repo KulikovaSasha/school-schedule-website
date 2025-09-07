@@ -235,6 +235,19 @@
                 background: none !important;
                 text-decoration: underline !important;
             }
+
+            /* ДОБАВЛЕНО: Сохранение шрифтов для печати */
+            .lesson-title,
+            .subject-name {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color: #000 !important;
+            }
+
+            /* ДОБАВЛЕНО: Применение индивидуальных шрифтов */
+            .font-applied {
+                font-family: inherit !important;
+            }
         }
 
         @media (max-width: 992px) {
@@ -338,9 +351,310 @@
     // Добавляем стили в документ
     document.head.appendChild(style);
 
+    // Функция для применения шрифтов к названиям уроков
+    function applyLessonFonts() {
+        const lessonsData = window.lessonsData || {};
+
+        document.querySelectorAll('.lesson-cell, .lesson-view-cell').forEach(cell => {
+            const dayIndex = cell.getAttribute('data-day');
+            const lessonIndex = cell.getAttribute('data-lesson');
+            const lessonKey = `${dayIndex}_${lessonIndex}`;
+            const lesson = lessonsData[lessonKey];
+
+            if (lesson && lesson.font_family) {
+                const titleElement = cell.querySelector('.subject-name, .lesson-title');
+                if (titleElement) {
+                    titleElement.style.fontFamily = `'${lesson.font_family}'`;
+                    titleElement.classList.add('font-applied');
+                    titleElement.setAttribute('data-font-family', lesson.font_family);
+
+                    // Сохраняем шрифт в data-атрибуте родительской ячейки
+                    cell.setAttribute('data-font-family', lesson.font_family);
+                }
+            }
+        });
+    }
+
+    // Функция для создания print-friendly версии
+    function createPrintVersion() {
+        const printContainer = document.createElement('div');
+        printContainer.className = 'print-version';
+        printContainer.style.cssText = `
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 210mm;
+            padding: 20mm;
+            background: white;
+        `;
+
+        // Копируем основную таблицу
+        const originalTable = document.querySelector('.schedule-table');
+        if (originalTable) {
+            const printTable = originalTable.cloneNode(true);
+
+            // Сохраняем все примененные стили, включая шрифты
+            printTable.querySelectorAll('.font-applied, [data-font-family]').forEach(element => {
+                const fontFamily = element.getAttribute('data-font-family') ||
+                                  element.style.fontFamily ||
+                                  'Bookman Old Style';
+                element.style.fontFamily = `'${fontFamily}'`;
+                element.style.color = '#000000';
+                element.style.fontWeight = 'bold';
+                element.style.fontSize = '18px'; // Увеличиваем шрифт
+                element.style.lineHeight = '1.2';
+                element.style.textAlign = 'center';
+                element.style.verticalAlign = 'middle';
+
+                // Убеждаемся, что стили сохраняются для печати
+                element.style.setProperty('font-family', `'${fontFamily}'`, 'important');
+                element.style.setProperty('font-size', '18px', 'important');
+            });
+
+            // Убираем ненужные элементы для печати
+            printTable.querySelectorAll('.no-print, .lesson-link, .action-buttons, .time-display').forEach(el => {
+                el.remove();
+            });
+
+            // Упрощаем стили таблицы для печати
+            printTable.style.border = '2px solid #000';
+            printTable.style.borderCollapse = 'collapse';
+            printTable.style.width = '100%';
+
+            // Увеличиваем размеры ячеек для печати
+            printTable.querySelectorAll('th, td').forEach(cell => {
+                cell.style.border = '2px solid #000';
+                cell.style.padding = '15px 8px';
+                cell.style.textAlign = 'center';
+                cell.style.verticalAlign = 'middle';
+                cell.style.height = '60px'; // Высота ячеек
+                cell.style.minWidth = '120px'; // Минимальная ширина
+            });
+
+            printTable.querySelectorAll('th').forEach(th => {
+                th.style.background = '#f0f0f0';
+                th.style.color = '#000';
+                th.style.fontWeight = 'bold';
+                th.style.fontSize = '16px';
+                th.style.padding = '12px 8px';
+            });
+
+            printTable.querySelectorAll('.time-cell').forEach(td => {
+                td.style.background = '#e0e0e0';
+                td.style.fontWeight = 'bold';
+                td.style.fontSize = '14px';
+                td.style.width = '100px';
+            });
+
+            // Увеличиваем шрифт в ячейках времени
+            printTable.querySelectorAll('.time-cell .time-display').forEach(el => {
+                el.style.fontSize = '14px';
+                el.style.fontWeight = 'bold';
+            });
+
+            printContainer.appendChild(printTable);
+            document.body.appendChild(printContainer);
+
+            return printContainer;
+        }
+        return null;
+    }
+
+    // Улучшенная функция печати с крупным шрифтом
+    function printScheduleWithLargeFont() {
+        // Сначала применяем шрифты (на случай динамических изменений)
+        applyLessonFonts();
+
+        const printContainer = createPrintVersion();
+        if (printContainer) {
+            // Используем стандартную печать, но с нашим контейнером
+            const originalDisplay = printContainer.style.display;
+            printContainer.style.display = 'block';
+            printContainer.style.position = 'fixed';
+            printContainer.style.left = '0';
+            printContainer.style.top = '0';
+            printContainer.style.zIndex = '9999';
+            printContainer.style.width = '100%';
+            printContainer.style.height = '100%';
+            printContainer.style.overflow = 'auto';
+            printContainer.style.background = 'white';
+            printContainer.style.padding = '20px';
+
+            // Скрываем все остальное
+            document.body.querySelectorAll('*:not(.print-version)').forEach(el => {
+                el.style.visibility = 'hidden';
+            });
+
+            window.print();
+
+            // Восстанавливаем видимость
+            document.body.querySelectorAll('*:not(.print-version)').forEach(el => {
+                el.style.visibility = 'visible';
+            });
+
+            // Удаляем контейнер
+            document.body.removeChild(printContainer);
+        } else {
+            // Fallback на стандартную печать
+            window.print();
+        }
+    }
+
+    // Альтернативный метод печати через iframe с крупным шрифтом
+    function printScheduleWithLargeFontAlternative() {
+        // Создаем iframe для печати
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+
+        document.body.appendChild(iframe);
+
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Собираем HTML с сохраненными шрифтами и крупным текстом
+        let printHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Расписание: ${document.title}</title>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 10mm;
+                        background: white;
+                        font-family: Arial, sans-serif;
+                    }
+                    .print-schedule {
+                        width: 100%;
+                        border-collapse: collapse;
+                        border: 3px solid #000;
+                    }
+                    .print-schedule th, .print-schedule td {
+                        border: 2px solid #000;
+                        padding: 15px 10px;
+                        text-align: center;
+                        vertical-align: middle;
+                        height: 70px;
+                        min-width: 140px;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    .print-schedule th {
+                        background: #f0f0f0 !important;
+                        color: #000 !important;
+                        font-weight: bold;
+                        font-size: 18px;
+                        padding: 12px 10px;
+                    }
+                    .time-header {
+                        background: #e0e0e0 !important;
+                        font-weight: bold;
+                        font-size: 16px;
+                        width: 120px;
+                    }
+                    .lesson-cell {
+                        font-size: 20px !important;
+                        font-weight: bold;
+                        line-height: 1.2;
+                        text-align: center;
+                        vertical-align: middle;
+                    }
+                    .schedule-title {
+                        text-align: center;
+                        font-size: 24px;
+                        font-weight: bold;
+                        margin-bottom: 20px;
+                        color: #000;
+                    }
+                    .print-date {
+                        text-align: center;
+                        font-size: 14px;
+                        color: #666;
+                        margin-bottom: 30px;
+                    }
+                    @media print {
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .print-schedule {
+                            page-break-inside: avoid;
+                            width: 100% !important;
+                            font-size: 20px !important;
+                        }
+                        * {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        @page {
+                            margin: 15mm;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="schedule-title">Расписание занятий</div>
+                <div class="print-date">Напечатано: ${new Date().toLocaleString()}</div>
+                <table class="print-schedule">
+                    <thead>
+                        <tr>
+                            <th class="time-header">Время</th>
+        `;
+
+        // Добавляем заголовки дней
+        document.querySelectorAll('.day-header').forEach(header => {
+            printHTML += `<th>${header.textContent}</th>`;
+        });
+
+        printHTML += `</tr></thead><tbody>`;
+
+        // Добавляем строки с уроками
+        document.querySelectorAll('.schedule-table tbody tr').forEach(row => {
+            printHTML += '<tr>';
+            row.querySelectorAll('td').forEach((cell, index) => {
+                if (index === 0) {
+                    // Время
+                    const timeText = cell.querySelector('.time-display') ? cell.querySelector('.time-display').textContent : cell.textContent;
+                    printHTML += `<td class="time-header">${timeText}</td>`;
+                } else {
+                    // Уроки
+                    const subjectElement = cell.querySelector('.subject-name, .lesson-title');
+                    const subjectText = subjectElement ? subjectElement.textContent : '';
+                    const fontFamily = subjectElement ? subjectElement.style.fontFamily : 'Bookman Old Style';
+
+                    printHTML += `<td class="lesson-cell" style="font-family: ${fontFamily} !important; font-size: 20px !important;">${subjectText}</td>`;
+                }
+            });
+            printHTML += '</tr>';
+        });
+
+        printHTML += `</tbody></table></body></html>`;
+
+        iframeDoc.open();
+        iframeDoc.write(printHTML);
+        iframeDoc.close();
+
+        // Печатаем из iframe
+        iframe.contentWindow.focus();
+        setTimeout(() => {
+            iframe.contentWindow.print();
+            // Удаляем iframe после печати
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        }, 500);
+    }
+
     // Функции для работы с просмотром расписания
     function initScheduleView() {
         console.log('Schedule view initialized');
+
+        // Применяем шрифты к урокам
+        applyLessonFonts();
 
         // Инициализация tooltips Bootstrap
         const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -363,9 +677,17 @@
         const printBtn = document.getElementById('print-schedule');
         if (printBtn) {
             printBtn.addEventListener('click', function() {
-                window.print();
+                printScheduleWithLargeFontAlternative(); // Используем версию с крупным шрифтом
             });
         }
+
+        // Горячая клавиша Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                printScheduleWithLargeFontAlternative();
+            }
+        });
 
         // Подсветка текущего времени
         highlightCurrentTime();
@@ -408,12 +730,19 @@
             }, index * 50);
         });
     }
-    
+
     // Инициализация при загрузке документа
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initScheduleView);
     } else {
         initScheduleView();
     }
+
+    // Экспортируем функции для глобального доступа
+    window.ScheduleView = {
+        printSchedule: printScheduleWithLargeFontAlternative,
+        applyLessonFonts: applyLessonFonts,
+        printLarge: printScheduleWithLargeFontAlternative
+    };
 
 })();
