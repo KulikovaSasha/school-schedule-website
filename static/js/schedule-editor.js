@@ -128,8 +128,8 @@ function openEditModal(cell) {
     document.getElementById('editDayIndex').value = dayIndex;
     document.getElementById('editLessonIndex').value = lessonIndex;
     document.getElementById('subjectName').value = currentLesson.subject_name || '';
-    document.getElementById('subjectColor').value = currentLesson.color || '#4a6fa5';
-    document.getElementById('colorHex').value = currentLesson.color || '#4a6fa5';
+    document.getElementById('subjectColor').value = currentLesson.color || '#ffffff';
+    document.getElementById('colorHex').value = currentLesson.color || '#ffffff';
     document.getElementById('lessonLink').value = currentLesson.lesson_link || '';
     document.getElementById('linkText').value = currentLesson.link_text || '';
     document.getElementById('fontFamily').value = currentFontFamily;

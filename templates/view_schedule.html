@@ -49,7 +49,7 @@
 
 .subject-name {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px; /* Увеличил размер шрифта */
 }
 
 /* Стили для ссылок и кнопок */
@@ -169,17 +169,16 @@
     background: linear-gradient(135deg, #FFFFFF 0%, var(--lesson-color) 100%) !important;
 }
 
-/* Стили для печати - с увеличенным шрифтом */
+/* Стили для печати - компактный вид на одной странице */
 @media print {
     /* Скрываем ВСЁ содержимое body */
     body * {
-        display: none !important;
+        visibility: hidden !important;
     }
 
     /* Показываем ТОЛЬКО контейнер для печати */
     .print-container,
     .print-container * {
-        display: block !important;
         visibility: visible !important;
     }
 
@@ -192,76 +191,80 @@
         padding: 10mm !important;
         background: white !important;
         font-family: 'Bookman Old Style', serif !important;
-        font-size: 14px !important;
     }
 
-    /* Увеличиваем размер шрифта для печатной таблицы */
+    /* Компактные стили для печатной таблицы */
     .print-table {
         width: 100% !important;
-        border: 2px solid #000 !important;
+        border: 1px solid #000 !important;
         border-collapse: collapse !important;
-        font-size: 14px !important;
+        font-size: 10px !important;
         page-break-inside: avoid !important;
     }
 
     .print-table th,
     .print-table td {
         border: 1px solid #000 !important;
-        padding: 8px 4px !important;
+        padding: 4px 2px !important;
         text-align: center !important;
         vertical-align: middle !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        font-size: 13px !important;
-        line-height: 1.3 !important;
-        height: auto !important;
+        font-size: 9px !important;
+        line-height: 1.1 !important;
     }
 
     .print-time-header {
         background: linear-gradient(135deg, #3498db, #2980b9) !important;
         font-weight: bold !important;
         color: white !important;
-        font-size: 14px !important;
-        padding: 10px 4px !important;
+        font-size: 10px !important;
+        padding: 6px 2px !important;
     }
 
     .print-day-header {
         background: linear-gradient(135deg, #27ae60, #229954) !important;
         font-weight: bold !important;
         color: white !important;
-        font-size: 14px !important;
-        padding: 10px 4px !important;
+        font-size: 10px !important;
+        padding: 6px 2px !important;
     }
 
     .print-time-cell {
         background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
         font-weight: bold !important;
         color: #2c3e50 !important;
-        font-size: 13px !important;
-        padding: 10px 4px !important;
-        width: 80px !important;
+        font-size: 9px !important;
+        padding: 6px 2px !important;
+        width: 70px !important;
     }
 
-    /* Увеличиваем размер шрифта для ячеек с уроками */
+    /* Компактный стиль для названий уроков */
     .print-table td {
-        font-size: 14px !important;
+        font-size: 11px !important; /* Увеличил размер шрифта */
         font-weight: normal !important;
         color: #000 !important;
-        line-height: 1.3 !important;
+        line-height: 1.1 !important;
         text-align: center !important;
         vertical-align: middle !important;
-        padding: 10px 4px !important;
-        height: auto !important;
-        min-height: 40px !important;
+        padding: 5px 2px !important; /* Уменьшил отступы */
+        height: 25px !important; /* Уменьшил высоту строк */
     }
 
     .print-header {
         text-align: center !important;
-        margin-bottom: 15px !important;
-        font-size: 20px !important;
+        margin-bottom: 10px !important;
+        font-size: 16px !important;
         font-weight: bold !important;
         color: #2c3e50 !important;
         font-family: 'Bookman Old Style', serif !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important; /* Светлый контрастный фон */
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        padding: 8px 15px !important;
+        border-radius: 8px !important;
+        border: 1px solid #dee2e6 !important;
     }
 
     .print-date {
@@ -275,9 +278,9 @@
         background-image: none !important;
     }
 
-    /* Увеличиваем отступы страницы для лучшего вида */
+    /* Компактные отступы страницы */
     @page {
-        margin: 10mm !important;
+        margin: 5mm !important;
     }
 }
 
@@ -288,7 +291,7 @@
 
 .pdf-style {
     font-family: 'Bookman Old Style', serif;
-    padding: 15px;
+    padding: 5px;
     background: white;
     width: 100%;
     box-sizing: border-box;
@@ -296,42 +299,45 @@
 
 .pdf-title {
     text-align: center;
-    font-size: 20px;
+    font-size: 22px; /* Увеличил размер шрифта названия */
     font-weight: bold;
-    color: #2c3e50 !important;
-    margin-bottom: 15px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 2px solid #dee2e6;
+    color: #2c3e50;
+    margin-bottom: 12px; /* Уменьшил отступ */
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); /* Светлый контрастный фон */
+    padding: 8px 12px; /* Уменьшил отступы */
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
 }
 
 .pdf-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 10px;
+    font-size: 14px; /* Увеличил базовый размер шрифта */
 }
 
 .pdf-table th {
     background: linear-gradient(135deg, #2c3e50, #34495e);
     color: white;
-    padding: 6px 3px;
+    padding: 5px 1px; /* Уменьшил отступы */
     text-align: center;
     font-weight: 600;
-    font-size: 10px;
-    height: 30px;
+    font-size: 14px; /* Увеличил размер шрифта */
+    height: 22px; /* Уменьшил высоту строк */
     border: 1px solid #e0e0e0;
 }
 
 .pdf-table td {
-    padding: 6px 3px;
+    padding: 5px 0 !important;
     text-align: center;
     border: 1px solid #e0e0e0;
-    font-size: 10px;
+    font-size: 12px !important;
     font-weight: normal;
-    height: 35px;
+    height: auto !important; /* Автоматическая высота */
+    min-height: 30px !important; /* Минимальная высота */
     vertical-align: middle;
-    line-height: 1.1;
+    line-height: 1.1 !important;
+    white-space: normal !important; /* Разрешаем перенос */
+    word-wrap: break-word !important; /* Перенос длинных слов */
 }
 
 .pdf-time-header {
@@ -349,14 +355,25 @@
     background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
     font-weight: 600 !important;
     color: #2c3e50 !important;
-    width: 70px;
+    width: 110x;
+    font-size: 12px !important; /* Увеличил размер шрифта */
+    padding: 3px 1px !important; /* Уменьшил отступы */
+    height: 18px !important; /* Уменьшил высоту строк */
 }
 
 .pdf-lesson-cell {
-    font-family: 'Bookman Old Style', serif !important;
-    font-size: 10px !important;
     font-weight: normal !important;
     color: #000000 !important;
+    font-size: 15px !important;
+    padding: 2px 1px !important; /* Увеличил отступы */
+    line-height: 1.1 !important; /* Немного увеличил межстрочный интервал */
+    height: auto !important; /* Автоматическая высота */
+    min-height: 16px !important; /* Минимальная высота */
+    white-space: normal !important; /* Разрешаем перенос */
+    word-wrap: break-word !important; /* Перенос длинных слов */
+    overflow-wrap: break-word !important; /* Современная альтернатива */
+    text-align: center !important;
+    vertical-align: middle !important;
 }
 
 .pdf-empty-cell {
@@ -429,12 +446,13 @@
                               -webkit-print-color-adjust: exact !important;
                               print-color-adjust: exact !important;
                               border: 1px solid #000 !important;
-                              font-family: '{{ lesson.font_family if lesson and lesson.font_family else "Bookman Old Style" }}' !important;
-                              font-size: 14px !important;
+                              font-family: '{{ lesson.font_family if lesson and lesson.font_family else 'Bookman Old Style' }}' !important;
+                              font-size: 12px !important; /* Увеличил размер шрифта */
                               font-weight: normal !important;
-                              line-height: 1.3 !important;
+                              line-height: 1 !important; /* Убрал межстрочный интервал */
                               text-align: center !important;
-                              vertical-align: middle !important;">
+                              vertical-align: middle !important;
+                              padding: 0 !important;"> <!-- Убрал отступы полностью -->
                         {% if lesson and lesson.subject_name %}
                             {{ lesson.subject_name }}
                         {% endif %}
@@ -449,7 +467,7 @@
     <!-- Контейнер для PDF - с названием и таблицей -->
     <div id="pdfContainer" class="pdf-container">
         <div class="pdf-style">
-            <div class="pdf-title">Расписание: {{ schedule.title }}</div>
+            <div class="pdf-title">{{ schedule.title }}</div>
             <table class="pdf-table">
                 <thead>
                     <tr>
@@ -462,8 +480,8 @@
                 <tbody>
                     {% for lesson_index in range(schedule.lessons_per_day) %}
                     <tr>
-                        <td class="pdf-time-cell">
-                            {{ lesson_times[lesson_index]['start'] }}<br>-<br>{{ lesson_times[lesson_index]['end'] }}
+                        <td class="pdf-time-cell" style="width: 110px !important;">
+                            {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
                         </td>
 
                         {% for day_index in range(days|length) %}
@@ -472,11 +490,24 @@
 
                         {% if lesson and lesson.subject_name %}
                         <td class="pdf-lesson-cell"
-                            style="background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson.color else '#667eea' }} 100%) !important;">
+                            style="background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson.color else '#667eea' }} 100%) !important;
+                                   font-family: '{{ lesson.font_family if lesson.font_family else 'Bookman Old Styl' }}' !important;
+                                   font-size: 17px !important;
+                                   padding: 2px 1px !important; /* Увеличил отступы для лучшего отображения */
+                                   height: 16px !important;
+                                   line-height: 1 !important;
+                                   white-space: normal !important; /* Разрешаем перенос */
+                                   word-wrap: break-word !important; /* Перенос длинных слов */
+                                   overflow-wrap: break-word !important; /* Современная альтернатива */
+                                   text-align: center !important;
+                                   vertical-align: middle !important;">
                             {{ lesson.subject_name }}
                         </td>
                         {% else %}
-                        <td class="pdf-lesson-cell pdf-empty-cell">
+                        <td class="pdf-lesson-cell pdf-empty-cell"
+                            style="height: 16px !important; /* Уменьшил высоту строк */
+                                   padding: 0 !important; /* Убрал отступы полностью */
+                                   line-height: 1 !important;"> <!-- Убрал межстрочный интервал -->
                             <!-- Пустая ячейка -->
                         </td>
                         {% endif %}
@@ -579,11 +610,12 @@
                     <td class="lesson-view-cell"
                         style="--lesson-color: {{ bg_color }};
                                background: linear-gradient(135deg, #FFFFFF 0%, {{ bg_color }} 100%);
-                               color: {{ text_color }};">
+                               color: {{ text_color }};
+                               height: 60px;"> <!-- Уменьшил высоту строк -->
                         {% if lesson and lesson.subject_name %}
                         <div class="lesson-content">
                             <!-- ВАЖНО: Применяем выбранный шрифт -->
-                            <div class="subject-name" style="font-family: '{{ lesson.font_family if lesson.font_family else "Bookman Old Style" }}'">
+                            <div class="subject-name" style="font-family: '{{ lesson.font_family if lesson.font_family else'Bookman Old Styl' }}'; font-size: 16px;"> <!-- Увеличил размер шрифта -->
                                 {{ lesson.subject_name }}
                             </div>
 
@@ -628,6 +660,66 @@ const { jsPDF } = window.jspdf;
 // Переменная для хранения выбранной ориентации
 let printOrientation = 'landscape';
 
+// Функция для обработки переносов в названиях уроков
+function processWordHyphenation(text) {
+    const hyphenationRules = {
+        'Информатика': 'Информа-тика',
+        'Литературное чтение': 'Литератур-ное чтение',
+        'Обществознание': 'Общество-знание',
+        'Окружающий мир': 'Окружаю-щий мир',
+        'Программирование': 'Програм-мирование',
+        'Программирование в Python': 'Программиро-вание в Python'
+    };
+
+    // Ищем точное совпадение и заменяем
+    for (const [original, hyphenated] of Object.entries(hyphenationRules)) {
+        if (text === original) {
+            return hyphenated;
+        }
+    }
+
+    // Если нет совпадения, возвращаем оригинальный текст
+    return text;
+}
+
+// Функция для проверки, помещается ли текст в ячейку
+function textFitsInCell(cell, text) {
+    // Создаем временный элемент для измерения
+    const tempSpan = document.createElement('span');
+    tempSpan.style.visibility = 'hidden';
+    tempSpan.style.position = 'absolute';
+    tempSpan.style.whiteSpace = 'nowrap';
+    tempSpan.style.font = window.getComputedStyle(cell).font;
+    tempSpan.textContent = text;
+
+    document.body.appendChild(tempSpan);
+    const textWidth = tempSpan.offsetWidth;
+    const cellWidth = cell.offsetWidth - 4; // Учитываем padding
+
+    document.body.removeChild(tempSpan);
+
+    return textWidth <= cellWidth;
+}
+
+// Функция для применения переносов только когда текст не помещается
+function applyHyphenationToTable() {
+    const pdfContainer = document.getElementById('pdfContainer');
+    const lessonCells = pdfContainer.querySelectorAll('.pdf-lesson-cell');
+
+    lessonCells.forEach(cell => {
+        const originalText = cell.textContent.trim();
+        if (originalText) {
+            // Проверяем, помещается ли оригинальный текст
+            if (!textFitsInCell(cell, originalText)) {
+                const hyphenatedText = processWordHyphenation(originalText);
+                if (hyphenatedText !== originalText) {
+                    cell.textContent = hyphenatedText;
+                }
+            }
+        }
+    });
+}
+
 // Функция для выбора ориентации печати
 function setupPrintOrientation() {
     const buttons = document.querySelectorAll('.orientation-btn');
@@ -650,153 +742,124 @@ function downloadPDF() {
     pdfContainer.style.display = 'block';
     pdfContainer.style.width = '900px';
 
-    // Используем html2canvas для создания изображения
-    html2canvas(pdfContainer, {
-        scale: 3,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        allowTaint: true,
-        width: 900,
-        windowWidth: 900
-    }).then(canvas => {
-        // Скрываем контейнер обратно
-        pdfContainer.style.display = originalDisplay;
-        pdfContainer.style.width = '';
+    // Даем время на отрисовку перед проверкой размеров
+    setTimeout(() => {
+        // Применяем переносы только к тексту, который не помещается
+        applyHyphenationToTable();
 
-        // Создаем PDF с выбранной ориентацией
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdf = new jsPDF({
-            orientation: printOrientation,
-            unit: 'mm',
-            format: 'a4'
-        });
+        // Даем время на применение изменений
+        setTimeout(() => {
+            // Используем html2canvas для создания изображения
+            html2canvas(pdfContainer, {
+                scale: 3,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+                width: 900,
+                windowWidth: 900
+            }).then(canvas => {
+                // Скрываем контейнер обратно
+                pdfContainer.style.display = originalDisplay;
+                pdfContainer.style.width = '';
 
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
+                // Создаем PDF с выбранной ориентацией
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const pdf = new jsPDF({
+                    orientation: printOrientation,
+                    unit: 'mm',
+                    format: 'a4'
+                });
 
-        // Рассчитываем размеры изображения
-        const imgWidth = pdfWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
 
-        // Добавляем изображение
-        pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+                // Рассчитываем размеры изображения
+                const imgWidth = pdfWidth - 20;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        // Добавляем метаданные
-        pdf.setProperties({
-            title: 'Расписание: {{ schedule.title }}',
-            subject: 'Расписание занятий',
-            author: 'School Schedule App'
-        });
+                // Добавляем изображение
+                pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
 
-        // Сохраняем PDF
-        const fileName = `Расписание - {{ schedule.title }}.pdf`;
-        pdf.save(fileName);
+                // Добавляем метаданные
+                pdf.setProperties({
+                    title: 'Расписание: {{ schedule.title }}',
+                    subject: 'Расписание занятий',
+                    author: 'School Schedule App'
+                });
 
-    }).catch(error => {
-        console.error('Ошибка при создании PDF:', error);
-        pdfContainer.style.display = originalDisplay;
-        pdfContainer.style.width = '';
-        alert('Ошибка при создании PDF файла');
-    });
+                // Сохраняем PDF
+                const fileName = `Расписание - {{ schedule.title }}.pdf`;
+                pdf.save(fileName);
+
+            }).catch(error => {
+                console.error('Ошибка при создании PDF:', error);
+                pdfContainer.style.display = originalDisplay;
+                pdfContainer.style.width = '';
+                alert('Ошибка при создании PDF файла');
+            });
+        }, 50);
+    }, 50);
 }
 
 // Функция для печати расписания
 function printSchedule() {
     console.log('Печать расписания...');
 
-    // Создаем временный контейнер для печати
-    const printContent = document.querySelector('.print-container').outerHTML;
-    const printWindow = window.open('', '_blank');
+    // Применяем переносы к тексту в контейнере для печати
+    const printContainer = document.querySelector('.print-container');
+    const lessonCells = printContainer.querySelectorAll('td');
 
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Расписание: {{ schedule.title }}</title>
-            <style>
-                body {
-                    margin: 0;
-                    padding: 10mm;
-                    font-family: 'Bookman Old Style', serif;
-                    background: white;
-                    font-size: 14px;
+    // Даем время на отрисовку перед проверкой размеров
+    setTimeout(() => {
+        lessonCells.forEach(cell => {
+            const originalText = cell.textContent.trim();
+            if (originalText) {
+                // Проверяем, помещается ли оригинальный текст
+                if (!textFitsInCell(cell, originalText)) {
+                    const hyphenatedText = processWordHyphenation(originalText);
+                    if (hyphenatedText !== originalText) {
+                        cell.textContent = hyphenatedText;
+                    }
                 }
+            }
+        });
+
+        // Создаем стиль для печати
+        const style = document.createElement('style');
+        style.textContent = `
+            @media print {
                 @page {
                     size: ${printOrientation};
-                    margin: 10mm;
+                    margin: 5mm;
                 }
-                .print-table {
+                body * {
+                    visibility: hidden;
+                }
+                .print-container,
+                .print-container * {
+                    visibility: visible;
+                }
+                .print-container {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
                     width: 100%;
-                    border: 2px solid #000;
-                    border-collapse: collapse;
-                    font-size: 14px;
+                    margin: 0;
+                    padding: 0;
+                    background: white;
                 }
-                .print-table th, .print-table td {
-                    border: 1px solid #000;
-                    padding: 8px 4px;
-                    text-align: center;
-                    vertical-align: middle;
-                    font-size: 13px;
-                    line-height: 1.3;
-                }
-                .print-time-header {
-                    background: linear-gradient(135deg, #3498db, #2980b9);
-                    font-weight: bold;
-                    color: white;
-                    font-size: 14px;
-                    padding: 10px 4px;
-                }
-                .print-day-header {
-                    background: linear-gradient(135deg, #27ae60, #229954);
-                    font-weight: bold;
-                    color: white;
-                    font-size: 14px;
-                    padding: 10px 4px;
-                }
-                .print-time-cell {
-                    background: linear-gradient(135deg, #bdc3c7, #95a5a6);
-                    font-weight: bold;
-                    color: #2c3e50;
-                    font-size: 13px;
-                    padding: 10px 4px;
-                    width: 80px;
-                }
-                .print-table td {
-                    font-size: 14px;
-                    font-weight: normal;
-                    color: #000;
-                    line-height: 1.3;
-                    padding: 10px 4px;
-                    min-height: 40px;
-                }
-                .print-header {
-                    text-align: center;
-                    margin-bottom: 15px;
-                    font-size: 20px;
-                    font-weight: bold;
-                    color: #2c3e50;
-                    font-family: 'Bookman Old Style', serif;
-                }
-                * {
-                    -webkit-print-color-adjust: exact;
-                    print-color-adjust: exact;
-                }
-            </style>
-        </head>
-        <body>
-            ${printContent}
-        </body>
-        </html>
-    `);
+            }
+        `;
+        document.head.appendChild(style);
 
-    printWindow.document.close();
+        window.print();
 
-    // Даем время на загрузку и затем печатаем
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 500);
+        // Удаляем временный стиль после печати
+        setTimeout(() => {
+            document.head.removeChild(style);
+        }, 100);
+    }, 50);
 }
 
 // Горячая клавиша Ctrl+P
