@@ -1,26 +1,909 @@
-# Распространенные файлы которые не нужно коммитить
-*.pyc
-__pycache__/
-instance/
-.webassets-cache
+{% extends "base.html" %}
 
-# Environment variables
-.env
-.flaskenv
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/schedule-view.css') }}">
+<style>
+/* Стили для экрана */
+.print-only {
+    display: none;
+}
 
-# IDE
-.idea/
-.vscode/
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
 
-# Database
-*.sqlite
-*.db
+.schedule-table th {
+    background: linear-gradient(45deg, #4a6fa5, #ffffff);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+}
 
-# OS
-.DS_Store
-Thumbs.db
+.schedule-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
 
-# Python
-venv/
-env/
-.venv/
+.time-cell {
+    background: linear-gradient(45deg, #ffffff, #dcdddd);
+    color: white;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+}
+
+.lesson-view-cell {
+    height: 70px;
+    vertical-align: middle;
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6;
+}
+
+.subject-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Стили для ссылок и кнопок */
+.lesson-link-container {
+    margin-top: 5px;
+}
+
+.lesson-link-btn {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.lesson-link-btn:hover {
+    background: #0056b3;
+}
+
+.copy-link-btn {
+    padding: 3px 6px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.copy-link-btn:hover {
+    background: #545b62;
+}
+
+/* Единый стиль для всех кнопок */
+.schedule-actions .btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    margin: 0 8px 8px 0;
+    transition: all 0.3s ease;
+    border: none;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.schedule-actions .btn i {
+    font-size: 16px;
+}
+
+.btn-print {
+    background: linear-gradient(45deg, #28a745, #20c997);
+}
+
+.btn-print:hover {
+    background: linear-gradient(45deg, #218838, #1aa179);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-pdf {
+    background: linear-gradient(45deg, #dc3545, #fd7e14);
+}
+
+.btn-pdf:hover {
+    background: linear-gradient(45deg, #c82333, #e65c10);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0069d9, #004a9f);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-outline {
+    background: linear-gradient(45deg, #6c757d, #495057);
+}
+
+.btn-outline:hover {
+    background: linear-gradient(45deg, #5a6268, #343a40);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* Красивое и контрастное отображение названия расписания */
+.schedule-title {
+    font-family: 'Bookman Old Style', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background-color:极
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Градиенты для ячеек с уроками на странице просмотра */
+.lesson-view-cell[style*="background-color"] {
+    background: linear-gradient(135deg, #FFFFFF 0%, var(--lesson-color) 100%) !important;
+}
+
+/* Стили для печати - компактный вид на одной странице */
+@media print {
+    /* Скрываем ВСЁ содержимое body */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* Показываем ТОЛЬКО контейнер для печати */
+    .print-container,
+    .print-container * {
+        visibility: visible !important;
+    }
+
+    .print-container {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10mm !important;
+        background: white !important;
+        font-family: 'Bookman Old Style', serif !important;
+    }
+
+    /* Компактные стили для печатной таблицы */
+    .print-table {
+        width: 100% !important;
+        border: 1px solid #000 !important;
+        border-collapse: collapse !important;
+        font-size: 10px !important;
+        page-break-inside: avoid !important;
+    }
+
+    .print-table th,
+    .print-table td {
+        border: 1px solid #000 !important;
+        padding: 4px 2px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-size: 9px !important;
+        line-height: 1.1 !important;
+    }
+
+    .print-time-header {
+        background: linear-gradient(135deg, #3498db, #2980b9) !important;
+        font-weight: bold !important;
+        color: white !important;
+        font-size: 10px !important;
+        padding: 6px 2px !important;
+    }
+
+    .print-day-header {
+        background: linear-gradient(135deg, #27ae60, #229954) !important;
+        font-weight: bold !important;
+        color: white !important;
+        font-size: 10px !important;
+        padding: 6px 2px !important;
+    }
+
+    .print-time-cell {
+        background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
+        font-weight: bold !important;
+        color: #2c3e50 !important;
+        font-size: 9px !important;
+        padding: 6px 2px !important;
+        width: 70px !important;
+    }
+
+    /* Компактный стиль для названий уроков */
+    .print-table td {
+        font-size: 11px !important;
+        font-weight: normal !important;
+        color: #000 !important;
+        line-height: 极 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        padding: 5px 2px !important;
+        height: 25px !important;
+    }
+
+    .print-header {
+        text-align: center !important;
+        margin-bottom: 10px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        color: #2c3e50 !important;
+        font-family: 'Bookman Old Style', serif !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        padding: 8px 15px !important;
+        border-radius: 8px !important;
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .print-date {
+        display: none !important;
+    }
+
+    /* Убираем всё лишнее */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        background-image: none !important;
+    }
+
+    /* Компактные отступы страницы */
+    @page {
+        margin: 5mm !important;
+    }
+}
+
+/* Специальный контейнер для PDF - с названием и таблицей */
+.pdf-container {
+    display: none;
+}
+
+.pdf-style {
+    font-family: 'Bookman Old Style', serif;
+    padding: 5px;
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pdf-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.pdf-table th {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 5px 3px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14极;
+    height: 22px;
+    border: 1px solid #e0e0e0;
+}
+
+.pdf-table td {
+    padding: 5px 0 !important;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    font-size: 12px !important;
+    font-weight: normal;
+    height: 30px !important;
+    vertical-align: middle;
+    line-height: 1.1 !important;
+}
+
+.pdf-time-header {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    font-weight: 600 !important;
+    width: 70px;
+}
+
+.pdf-day-header {
+    background: linear-gradient(135deg, #27ae60, #229954) !important;
+    font-weight: 600 !important;
+}
+
+.pdf-time-cell {
+    background: linear-gradient(135deg, #bdc3c7, #95a5a6) !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    width: 125px;
+    font-size: 12px !important;
+    padding: 3px 2px !important;
+    height: 18px !important;
+}
+
+.pdf-lesson-cell {
+    font-weight: normal !important;
+    color: #000000 !important;
+    font-size: 15px !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    height: 16px !important;
+}
+
+.pdf-empty-cell {
+    background: #FFFFFF !important;
+}
+
+/* Кнопки выбора ориентации печати */
+.print-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.orientation-btn {
+    padding: 8px 15px;
+    border: 2px solid #007bff;
+    background: white;
+    color: #007bff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.orientation-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.orientation-btn:hover {
+    background: #0056b3;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Контейнер для печати (скрыт на экране) -->
+    <div class="print-container print-only">
+        <div class极="print-header">
+            <h2>Расписание: {{ schedule.title }}</h2>
+        </div>
+
+        <!-- ТАБЛИЦА ДЛЯ ПЕЧАТИ И PDF -->
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th class="print-time-header">Время</th>
+                    {% for day in days %}
+                    <th class="print-day-header">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lesson_index in range(schedule.lessons_per_day) %}
+                <tr>
+                    <td class="print-time-cell">
+                        {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
+                    </td>
+
+                    {% for day_index in range(days|length) %}
+                    {% set lesson_key = day_index ~ '_' ~ lesson_index %}
+                    {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
+
+                    <td style="--lesson-color: {{ lesson.color if lesson and lesson.color else '#FFFFFF' }};
+                              background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson and lesson.color else '#FFFFFF' }} 100%) !important;
+                              color: #000000 !important;
+                              -webkit-print-color-adjust: exact !important;
+                              print-color-adjust: exact !important;
+                              border: 1px solid #000 !important;
+                              font-family: '{{ lesson.font_family if lesson and lesson.font_family else 'Bookman Old Style' }}' !important;
+                              font-size: 12px !important;
+                              font-weight: normal !important;
+                              line-height: 1 !important;
+                              text-align: center !important;
+                              vertical-align: middle !important;
+                              padding: 0 !important;">
+                        {% if lesson and lesson.subject_name %}
+                            {{ lesson.subject_name }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Контейнер для PDF - с названием и таблицей -->
+    <div id="pdfContainer" class="pdf-container">
+        <div class="pdf-style">
+            <div class="pdf-title">{{ schedule.title }}</div>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th class="pdf-time-header">Время</th>
+                        {% for day in days %}
+                        <th class="pdf-day-header">{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson_index in range(schedule.lessons_per_day) %}
+                    <tr>
+                        <td class="pdf-time-cell" style="width: 125px !important;">
+                            {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
+                        </td>
+
+                        {% for day_index in range(days|length) %}
+                        {% set lesson_key = day_index ~ '_' ~ lesson_index %}
+                        {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
+
+                        {% if lesson and lesson.subject_name %}
+                        <td class="pdf-lesson-cell"
+                            style="background: linear-gradient(135deg, #FFFFFF 0%, {{ lesson.color if lesson.color else '#667eea' }} 100%) !important;
+                                   font-family: '{{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}' !important;
+                                   font-size: 17px !important;
+                                   padding: 0 !important;
+                                   height: 16px !important;
+                                   line-height: 1 !important;">
+                            {{ lesson.subject_name }}
+                        </td>
+                        {% else %}
+                        <td class="pdf-lesson-cell pdf-empty-cell"
+                            style="height: 16px !important;
+                                   padding: 0 !important;
+                                   line-height: 1 !important;">
+                        </td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Основной контент для экрана -->
+    <div class="schedule-header">
+        <h1 class="schedule-title">{{ schedule.title }}</h1>
+
+        <!-- Кнопки выбора ориентации печати -->
+        <div class="print-options">
+            <button class="orientation-btn active" data-orientation="landscape">
+                <i class="fas fa-arrows-alt-h"></i> Альбомная
+            </button>
+            <button class="orientation-btn" data-orientation="portrait">
+                <i class="fas fa-arrows-alt-v"></i> Книжная
+            </button>
+        </div>
+
+        <div class="schedule-actions">
+            <button onclick="printSchedule()" class="btn btn-print">
+                <i class="fas fa-print"></i> Печать
+            </button>
+            <button onclick="downloadPDF()" class="btn btn-pdf">
+                <i class="fas fa-file-pdf"></i> Скачать PDF
+            </button>
+            <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Редактировать
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+        </div>
+    </div>
+
+    <div class="schedule-info">
+        <div class="info-item">
+            <strong>📅 Дни недели:</strong> {{ days|join(', ') }}
+        </div>
+        <div class="info-item">
+            <strong>⏰ Уроков в день:</strong> {{ schedule.lessons_per_day }}
+        </div>
+        <div class="info-item">
+            <strong>🕘 Первый урок:</strong> {{ schedule.start_time }}
+        </div>
+        <div class="info-item">
+            <strong>⏱ Длительность урока:</strong> {{ schedule.lesson_duration }} минут
+        </div>
+    </div>
+
+    <!-- Основная таблица для экрана -->
+    <div class="schedule-view-container">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th class="time-header">Время</th>
+                    {% for day in days %}
+                    <th class="day-header">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for lesson_index in range(schedule.lessons_per_day) %}
+                <tr>
+                    <td class="time-cell">
+                        <div class="time-display">
+                            {{ lesson_times[lesson_index]['start'] }} - {{ lesson_times[lesson_index]['end'] }}
+                        </div>
+                    </td>
+
+                    {% for day_index in range(days|length) %}
+                    {% set lesson_key = day_index ~ '_' ~ lesson_index %}
+                    {% set lesson = lessons[lesson_key] if lesson_key in lessons else None %}
+                    {% set bg_color = lesson.color if lesson and lesson.color else '#FFFFFF' %}
+
+                    <!-- Расчет цвета текста -->
+                    {% if lesson and lesson.color %}
+                        {% set clean_color = lesson.color.replace('#', '') %}
+                        {% if clean_color|length == 3 %}
+                            {% set r = clean_color[0] + clean_color[0] %}
+                            {% set g = clean_color[1] + clean_color[1] %}
+                            {% set b = clean_color[2] + clean_color[2] %}
+                        {% else %}
+                            {% set r = clean_color[0:2] %}
+                            {% set g = clean_color[2:4] %}
+                            {% set b = clean_color[4:6] %}
+                        {% endif %}
+                        {% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|极(16) * 114) / 1000 %}
+                        {% set text_color = '#000000' if brightness > 128 else '#FFFFFF' %}
+                    {% else %}
+                        {% set text_color = '#000000' %}
+                    {% endif %}
+
+                    <td class="lesson-view-cell"
+                        style="--lesson-color: {{ bg_color }};
+                               background: linear-gradient(135deg, #FFFFFF 0%, {{ bg_color }} 100%);
+                               color: {{ text_color }};
+                               height: 70px;">
+                        {% if lesson and lesson.subject_name %}
+                        <div class="lesson-content">
+                            <div class="subject-name" style="font-family: '{{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}'; font-size: 16px;">
+                                {{ lesson.subject_name }}
+                            </div>
+
+                            {% if lesson.lesson_link %}
+                            <div class="lesson-link-container">
+                                <a href="{{ lesson.lesson_link }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   class="lesson-link-btn"
+                                   style="color: {{ text_color }} !important; background: rgba(255, 255, 255, 0.2);">
+                                    <i class="fas fa-video"></i>
+                                    {{ lesson.link_text if lesson.link_text else 'Перейти к уроку' }}
+                                </a>
+                                <button class="copy-link-btn" onclick="copyLinkToClipboard('{{ lesson.lesson_link }}')"
+                                        title="Скопировать ссылку"
+                                        style="background: rgba(255, 255, 255, 0.2); color: {{ text_color }};">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Подключаем библиотеку jsPDF и html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+// Инициализация jsPDF
+const { jsPDF } = window.jspdf;
+
+// Переменная для хранения выбранной ориентации
+let printOrientation = 'landscape';
+
+// Функция для обработки переносов в названиях уроков
+function processWordHyphenation(text) {
+    const hyphenationRules = {
+        'Информатика': 'Информа-тика',
+        'Литературное': 'Литератур-ное',
+        'Обществознание': 'Общество-знание',
+        'Окружающий': 'Окружаю-щий',
+        'Программирование': 'Програм-мирование'
+    };
+
+    // Ищем точное совпадение и заменяем
+    for (const [original, hyphenated] of Object.entries(hyphenationRules)) {
+        if (text === original) {
+            return hyphenated;
+        }
+    }
+
+    // Если нет совпадения, возвращаем оригинальный текст
+    return text;
+}
+
+// Функция для проверки, помещается ли текст в ячейку
+function textFitsInCell(cell, text) {
+    // Создаем временный элемент для измерения
+    const tempSpan = document.createElement('span');
+    tempSpan.style.visibility = 'hidden';
+    tempSpan.style.position = 'absolute';
+    tempSpan.style.whiteSpace = 'nowrap';
+    tempSpan.style.font = window.getComputedStyle(cell).font;
+    tempSpan.textContent = text;
+
+    document.body.appendChild(tempSpan);
+    const textWidth = tempSpan.offsetWidth;
+    const cellWidth = cell.offsetWidth - 4; // Учитываем padding
+
+    document.body.removeChild(tempSpan);
+
+    return textWidth <= cellWidth;
+}
+
+// Функция для применения переносов только когда текст не помещается
+function applyHyphenationToTable() {
+    const pdfContainer = document.getElementById('pdfContainer');
+    const lessonCells = pdfContainer.querySelectorAll('.pdf-lesson-cell');
+
+    lessonCells.forEach(cell => {
+        const originalText = cell.textContent.trim();
+        if (originalText) {
+            // Проверяем, помещается ли оригинальный текст
+            if (!textFitsInCell(cell, originalText)) {
+                const hyphenatedText = processWordHyphenation(originalText);
+                if (hyphenatedText !== originalText) {
+                    cell.textContent = hyphenatedText;
+                }
+            }
+        }
+    });
+}
+
+// Функция для выбора ориентации печати
+function setupPrintOrientation() {
+    const buttons = document.querySelectorAll('.orientation-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            buttons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            printOrientation = this.dataset.orientation;
+        });
+    });
+}
+
+// Функция для скачивания PDF
+function downloadPDF() {
+    console.log('Генерация PDF...');
+
+    // Сохраняем оригинальные тексты
+    const pdfContainer = document.getElementById('pdfContainer');
+    const originalTexts = {};
+    const lessonCells = pdfContainer.querySelectorAll('.pdf-lesson-cell');
+
+    lessonCells.forEach((cell, index) => {
+        originalTexts[index] = cell.textContent;
+    });
+
+    // Показываем контейнер для PDF временно
+    const originalDisplay = pdfContainer.style.display;
+    pdfContainer.style.display = 'block';
+    pdfContainer.style.width = '900px';
+
+    // Даем время на отрисовку
+    setTimeout(() => {
+        // Применяем переносы только к тексту, который не помещается
+        applyHyphenationToTable();
+
+        // Даем время на применение изменений
+        setTimeout(() => {
+            // Используем html2canvas для создания изображения
+            html2canvas(pdfContainer, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+                width: 900,
+                windowWidth: 900
+            }).then(canvas => {
+                // Восстанавливаем оригинальные тексты
+                lessonCells.forEach((cell, index) => {
+                    cell.textContent = originalTexts[index];
+                });
+
+                // Скрываем контейнер обратно
+                pdfContainer.style.display = originalDisplay;
+                pdfContainer.style.width = '';
+
+                // Создаем PDF с выбранной ориентацией
+                const pdf = new jsPDF({
+                    orientation: printOrientation,
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                // Рассчитываем размеры изображения
+                const imgWidth = pdfWidth - 20;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+                // Добавляем изображение
+                pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+
+                // Добавляем метаданные
+                pdf.setProperties({
+                    title: 'Расписание: {{ schedule.title }}',
+                    subject: 'Расписание занятий',
+                    author: 'School Schedule App'
+                });
+
+                // Сохраняем PDF
+                const fileName = `Расписание - {{ schedule.title }}.pdf`;
+                pdf.save(fileName);
+
+            }).catch(error => {
+                console.error('Ошибка при создании PDF:', error);
+                // Восстанавливаем оригинальные тексты при ошибке
+                lessonCells.forEach((cell, index) => {
+                    cell.textContent = originalTexts[index];
+                });
+                pdfContainer.style.display = originalDisplay;
+                pdfContainer.style.width = '';
+                alert('Ошибка при создании PDF файла');
+            });
+        }, 100);
+    }, 100);
+}
+
+// Функция для печати расписания
+function printSchedule() {
+    console.log('Печать расписания...');
+
+    // Сохраняем оригинальные тексты
+    const printContainer = document.querySelector('.print-container');
+    const lessonCells = printContainer.querySelectorAll('td');
+    const originalTexts = {};
+
+    lessonCells.forEach((cell, index) => {
+        if (cell.textContent.trim()) {
+            originalTexts[index] = cell.textContent;
+        }
+    });
+
+    // Применяем переносы только к тексту, который не помещается
+    setTimeout(() => {
+        lessonCells.forEach(cell => {
+            const originalText = cell.textContent.trim();
+            if (originalText) {
+                // Проверяем, помещается ли оригинальный текст
+                if (!textFitsInCell(cell, originalText)) {
+                    const hyphenatedText = processWordHyphenation(originalText);
+                    if (hyphenatedText !== originalText) {
+                        cell.textContent = hyphenatedText;
+                    }
+                }
+            }
+        });
+
+        // Создаем стиль для печати
+        const style = document.createElement('style');
+        style.textContent = `
+            @media print {
+                @page {
+                    size: ${printOrientation};
+                    margin: 5mm;
+                }
+                body * {
+                    visibility: hidden;
+                }
+                .print-container,
+                .print-container * {
+                    visibility: visible;
+                }
+                .print-container {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    background: white;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        window.print();
+
+        // Восстанавливаем оригинальные тексты после печати
+        setTimeout(() => {
+            lessonCells.forEach((cell, index) => {
+                if (originalTexts[index]) {
+                    cell.textContent = originalTexts[index];
+                }
+            });
+            document.head.removeChild(style);
+        }, 100);
+    }, 50);
+}
+
+// Горячая клавиша Ctrl+P
+document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        printSchedule();
+    }
+});
+
+// Функция для копирования ссылки
+function copyLinkToClipboard(link) {
+    navigator.clipboard.writeText(link).then(function() {
+        alert('Ссылка скопирована в буфер обмена!');
+    }).catch(function(err) {
+        console.error('Ошибка при копировании:', err);
+    });
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    setupPrintOrientation();
+
+    const printBtn = document.querySelector('.btn-print');
+    const pdfBtn = document.querySelector('.btn-pdf');
+
+    if (printBtn) {
+        printBtn.title = 'Печать (Ctrl+P)';
+    }
+    if (pdfBtn) {
+        pdfBtn.title = 'Скачать в формате PDF';
+    }
+});
+</script>
+{% endblock %}
