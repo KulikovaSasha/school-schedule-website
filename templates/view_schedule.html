@@ -200,6 +200,7 @@
         border-collapse: collapse !important;
         font-size: 10px !important;
         page-break-inside: avoid !important;
+        table-layout: fixed !important;
     }
 
     .print-table th,
@@ -220,6 +221,7 @@
         color: white !important;
         font-size: 10px !important;
         padding: 6px 2px !important;
+        width: 70px !important;
     }
 
     .print-day-header {
@@ -313,6 +315,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    table-layout: fixed;
 }
 
 .pdf-table th {
@@ -335,6 +338,8 @@
     height: 30px !important;
     vertical-align: middle;
     line-height: 1.1 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pdf-time-header {
@@ -464,7 +469,7 @@
                     <tr>
                         <th class="pdf-time-header">Время</th>
                         {% for day in days %}
-                        <th class="pdf-day-header">{{ day }}</th>
+                        <th class="pdf-day-header" style="width: {{ 100/(days|length) }}% !important;">{{ day }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -486,14 +491,16 @@
                                    font-size: 15px !important;
                                    padding: 0 !important;
                                    height: 16px !important;
-                                   line-height: 1 !important;">
+                                   line-height: 1 !important;
+                                   width: {{ 100/(days|length) }}% !important;">
                             {{ lesson.subject_name }}
                         </td>
                         {% else %}
                         <td class="pdf-lesson-cell pdf-empty-cell"
                             style="height: 16px !important;
                                    padding: 0 !important;
-                                   line-height: 1 !important;">
+                                   line-height: 1 !important;
+                                   width: {{ 100/(days|length) }}% !important;">
                         </td>
                         {% endif %}
                         {% endfor %}
@@ -651,7 +658,8 @@ function processWordHyphenation(text) {
         'Литературное': 'Литератур-ное',
         'Обществознание': 'Общество-знание',
         'Окружающий': 'Окружаю-щий',
-        'Программирование': 'Програм-мирование'
+        'Программирование': 'Програм-мирование',
+        'Программирование в Python': 'Программиро-вание в Python'
     };
 
     // Ищем точное совпадение и заменяем
