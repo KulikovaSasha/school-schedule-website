@@ -201,7 +201,7 @@ def edit_schedule(schedule_id):
 
     # Популярные цвета для уроков
     popular_colors = [
-        "#d6d4fb", "#fcbfe7", "#ffffff", "#caf2c0", "#f5d5fb", "#fbffbd"
+        "#d6d4fb", "#fcbfe7", "#ffffff", "#caf2c0", "#f5d5fb", "#fbffbd", "#a5e1f7"
     ]
 
     return render_template('edit_schedule.html',
