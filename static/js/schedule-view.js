@@ -1,7 +1,7 @@
 // static/js/schedule-view.js
 (function() {
     'use strict';
-    
+
     // Создаем стили для просмотра расписания
     const style = document.createElement('style');
     style.textContent = `
@@ -11,7 +11,7 @@
             padding: 20px;
             font-family: 'Bookman Old Style', sans-serif;
         }
-        
+
         .schedule-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -21,19 +21,19 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
         .schedule-header h1 {
             margin: 0;
             font-size: 2.2em;
             font-weight: 700;
         }
-        
+
         .schedule-header p {
             margin: 10px 0 0 0;
             opacity: 0.9;
             font-size: 1.1em;
         }
-        
+
         .schedule-info {
             background: #f8f9fa;
             padding: 20px;
@@ -43,23 +43,23 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
         }
-        
+
         .info-item {
             padding: 10px;
         }
-        
+
         .info-item strong {
             color: #495057;
             display: block;
             margin-bottom: 5px;
             font-size: 0.9em;
         }
-        
+
         .info-item span {
             color: #212529;
             font-size: 1.1em;
         }
-        
+
         .schedule-table {
             width: 100%;
             border-collapse: collapse;
@@ -69,7 +69,7 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             margin-bottom: 30px;
         }
-        
+
         .schedule-table th {
             background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
@@ -79,14 +79,14 @@
             font-size: 1.1em;
             border: none;
         }
-        
+
         .schedule-table td {
             padding: 20px;
             border: 1px solid #e9ecef;
             vertical-align: top;
             transition: all 0.3s ease;
         }
-        
+
         .time-cell {
             background-color: #f8f9fa;
             font-weight: 600;
@@ -95,24 +95,24 @@
             font-size: 1.1em;
             width: 120px;
         }
-        
+
         .time-display {
             font-size: 0.95em;
             color: #6c757d;
         }
-        
+
         .lesson-cell {
             background: #ffffff;
             min-height: 120px;
             position: relative;
         }
-        
+
         .lesson-cell:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             z-index: 2;
         }
-        
+
         .lesson-content {
             height: 100%;
         }
