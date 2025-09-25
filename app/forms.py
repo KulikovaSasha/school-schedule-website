@@ -1,4 +1,3 @@
-
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectMultipleField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
@@ -20,13 +19,10 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField('Повторите пароль', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Зарегистрироваться')
 
-    # ПЕРЕМЕСТИТЕ валидацию в routes или оставьте здесь, но без импорта User
     def validate_username(self, username):
-        # Валидация будет выполнена в роуте
         pass
 
     def validate_email(self, email):
-        # Валидация будет выполнена в роуте
         pass
 
 class MultiCheckboxField(SelectMultipleField):
@@ -38,7 +34,6 @@ class ScheduleForm(FlaskForm):
     title = StringField('Название расписания',
                         validators=[DataRequired(), Length(max=100)])
 
-    # Множественный выбор дней недели
     days_of_week = MultiCheckboxField('Дни недели',
                                       choices=[
                                           ('mon', 'Понедельник'),
@@ -59,17 +54,16 @@ class ScheduleForm(FlaskForm):
             if day not in valid_days:
                 raise ValidationError(f'Неверный день недели: {day}')
 
-    lessons_per_day = IntegerField('Количество уроков в день', validators=[DataRequired()])
+    # Убрано поле lessons_per_day
     start_time = SelectField('Время начала', choices=[], validators=[DataRequired()])
-    #end_time = SelectField('Время окончания', choices=[], validators=[DataRequired()])
-    lesson_duration = IntegerField('Длительность урока (минуты)', validators=[DataRequired()])
+    end_time = SelectField('Время окончания', choices=[], validators=[DataRequired()])  # Добавлено поле окончания
     submit = SubmitField('Создать расписание')
 
     def __init__(self, *args, **kwargs):
         super(ScheduleForm, self).__init__(*args, **kwargs)
         # Заполняем варианты времени
         self.start_time.choices = self.get_time_choices()
-        #self.end_time.choices = self.get_time_choices()
+        self.end_time.choices = self.get_time_choices()  # Добавлено для окончания
 
     def get_time_choices(self):
         """Возвращает список времени с 8:00 до 20:45 с интервалом 5 минут"""

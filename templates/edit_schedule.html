@@ -555,13 +555,13 @@
                 <strong>📅 Дни недели:</strong> {{ days|join(', ') }}
             </div>
             <div class="info-item">
-                <strong>⏰ Уроков в день:</strong> {{ schedule.lessons_per_day }}
+                <strong>⏰ Уроков в день:</strong> {{ schedule.lessons_per_day }} (автоматически)
             </div>
             <div class="info-item">
-                <strong>🕘 Первый урок:</strong> {{ schedule.start_time }}
+                <strong>🕘 Время занятий:</strong> {{ schedule.start_time }} - {{ schedule.end_time }}
             </div>
             <div class="info-item">
-                <strong>⏱ Длительность урока:</strong> {{ schedule.lesson_duration }} минут
+                <strong>⏱ Длительность урока:</strong> 60 минут (фиксированно)
             </div>
         </div>
     </div>

@@ -30,9 +30,8 @@ class Schedule(db.Model):
     title = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     days_of_week = db.Column(db.String(200))
-    lessons_per_day = db.Column(db.Integer)
     start_time = db.Column(db.String(5))
-    lesson_duration = db.Column(db.Integer)
+    end_time = db.Column(db.String(5))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -47,6 +46,30 @@ class Schedule(db.Model):
         if self.days_of_week:
             return len(json.loads(self.days_of_week))
         return 0
+
+    @property
+    def lessons_per_day(self):
+        """Автоматически рассчитывает количество уроков в день (фиксированная длительность 60 минут)"""
+        if self.start_time and self.end_time:
+            try:
+                start = datetime.strptime(self.start_time, '%H:%M')
+                end = datetime.strptime(self.end_time, '%H:%M')
+
+                # Расчет разницы в минутах
+                total_minutes = (end - start).total_seconds() / 60
+
+                # Количество уроков по 60 минут каждый - ОКРУГЛЯЕМ В БОЛЬШУЮ СТОРОНУ
+                lessons_count = int((total_minutes + 59) // 60)  # Округляем вверх
+
+                return max(1, lessons_count)  # Минимум 1 урок
+            except ValueError:
+                return 6  # Значение по умолчанию при ошибке
+        return 6  # Значение по умолчанию
+
+    @property
+    def lesson_duration(self):
+        """Фиксированная длительность урока - 60 минут"""
+        return 60
 
     @property
     def created_at_display(self):
@@ -86,7 +109,6 @@ class Lesson(db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
 
 
 # Константы для использования в формах и шаблонах
@@ -141,7 +163,8 @@ DAY_NAMES = {
 
 # Группировка шрифтов по категориям для удобного отображения
 FONT_CATEGORIES = {
-    'Без засечек': ['Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Bookman Old Style', 'Impact', 'Lucida Sans Unicode', 'MS Sans Serif'],
+    'Без засечек': ['Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Bookman Old Style', 'Impact',
+                    'Lucida Sans Unicode', 'MS Sans Serif'],
     'С засечками': ['Times New Roman', 'Georgia', 'Palatino Linotype', 'Garamond', 'MS Serif'],
     'Моноширинный': ['Courier New'],
     'Рукописный': ['Comic Sans MS'],

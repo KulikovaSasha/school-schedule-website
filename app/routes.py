@@ -20,15 +20,23 @@ def count_days_filter(days_json):
         return 0
 
 
-def calculate_lesson_times(start_time, duration_minutes, lessons_count):
-    """Рассчитывает время начала и окончания каждого урока"""
+def calculate_lesson_times(start_time, end_time):
+    """Рассчитывает время начала и окончания каждого урока (фиксированная длительность 60 минут)"""
     try:
         start = datetime.strptime(start_time, '%H:%M')
-        times = []
+        end = datetime.strptime(end_time, '%H:%M')
 
+        # Расчет общего времени в минутах
+        total_minutes = (end - start).total_seconds() / 60
+
+        # Количество уроков по 60 минут каждый - ОКРУГЛЯЕМ В БОЛЬШУЮ СТОРОНУ
+        lessons_count = int((total_minutes + 59) // 60)  # Округляем вверх
+        lessons_count = max(1, lessons_count)  # Минимум 1 урок
+
+        times = []
         for i in range(lessons_count):
-            lesson_start = start + timedelta(minutes=duration_minutes * i)
-            lesson_end = lesson_start + timedelta(minutes=duration_minutes)
+            lesson_start = start + timedelta(minutes=60 * i)  # Фиксированная длительность 60 минут
+            lesson_end = lesson_start + timedelta(minutes=60)  # Фиксированная длительность 60 минут
             times.append({
                 'start': lesson_start.strftime('%H:%M'),
                 'end': lesson_end.strftime('%H:%M')
@@ -37,7 +45,7 @@ def calculate_lesson_times(start_time, duration_minutes, lessons_count):
         return times
     except ValueError:
         # Если формат времени неверный, возвращаем простую нумерацию
-        return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(lessons_count)]
+        return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(6)]  # Значение по умолчанию
 
 
 def get_day_display_name(day_code):
@@ -101,6 +109,18 @@ def create_schedule():
             print(f"DEBUG: Form data - {form.data}")
             print(f"DEBUG: Days of week data - {form.days_of_week.data}, type: {type(form.days_of_week.data)}")
 
+            # Проверка времени (без всплывающих окон)
+            start_time = form.start_time.data
+            end_time = form.end_time.data
+
+            if start_time and end_time:
+                start = datetime.strptime(start_time, '%H:%M')
+                end = datetime.strptime(end_time, '%H:%M')
+
+                if end <= start:
+                    flash('Время окончания должно быть позже времени начала!', 'danger')
+                    return render_template('create_schedule.html', form=form)
+
             # ИСПРАВЛЕНИЕ: Правильно обрабатываем строку с днями
             if isinstance(form.days_of_week.data, str):
                 # Если это строка с разделителями, преобразуем в список
@@ -127,9 +147,8 @@ def create_schedule():
                 title=form.title.data,
                 user_id=current_user.id,
                 days_of_week=days_json,
-                lessons_per_day=form.lessons_per_day.data,
                 start_time=form.start_time.data,
-                lesson_duration=form.lesson_duration.data
+                end_time=form.end_time.data
             )
 
             db.session.add(schedule)
@@ -167,11 +186,8 @@ def edit_schedule(schedule_id):
     # Безопасное преобразование кодов дней в читаемые названия
     display_days = [get_day_display_name(day) for day in days_list]
 
-    lesson_times = calculate_lesson_times(
-        schedule.start_time,
-        schedule.lesson_duration,
-        schedule.lessons_per_day
-    )
+    # Используем новую функцию с временем окончания
+    lesson_times = calculate_lesson_times(schedule.start_time, schedule.end_time)
 
     # Загружаем существующие уроки если они есть и преобразуем в словари
     lessons = {}
@@ -183,7 +199,7 @@ def edit_schedule(schedule_id):
             'color': lesson.color,
             'lesson_link': lesson.lesson_link,
             'link_text': lesson.link_text,
-            'font_family': lesson.font_family  # Убедитесь, что это поле есть
+            'font_family': lesson.font_family
         }
         # Отладочная информация
         print(f"Lesson {key}: font_family = {lesson.font_family}")
@@ -229,7 +245,7 @@ def save_schedule(schedule_id):
             return jsonify({'success': False, 'error': 'Access denied'}), 403
 
         data = request.get_json()
-        print(f"🔍 DEBUG: Received data: {data}")  # Добавьте эту строку!
+        print(f"🔍 DEBUG: Received data: {data}")
 
         if not data:
             return jsonify({'success': False, 'error': 'No data provided'}), 400
@@ -250,10 +266,9 @@ def save_schedule(schedule_id):
                 try:
                     day_index, lesson_index = map(int, key.split('_'))
 
-                    # ИСПРАВЛЕНИЕ: Правильное имя переменной
+                    # Используем автоматически рассчитанное количество уроков
                     if (0 <= day_index < len(days_list) and
-                            0 <= lesson_index < schedule.lessons_per_day):  # Было lessonIndex, должно быть lesson_index
-
+                            0 <= lesson_index < schedule.lessons_per_day):
                         font_family = lesson_data.get('font_family', 'Bookman Old Style')
                         print(f"🔍 DEBUG: Saving lesson {key} with font: '{font_family}'")
 
@@ -282,7 +297,7 @@ def save_schedule(schedule_id):
         db.session.rollback()
         print(f"❌ ERROR in save_schedule: {str(e)}")
         import traceback
-        traceback.print_exc()  # Эта строка покажет полную трассировку ошибки
+        traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
@@ -305,7 +320,7 @@ def update_lesson(schedule_id):
         color = data.get('color', '#FFFFFF')
         lesson_link = data.get('lesson_link', '').strip()
         link_text = data.get('link_text', '').strip()
-        font_family = data.get('font_family', 'Bookman Old Style')  # Добавлено: получение шрифта
+        font_family = data.get('font_family', 'Bookman Old Style')
 
         # Валидация данных
         if day_index is None or lesson_index is None:
@@ -316,7 +331,6 @@ def update_lesson(schedule_id):
                 try:
                     day_index, lesson_index = map(int, key.split('_'))
 
-                    # ВАЖНО: убедитесь, что font_family извлекается правильно
                     font_family = lesson_data.get('font_family', 'Bookman Old Style')
                     print(f"DEBUG: Saving lesson {key} with font: {font_family}")
 
@@ -328,7 +342,7 @@ def update_lesson(schedule_id):
                         color=lesson_data.get('color', '#FFFFFF'),
                         lesson_link=lesson_data.get('lesson_link', ''),
                         link_text=lesson_data.get('link_text', ''),
-                        font_family=font_family  # Это критически важно!
+                        font_family=font_family
                     )
                     db.session.add(lesson)
 
@@ -355,20 +369,16 @@ def view_schedule(schedule_id):
         flash('У вас нет доступа к этому расписанию.', 'danger')
         return redirect(url_for('main.dashboard'))
 
-
     try:
         days_list = json.loads(schedule.days_of_week)
     except (json.JSONDecodeError, TypeError):
-        days_list = ['mon', 'tue', 'wed', 'thu', 'fri']  # Значение по умолчанию
+        days_list = ['mon', 'tue', 'wed', 'thu', 'fri']
 
     # Безопасное преобразование кодов дней
     display_days = [get_day_display_name(day) for day in days_list]
 
-    lesson_times = calculate_lesson_times(
-        schedule.start_time,
-        schedule.lesson_duration,
-        schedule.lessons_per_day
-    )
+    # Используем новую функцию с временем окончания
+    lesson_times = calculate_lesson_times(schedule.start_time, schedule.end_time)
 
     # Загружаем уроки и преобразуем в словари
     lessons = {}
@@ -380,7 +390,7 @@ def view_schedule(schedule_id):
             'color': lesson.color,
             'lesson_link': lesson.lesson_link,
             'link_text': lesson.link_text,
-            'font_family': lesson.font_family  # Добавлено: включение шрифта в данные
+            'font_family': lesson.font_family
         }
 
     current_time = datetime.now().strftime("%d.%m.%Y %H:%M")
@@ -401,7 +411,7 @@ def delete_schedule(schedule_id):
     schedule = Schedule.query.get_or_404(schedule_id)
 
     # Проверяем права доступа
-    if schedule.user_id != current_user.id:  # Исправлено: user_id вместо author
+    if schedule.user_id != current_user.id:
         flash('У вас нет доступа к этому расписанию.', 'danger')
         return redirect(url_for('main.dashboard'))
 
@@ -577,7 +587,7 @@ def fix_old_data():
 
 @main.route('/profile')
 @login_required
-def user_profile():  # Изменил имя на user_profile чтобы избежать конфликта
+def user_profile():
     """Страница профиля пользователя"""
     try:
         print(f"DEBUG: Loading profile for user {current_user.id}")
@@ -596,7 +606,7 @@ def user_profile():  # Изменил имя на user_profile чтобы изб
                 total_lessons += schedule.lessons_per_day * len(days_list)
             except (json.JSONDecodeError, TypeError) as e:
                 print(f"DEBUG: Error parsing days for schedule {schedule.id}: {e}")
-                total_lessons += schedule.lessons_per_day * 5  # Default to 5 days
+                total_lessons += schedule.lessons_per_day * 5
 
         print(f"DEBUG: Total lessons: {total_lessons}")
 
