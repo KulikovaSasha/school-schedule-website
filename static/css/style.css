@@ -19,7 +19,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.6;
+    line-height: 1.5;
     color: #2c3e50;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
@@ -27,22 +27,7 @@ body {
     flex-direction: column;
 }
 
-/* Glassmorphism эффекты */
-.glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-}
-
-.glass-dark {
-    background: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Header */
+/* Header - более контрастный */
 .header {
     background: var(--primary-gradient);
     box-shadow: var(--shadow-soft);
@@ -53,27 +38,28 @@ body {
 }
 
 .navbar {
-    padding: 1rem 0;
+    padding: 0.8rem 0;
 }
 
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+/* Более контрастный логотип */
 .nav-brand {
     display: flex;
     align-items: center;
     color: white;
     text-decoration: none;
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 1.6rem;
+    font-weight: 800;
     transition: all 0.3s ease;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .nav-brand:hover {
@@ -81,9 +67,9 @@ body {
 }
 
 .logo-icon {
-    font-size: 2.5rem;
-    margin-right: 12px;
-    background: var(--secondary-gradient);
+    font-size: 2.2rem;
+    margin-right: 10px;
+    background: white;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -94,21 +80,24 @@ body {
     transform: rotate(15deg) scale(1.2);
 }
 
+/* Более контрастное меню */
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 .nav-link {
     color: white;
     text-decoration: none;
     transition: all 0.3s ease;
-    font-weight: 500;
-    padding: 0.8rem 1.5rem;
-    border-radius: 15px;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
     position: relative;
     overflow: hidden;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    font-size: 0.95rem;
 }
 
 .nav-link::before {
@@ -118,7 +107,7 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     transition: left 0.5s ease;
 }
 
@@ -127,308 +116,172 @@ body {
 }
 
 .nav-link:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .nav-link.active {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 2px 10px rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 2px 10px rgba(255,255,255,0.4);
 }
 
+/* Более контрастное приветствие */
 .user-menu {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .user-greeting {
     color: white;
-    font-weight: 500;
-    font-size: 1rem;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* Dropdown улучшенный */
-.dropdown {
-    position: relative;
-}
-
-.dropdown-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-}
-
-.dropdown-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    min-width: 220px;
-    box-shadow: var(--shadow-hard);
-    border-radius: 20px;
-    z-index: 1000;
-    overflow: hidden;
-    margin-top: 10px;
-    animation: dropdownFade 0.3s ease;
-    border: 1px solid var(--glass-border);
-}
-
-.dropdown-content a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 15px 25px;
-    color: white;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.dropdown-content a:last-child {
-    border-bottom: none;
-}
-
-.dropdown-content a:hover {
-    background: var(--secondary-gradient);
-    transform: translateX(10px);
-}
-
-.dropdown-content a i {
-    width: 20px;
-    text-align: center;
-    font-size: 1.1rem;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* Main Content */
+/* Main Content - более компактный */
 .main-content {
     flex: 1;
-    padding: 2rem 0;
+    padding: 1.5rem 0;
 }
 
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
 }
 
-/* Hero Section улучшенная */
+/* Hero Section - более компактная */
 .hero {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    gap: 3rem;
     align-items: center;
-    padding: 6rem 0;
-    min-height: 80vh;
+    padding: 4rem 0;
+    min-height: 70vh;
 }
 
 .hero-content h1 {
-    font-size: 4rem;
-    margin-bottom: 2rem;
+    font-size: 3rem;
+    margin-bottom: 1.2rem;
     line-height: 1.1;
     font-weight: 800;
     background: var(--dark-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .hero-content p {
-    font-size: 1.4rem;
-    margin-bottom: 3rem;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
     color: #6c757d;
-    line-height: 1.6;
-    font-weight: 400;
+    line-height: 1.5;
 }
 
 .hero-buttons {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
-.hero-image {
-    position: relative;
-    perspective: 1000px;
-}
-
-.hero-image img {
-    width: 100%;
-    border-radius: 30px;
-    box-shadow: var(--shadow-hard);
-    transition: all 0.5s ease;
-    transform: rotateY(-5deg) rotateX(5deg);
-    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3));
-}
-
-.hero-image img:hover {
-    transform: rotateY(5deg) rotateX(-5deg) scale(1.05);
-}
-
-/* Features Section улучшенная */
-.features {
-    padding: 8rem 0;
-    text-align: center;
-}
-
-.features h2 {
-    font-size: 3.5rem;
-    margin-bottom: 4rem;
-    background: var(--dark-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 800;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 3rem;
-}
-
-.feature-card {
-    padding: 3rem 2rem;
-    background: white;
-    border-radius: 25px;
-    box-shadow: var(--shadow-soft);
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--primary-gradient);
-    opacity: 0.1;
-    transition: left 0.6s ease;
-}
-
-.feature-card:hover::before {
-    left: 0;
-}
-
-.feature-card:hover {
-    transform: translateY(-15px) scale(1.03);
-    box-shadow: var(--shadow-hard);
-}
-
-.feature-card i {
-    font-size: 4rem;
-    margin-bottom: 2rem;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.feature-card h3 {
-    margin-bottom: 1.5rem;
-    color: #2c3e50;
-    font-size: 1.8rem;
-    font-weight: 700;
-}
-
-.feature-card p {
-    color: #6c757d;
-    line-height: 1.6;
-    font-size: 1.1rem;
-}
-
-/* Dashboard улучшенный */
+/* Dashboard - более компактный */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3rem;
-    padding: 3rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
     background: white;
-    border-radius: 25px;
+    border-radius: 20px;
     box-shadow: var(--shadow-soft);
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 5px;
-    background: var(--primary-gradient);
 }
 
 .dashboard-header h1 {
     color: #2c3e50;
     margin: 0;
-    font-size: 3rem;
+    font-size: 2.2rem;
     font-weight: 800;
 }
 
+/* Упрощенная статистика */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 0.3rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+/* Упрощенные быстрые действия */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.action-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hard);
+}
+
+/* Более компактные карточки расписаний */
 .schedules-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 2.5rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 .schedule-card {
-    position: relative;
-    padding: 2.5rem;
+    padding: 1.8rem;
     background: white;
-    border-radius: 25px;
+    border-radius: 18px;
     box-shadow: var(--shadow-soft);
-    transition: all 0.4s ease;
-    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
-    animation: fadeInUp 0.6s ease;
-    overflow: hidden;
-}
-
-.schedule-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: var(--primary-gradient);
 }
 
 .schedule-card:hover {
-    transform: translateY(-10px) scale(1.02);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-hard);
 }
 
@@ -436,366 +289,327 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
 }
 
 .schedule-card-header h3 {
     margin: 0;
     color: #2c3e50;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     flex-grow: 1;
-    margin-right: 2rem;
-    line-height: 1.4;
+    margin-right: 1rem;
+    line-height: 1.3;
     font-weight: 700;
 }
 
-.schedule-actions {
+.schedule-card-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     flex-shrink: 0;
 }
 
 .schedule-card-body {
     flex-grow: 1;
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
 }
 
 .schedule-card-body p {
-    margin: 1rem 0;
+    margin: 0.6rem 0;
     color: #6c757d;
-    font-size: 1rem;
+    font-size: 0.9rem;
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.schedule-card-body i {
-    width: 20px;
-    color: #667eea;
-    font-size: 1.2rem;
+    gap: 8px;
 }
 
 .schedule-card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 2rem;
+    padding-top: 1.2rem;
     border-top: 1px solid #e9ecef;
     margin-top: auto;
 }
 
-/* Buttons улучшенные */
+/* Кнопки - более компактные */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    padding: 16px 32px;
+    gap: 0.6rem;
+    padding: 0.8rem 1.5rem;
     border: none;
-    border-radius: 15px;
+    border-radius: 12px;
     text-decoration: none;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-align: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
     line-height: 1.4;
-    font-family: inherit;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-}
-
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.6s ease;
-}
-
-.btn:hover::before {
-    left: 100%;
 }
 
 .btn-primary {
     background: var(--primary-gradient);
     color: white;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-}
-
-.btn-success {
-    background: var(--success-gradient);
-    color: white;
-    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
-}
-
-.btn-success:hover {
-    transform: translateY(-3px) scale(1.05);
-}
-
-.btn-danger {
-    background: var(--danger-gradient);
-    color: white;
-    box-shadow: 0 8px 25px rgba(250, 112, 154, 0.3);
-}
-
-.btn-danger:hover {
-    transform: translateY(-3px) scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 }
 
 .btn-outline {
     background: transparent;
     border: 2px solid #667eea;
     color: #667eea;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
 }
 
 .btn-outline:hover {
     background: var(--primary-gradient);
     color: white;
-    transform: translateY(-3px);
 }
 
-.btn-glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
+/* Кнопки действий */
+.action-btn {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.action-btn.view {
+    background: var(--success-gradient);
     color: white;
 }
 
-.btn-glass:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-3px);
-}
-
-.btn-large {
-    padding: 20px 40px;
-    font-size: 1.2rem;
-    border-radius: 20px;
-}
-
-/* Schedule Editor улучшенный */
-.schedule-editor {
-    background: white;
-    border-radius: 25px;
-    box-shadow: var(--shadow-soft);
-    overflow: hidden;
-    margin-bottom: 3rem;
-}
-
-.editor-header {
+.action-btn.edit {
     background: var(--primary-gradient);
     color: white;
-    padding: 3rem;
-    position: relative;
-    overflow: hidden;
 }
 
-.editor-header::before {
-    content: '';
-    position: absolute;
+.action-btn.delete {
+    background: var(--danger-gradient);
+    color: white;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Schedule View - убрана информация */
+.schedule-view-container {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 2rem;
+}
+
+/* Красивое модальное окно подтверждения */
+.modal-overlay {
+    display: none;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
 }
 
-.editor-title {
-    font-size: 2.5rem;
-    font-weight: 800;
+.modal-confirm {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow-hard);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-confirm h3 {
+    color: #2c3e50;
     margin-bottom: 1rem;
-    position: relative;
+    font-size: 1.4rem;
 }
 
-.editor-actions {
+.modal-confirm p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
     display: flex;
     gap: 1rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
+    justify-content: center;
 }
 
-/* Table улучшенная */
-.schedule-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: white;
+/* Красивые уведомления */
+.alert-success {
+    background: var(--success-gradient);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    border: none;
+    font-weight: 600;
 }
 
-.schedule-table th {
+/* Footer - более красивый */
+.footer {
     background: var(--dark-gradient);
     color: white;
-    padding: 1.5rem;
-    text-align: center;
+    padding: 3rem 0 1.5rem;
+    margin-top: auto;
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h3 {
+    font-size: 1.4rem;
     font-weight: 700;
-    font-size: 1.1rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.schedule-table td {
-    padding: 1.5rem;
-    text-align: center;
-    border: 1px solid #e9ecef;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.lesson-cell {
-    min-height: 120px;
-    vertical-align: top;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.lesson-cell:hover {
-    transform: scale(1.03);
-    z-index: 2;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes dropdownFade {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .hero-content h1 {
-        font-size: 3rem;
-    }
-
-    .features h2 {
-        font-size: 2.5rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .nav-menu {
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    .hero {
-        grid-template-columns: 1fr;
-        text-align: center;
-        padding: 3rem 0;
-        gap: 2rem;
-    }
-
-    .hero-content h1 {
-        font-size: 2.5rem;
-    }
-
-    .schedules-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-header {
-        flex-direction: column;
-        gap: 2rem;
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 0 1rem;
-    }
-
-    .hero-content h1 {
-        font-size: 2rem;
-    }
-
-    .btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* Utility Classes */
-.text-gradient {
-    background: var(--primary-gradient);
+    margin-bottom: 1rem;
+    background: white;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-.shadow-soft {
-    box-shadow: var(--shadow-soft);
+.footer-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
 }
 
-.shadow-hard {
-    box-shadow: var(--shadow-hard);
+.footer-section a {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.glass-effect {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
+.footer-section a:hover {
+    color: white;
+    transform: translateX(5px);
 }
 
-/* Loading Animation */
-.loading-spinner {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    border: 3px solid rgba(255,255,255,0.3);
-    border-top: 3px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.footer-bottom {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Print styles для компактной печати */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .print-schedule, .print-schedule * {
+        visibility: visible;
+    }
+
+    .print-schedule {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        page-break-after: always;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Анимации */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-menu {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        padding: 2rem 0;
+        gap: 1.5rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .schedules-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Черный цвет для ссылок в просмотре расписания */
+.lesson-link-btn {
+    color: #000000 !important;
+    font-weight: 600;
+}
+
+/* Черный цвет для названий уроков в редакторе */
+.subject-name {
+    color: #000000 !important;
+    font-weight: 600;
 }
