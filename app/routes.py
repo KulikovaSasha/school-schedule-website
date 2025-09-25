@@ -388,9 +388,6 @@ def logout():
     return redirect(url_for('main.index'))
 
 
-# ... остальной код маршрутов
-
-
 # Страница профиля
 @main.route('/profile')
 @login_required

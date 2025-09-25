@@ -222,6 +222,7 @@
                 border: 1px solid #000 !important;
             }
 
+
             .schedule-table td {
                 border: 1px solid #000 !important;
             }

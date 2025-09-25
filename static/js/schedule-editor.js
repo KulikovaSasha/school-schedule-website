@@ -302,6 +302,7 @@ function showNotification(message, type) {
     }, 5000);
 }
 
+
 // Делаем функции глобальными
 window.openEditModal = openEditModal;
 window.setColor = setColor;

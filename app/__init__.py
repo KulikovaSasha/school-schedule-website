@@ -13,7 +13,6 @@ login_manager = LoginManager()
 migrate = Migrate()
 csrf = CSRFProtect()  # CSRF защита
 
-
 def create_app():
     # Создание экземпляра приложения
     app = Flask(__name__, template_folder='../templates', static_folder='../static')

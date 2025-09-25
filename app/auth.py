@@ -20,7 +20,6 @@ def login():
             flash('Неверное имя пользователя или пароль.', 'danger')
     return render_template('login.html', form=form)
 
-
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
