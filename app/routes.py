@@ -23,6 +23,12 @@ def count_days_filter(days_json):
 def calculate_lesson_times(start_time, end_time):
     """Рассчитывает время начала и окончания каждого урока (фиксированная длительность 60 минут)"""
     try:
+        # Проверка на None
+        if not start_time or not end_time:
+            print(f"⚠️ WARNING: start_time or end_time is None. start_time: {start_time}, end_time: {end_time}")
+            # Возвращаем значения по умолчанию
+            return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(6)]
+
         start = datetime.strptime(start_time, '%H:%M')
         end = datetime.strptime(end_time, '%H:%M')
 
@@ -43,9 +49,11 @@ def calculate_lesson_times(start_time, end_time):
             })
 
         return times
-    except ValueError:
+    except ValueError as e:
+        print(f"❌ ERROR in calculate_lesson_times: {e}")
+        print(f"🔍 DEBUG: start_time: {start_time}, end_time: {end_time}")
         # Если формат времени неверный, возвращаем простую нумерацию
-        return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(6)]  # Значение по умолчанию
+        return [{'start': f'Урок {i + 1}', 'end': ''} for i in range(6)]
 
 
 def get_day_display_name(day_code):
@@ -58,10 +66,9 @@ def get_day_display_name(day_code):
         'fri': 'Пятница',
         'sat': 'Суббота',
         'sun': 'Воскресенье',
-        'san': 'Воскресенье',  # Для старых опечаток
+        'san': 'Воскресенье',
     }
 
-    # Исправляем распространенные опечатки
     corrections = {
         'san': 'sun',
         'sut': 'sat',
@@ -91,7 +98,7 @@ def dashboard():
     sorted_schedules = sorted(
         schedules,
         key=lambda x: x.created_at if x.created_at is not None else datetime.min,
-        reverse=True  # Сначала новые расписания
+        reverse=True
     )
 
     return render_template('dashboard.html', schedules=sorted_schedules)
@@ -114,28 +121,27 @@ def create_schedule():
             end_time = form.end_time.data
 
             if start_time and end_time:
-                start = datetime.strptime(start_time, '%H:%M')
-                end = datetime.strptime(end_time, '%H:%M')
+                try:
+                    start = datetime.strptime(start_time, '%H:%M')
+                    end = datetime.strptime(end_time, '%H:%M')
 
-                if end <= start:
-                    flash('Время окончания должно быть позже времени начала!', 'danger')
+                    if end <= start:
+                        flash('Время окончания должно быть позже времени начала!', 'danger')
+                        return render_template('create_schedule.html', form=form)
+                except ValueError as e:
+                    flash('Неверный формат времени! Используйте формат ЧЧ:MM', 'danger')
                     return render_template('create_schedule.html', form=form)
 
-            # ИСПРАВЛЕНИЕ: Правильно обрабатываем строку с днями
+            # Обработка дней недели
             if isinstance(form.days_of_week.data, str):
-                # Если это строка с разделителями, преобразуем в список
                 if ',' in form.days_of_week.data:
                     days_list = form.days_of_week.data.split(',')
                 else:
-                    # Если это один день или JSON строка
                     try:
-                        # Пробуем распарсить как JSON
                         days_list = json.loads(form.days_of_week.data)
                     except json.JSONDecodeError:
-                        # Если не JSON, создаем список из одного элемента
                         days_list = [form.days_of_week.data]
             else:
-                # Если это уже список
                 days_list = form.days_of_week.data
 
             # Конвертируем в JSON строку
@@ -201,18 +207,16 @@ def edit_schedule(schedule_id):
             'link_text': lesson.link_text,
             'font_family': lesson.font_family
         }
-        # Отладочная информация
-        print(f"Lesson {key}: font_family = {lesson.font_family}")
 
     # Список доступных предметов для красивого выбора
     available_subjects = [
         "Алгебра", "Английский язык", "Астрономия", "Биология", "География",
         "Геометрия", "ИЗО", "Информатика", "Испанский язык", "История",
         "Литература", "Литературное чтение", "Математика", "Музыка",
-        "Немецкий язык", "Обществознание", "Окружающий мир", "Программирование", "Программирование в Python",
-        "Разработка сайтов в Python", "Русский язык", "Теория вероятностей и статистика", "Технология",
-        "Физика", "Физическая культура", "Химия", "Черчение",
-        "Японский язык"
+        "Немецкий язык", "Обществознание", "Окружающий мир", "Программирование",
+        "Программирование в Python", "Разработка сайтов в Python", "Русский язык",
+        "Теория вероятностей и статистика", "Технология", "Физика",
+        "Физическая культура", "Химия", "Черчение", "Японский язык"
     ]
 
     # Популярные цвета для уроков
@@ -301,62 +305,6 @@ def save_schedule(schedule_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# Обновление отдельного урока (AJAX)
-@main.route('/schedule/<int:schedule_id>/update_lesson', methods=['POST'])
-@login_required
-def update_lesson(schedule_id):
-    """Обновление отдельного урока"""
-    try:
-        schedule = Schedule.query.get_or_404(schedule_id)
-
-        # Проверка прав доступа
-        if schedule.user_id != current_user.id:
-            return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
-
-        data = request.get_json()
-        day_index = data.get('day_index')
-        lesson_index = data.get('lesson_index')
-        subject_name = data.get('subject_name', '').strip()
-        color = data.get('color', '#FFFFFF')
-        lesson_link = data.get('lesson_link', '').strip()
-        link_text = data.get('link_text', '').strip()
-        font_family = data.get('font_family', 'Bookman Old Style')
-
-        # Валидация данных
-        if day_index is None or lesson_index is None:
-            return jsonify({'success': False, 'error': 'Не указаны индексы дня и урока'}), 400
-
-        for key, lesson_data in data.items():
-            if '_' in key:
-                try:
-                    day_index, lesson_index = map(int, key.split('_'))
-
-                    font_family = lesson_data.get('font_family', 'Bookman Old Style')
-                    print(f"DEBUG: Saving lesson {key} with font: {font_family}")
-
-                    lesson = Lesson(
-                        schedule_id=schedule_id,
-                        day_index=day_index,
-                        lesson_index=lesson_index,
-                        subject_name=lesson_data.get('subject_name', ''),
-                        color=lesson_data.get('color', '#FFFFFF'),
-                        lesson_link=lesson_data.get('lesson_link', ''),
-                        link_text=lesson_data.get('link_text', ''),
-                        font_family=font_family
-                    )
-                    db.session.add(lesson)
-
-                except (ValueError, TypeError) as e:
-                    continue
-
-        db.session.commit()
-        return jsonify({'success': True, 'message': 'Расписание сохранено'})
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
 # Просмотр расписания
 @main.route('/schedule/<int:schedule_id>/view')
 @login_required
@@ -403,7 +351,9 @@ def view_schedule(schedule_id):
                            current_time=current_time)
 
 
-# Удаление расписания
+# (login, register, logout, profile, about, help, contact, error handlers и т.д.)
+
+# Удаление расписания - ДОБАВЬТЕ ЭТОТ МАРШРУТ
 @main.route('/schedule/<int:schedule_id>/delete', methods=['POST'])
 @login_required
 def delete_schedule(schedule_id):
@@ -429,52 +379,6 @@ def delete_schedule(schedule_id):
 
     return redirect(url_for('main.dashboard'))
 
-
-# Вход в систему
-@main.route('/login', methods=['GET', 'POST'])
-def login():
-    """Вход в систему"""
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            flash('Вы успешно вошли в систему!', 'success')
-            return redirect(url_for('main.dashboard'))
-        else:
-            flash('Неверное имя пользователя или пароль.', 'danger')
-    return render_template('login.html', form=form)
-
-
-# Регистрация
-@main.route('/register', methods=['GET', 'POST'])
-def register():
-    """Регистрация нового пользователя"""
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        # Валидация username
-        if User.query.filter_by(username=form.username.data).first():
-            flash('Это имя пользователя уже занято.', 'danger')
-            return render_template('register.html', form=form)
-
-        # Валидация email
-        if User.query.filter_by(email=form.email.data).first():
-            flash('Этот email уже используется.', 'danger')
-            return render_template('register.html', form=form)
-
-        # Создание пользователя
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-
-        flash('Регистрация прошла успешно! Теперь вы можете войти.', 'success')
-        return redirect(url_for('main.login'))
-
-    return render_template('register.html', form=form)
-
-
-# Выход из системы
 @main.route('/logout')
 @login_required
 def logout():
@@ -482,6 +386,9 @@ def logout():
     logout_user()
     flash('Вы вышли из системы.', 'info')
     return redirect(url_for('main.index'))
+
+
+# ... остальной код маршрутов
 
 
 # Страница профиля

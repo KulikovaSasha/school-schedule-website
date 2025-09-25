@@ -44,27 +44,37 @@ class Schedule(db.Model):
     def days_count(self):
         """Возвращает количество дней в расписании"""
         if self.days_of_week:
-            return len(json.loads(self.days_of_week))
+            try:
+                days_list = json.loads(self.days_of_week)
+                return len(days_list)
+            except (json.JSONDecodeError, TypeError):
+                return 0
         return 0
 
     @property
     def lessons_per_day(self):
         """Автоматически рассчитывает количество уроков в день (фиксированная длительность 60 минут)"""
-        if self.start_time and self.end_time:
-            try:
-                start = datetime.strptime(self.start_time, '%H:%M')
-                end = datetime.strptime(self.end_time, '%H:%M')
+        # Проверка на None
+        if not self.start_time or not self.end_time:
+            print(
+                f"⚠️ WARNING: start_time or end_time is None. start_time: {self.start_time}, end_time: {self.end_time}")
+            return 6  # Значение по умолчанию
 
-                # Расчет разницы в минутах
-                total_minutes = (end - start).total_seconds() / 60
+        try:
+            start = datetime.strptime(self.start_time, '%H:%M')
+            end = datetime.strptime(self.end_time, '%H:%M')
 
-                # Количество уроков по 60 минут каждый - ОКРУГЛЯЕМ В БОЛЬШУЮ СТОРОНУ
-                lessons_count = int((total_minutes + 59) // 60)  # Округляем вверх
+            # Расчет разницы в минутах
+            total_minutes = (end - start).total_seconds() / 60
 
-                return max(1, lessons_count)  # Минимум 1 урок
-            except ValueError:
-                return 6  # Значение по умолчанию при ошибке
-        return 6  # Значение по умолчанию
+            # Количество уроков по 60 минут каждый - ОКРУГЛЯЕМ В БОЛЬШУЮ СТОРОНУ
+            lessons_count = int((total_minutes + 59) // 60)  # Округляем вверх
+
+            return max(1, lessons_count)  # Минимум 1 урок
+        except ValueError as e:
+            print(f"❌ ERROR in lessons_per_day calculation: {e}")
+            print(f"🔍 DEBUG: start_time: {self.start_time}, end_time: {self.end_time}")
+            return 6  # Значение по умолчанию при ошибке
 
     @property
     def lesson_duration(self):
@@ -74,12 +84,16 @@ class Schedule(db.Model):
     @property
     def created_at_display(self):
         """Форматированная дата создания"""
-        return self.created_at.strftime('%d.%m.%Y %H:%M')
+        if self.created_at:
+            return self.created_at.strftime('%d.%m.%Y %H:%M')
+        return 'Не указана'
 
     @property
     def updated_at_display(self):
         """Форматированная дата обновления"""
-        return self.updated_at.strftime('%d.%m.%Y %H:%M')
+        if self.updated_at:
+            return self.updated_at.strftime('%d.%m.%Y %H:%M')
+        return 'Не указана'
 
 
 class Lesson(db.Model):
@@ -135,9 +149,6 @@ AVAILABLE_FONTS = [
     {'value': 'System', 'name': 'Системный шрифт', 'category': 'Системный'}
 ]
 
-# Упрощенный список для выпадающего меню
-FONT_CHOICES = [font['value'] for font in AVAILABLE_FONTS]
-
 COLOR_PALETTE = {
     'yellow': '#FFF9C4',
     'green': '#C8E6C9',
@@ -159,15 +170,4 @@ DAY_NAMES = {
     'fri': 'Пятница',
     'sat': 'Суббота',
     'sun': 'Воскресенье'
-}
-
-# Группировка шрифтов по категориям для удобного отображения
-FONT_CATEGORIES = {
-    'Без засечек': ['Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Trebuchet MS', 'Bookman Old Style', 'Impact',
-                    'Lucida Sans Unicode', 'MS Sans Serif'],
-    'С засечками': ['Times New Roman', 'Georgia', 'Palatino Linotype', 'Garamond', 'MS Serif'],
-    'Моноширинный': ['Courier New'],
-    'Рукописный': ['Comic Sans MS'],
-    'Декоративный': ['Symbol', 'Webdings', 'Wingdings'],
-    'Системный': ['System']
 }

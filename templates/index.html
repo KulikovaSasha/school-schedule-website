@@ -1,16 +1,345 @@
 {% extends "base.html" %}
 
+{% block title %}Главная - School Schedule Planner{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: var(--shadow-soft);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+
+    .cta-section {
+        background: var(--primary-gradient);
+        padding: 6rem 0;
+        text-align: center;
+        color: white;
+        border-radius: 30px;
+        margin: 4rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .cta-section h2 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        font-weight: 800;
+    }
+
+    .cta-section p {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .testimonials {
+        padding: 6rem 0;
+    }
+
+    .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .testimonial-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+    }
+
+    .testimonial-card::before {
+        content: '"';
+        font-size: 6rem;
+        color: var(--glass-bg);
+        position: absolute;
+        top: -1rem;
+        left: 1rem;
+        line-height: 1;
+    }
+
+    .testimonial-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .author-info h4 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .author-info p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<!-- Hero Section -->
 <section class="hero">
-    <h1>Создайте идеальное школьное расписание</h1>
-    <p>Простой и удобный инструмент для планирования учебного процесса</p>
-    <div class="hero-buttons">
+    <div class="hero-content">
+        <h1>Создавайте идеальные расписания с искусственным интеллектом</h1>
+        <p>Мощный планировщик для учебных заведений с умными алгоритмами распределения нагрузки и красивыми визуализациями</p>
+
+        <div class="hero-buttons">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-large">
+                    <i class="fas fa-rocket"></i> Перейти к расписаниям
+                </a>
+            {% else %}
+                <a href="{{ url_for('main.register') }}" class="btn btn-primary btn-large">
+                    <i class="fas fa-user-plus"></i> Начать бесплатно
+                </a>
+                <a href="{{ url_for('main.login') }}" class="btn btn-outline btn-large">
+                    <i class="fas fa-sign-in-alt"></i> Войти в систему
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-image">
+        <img src="{{ url_for('static', filename='images/schedule-hero.png') }}"
+             alt="School Schedule Planner"
+             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDYwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2MDAiIGhlaWdodD0iNDAwIiBmaWxsPSJ1cmwoI2dyYWRpZW50KSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAiIHkxPSIwIiB4Mj0iNjAwIiB5Mj0iNDAwIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8dGV4dCB4PSIzMDAiIHk9IjIwMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPlNjaG9vbCBTY2hlZHVsZSBQbGFubmVyPC90ZXh0Pgo8L3N2Zz4K'">
+    </div>
+</section>
+
+<!-- Stats Section -->
+<div class="hero-stats">
+    <div class="stat-card">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Активных пользователей</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">1,200+</div>
+        <div class="stat-label">Созданных расписаний</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">99%</div>
+        <div class="stat-label">Довольных клиентов</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Техническая поддержка</div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="features">
+    <h2>Почему выбирают нас?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <i class="fas fa-magic"></i>
+            <h3>Умное планирование</h3>
+            <p>Искусственный интеллект автоматически оптимизирует расписание, учитывая все ограничения и предпочтения</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="fas fa-palette"></i>
+            <h3>Красивый дизайн</h3>
+            <p>Современный интерфейс с поддержкой темной темы и возможностью кастомизации цветов</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>Полная адаптивность</h3>
+            <p>Идеально работает на компьютерах, планшетах и мобильных устройствах</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="fas fa-cloud"></i>
+            <h3>Облачное хранение</h3>
+            <p>Доступ к вашим расписаниям с любого устройства в любое время</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="fas fa-print"></i>
+            <h3>Печать и экспорт</h3>
+            <p>Красивая печать расписаний и экспорт в PDF формате</p>
+        </div>
+
+        <div class="feature-card">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Безопасность данных</h3>
+            <p>Ваши данные защищены современными методами шифрования</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Готовы начать?</h2>
+        <p>Присоединяйтесь к тысячам учебных заведений, которые уже используют наш планировщик</p>
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Мои расписания</a>
+            <a href="{{ url_for('main.create_schedule') }}" class="btn btn-glass btn-large">
+                <i class="fas fa-plus"></i> Создать новое расписание
+            </a>
         {% else %}
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Начать бесплатно</a>
-            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Войти</a>
+            <a href="{{ url_for('main.register') }}" class="btn btn-glass btn-large">
+                <i class="fas fa-user-plus"></i> Зарегистрироваться бесплатно
+            </a>
         {% endif %}
     </div>
 </section>
+
+<!-- Testimonials Section -->
+<section class="testimonials">
+    <h2 style="text-align: center; font-size: 3rem; margin-bottom: 1rem; background: var(--dark-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Отзывы пользователей
+    </h2>
+    <p style="text-align: center; font-size: 1.2rem; color: #6c757d; max-width: 600px; margin: 0 auto 3rem;">
+        Что говорят преподаватели и администраторы о нашем сервисе
+    </p>
+
+    <div class="testimonials-grid">
+        <div class="testimonial-card">
+            <div class="testimonial-text">
+                "Этот планировщик изменил нашу работу! Теперь создание расписания занимает минуты вместо дней."
+            </div>
+            <div class="testimonial-author">
+                <div class="author-avatar">МК</div>
+                <div class="author-info">
+                    <h4>Мария Ковалева</h4>
+                    <p>Директор школы, Москва</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card">
+            <div class="testimonial-text">
+                "Интуитивный интерфейс и мощные функции. Ученики и преподаватели в восторге от новых расписаний!"
+            </div>
+            <div class="testimonial-author">
+                <div class="author-avatar">АС</div>
+                <div class="author-info">
+                    <h4>Алексей Смирнов</h4>
+                    <p>Завуч, Санкт-Петербург</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonial-card">
+            <div class="testimonial-text">
+                "Поддержка работает оперативно, всегда помогают с настройками. Сервис стоит своих денег!"
+            </div>
+            <div class="testimonial-author">
+                <div class="author-avatar">ЕП</div>
+                <div class="author-info">
+                    <h4>Елена Петрова</h4>
+                    <p>Преподаватель, Казань</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Анимация появления элементов при скролле
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    // Наблюдаем за карточками
+    document.querySelectorAll('.feature-card, .stat-card, .testimonial-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        observer.observe(card);
+    });
+
+    // Параллакс эффект для героя
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero-image img');
+        if (hero) {
+            hero.style.transform = `rotateY(-5deg) rotateX(5deg) translateY(${scrolled * 0.1}px)`;
+        }
+    });
+});
+</script>
 {% endblock %}

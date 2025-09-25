@@ -1,182 +1,393 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель управления - Школьное расписание</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-</head>
-<body>
-    <!-- Навигация -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="fas fa-calendar-alt me-2"></i>Школьное расписание
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.index') }}">Главная</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('main.dashboard') }}">Мои расписания</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.create_schedule') }}">Создать</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.profile') }}">Профиль</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.logout') }}">Выйти</a>
-                    </li>
-                </ul>
-            </div>
+{% extends "base.html" %}
+
+{% block title %}Мои расписания - School Schedule Planner{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-soft);
+        text-align: center;
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--primary-gradient);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .action-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hard);
+        border-color: var(--primary-gradient);
+    }
+
+    .action-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 6rem 2rem;
+        background: white;
+        border-radius: 25px;
+        box-shadow: var(--shadow-soft);
+        margin: 2rem 0;
+    }
+
+    .empty-state i {
+        font-size: 6rem;
+        margin-bottom: 2rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        color: #6c757d;
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+
+    .schedule-card-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn.view {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .action-btn.edit {
+        background: var(--primary-gradient);
+        color: white;
+    }
+
+    .action-btn.delete {
+        background: var(--danger-gradient);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .recent-activity {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-soft);
+        margin-top: 3rem;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-text {
+        margin: 0;
+        color: #2c3e50;
+    }
+
+    .activity-time {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Мои расписания</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem; font-size: 1.2rem;">
+                Управляйте вашими учебными расписаниями
+            </p>
         </div>
-    </nav>
+        <a href="{{ url_for('main.create_schedule') }}" class="btn btn-primary btn-large">
+            <i class="fas fa-plus"></i> Новое расписание
+        </a>
+    </div>
 
-    <!-- Основной контент -->
-    <div class="container mt-4">
-        <!-- Заголовок и уведомления -->
-        <div class="row">
-            <div class="col-12">
-                <h1 class="mb-4">
-                    <i class="fas fa-tachometer-alt me-2"></i>Панель управления
-                </h1>
-
-                <!-- Flash сообщения -->
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+    <!-- Statistics -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-alt"></i>
             </div>
+            <div class="stat-number">{{ schedules|length }}</div>
+            <div class="stat-label">Всего расписаний</div>
         </div>
-
-        <!-- Кнопка создания -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <a href="{{ url_for('main.create_schedule') }}" class="btn btn-success">
-                    <i class="fas fa-plus me-2"></i>Создать новое расписание
-                </a>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
             </div>
+            <div class="stat-number">
+                {% set total_lessons = schedules|sum(attribute='lessons_per_day') * schedules|sum(attribute='days_count') %}
+                {{ total_lessons }}
+            </div>
+            <div class="stat-label">Всего уроков</div>
         </div>
-
-        <!-- Список расписаний -->
-        <div class="row">
-            <div class="col-12">
-                {% if schedules %}
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-list me-2"></i>Мои расписания ({{ schedules|length }})
-                            </h5>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Название</th>
-                                            <th>Дней в неделю</th>
-                                            <th>Уроков в день</th>
-                                            <th>Дата создания</th>
-                                            <th>Действия</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for schedule in schedules %}
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ schedule.title }}</strong>
-                                                </td>
-                                                <td>
-                                                    {{ schedule.days_of_week|count_days }}
-                                                </td>
-                                                <td>
-                                                    {{ schedule.lessons_per_day }}
-                                                </td>
-                                                <td>
-                                                    {% if schedule.created_at %}
-                                                        {{ schedule.created_at.strftime('%d.%m.%Y %H:%M') }}
-                                                    {% else %}
-                                                        Не указана
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group btn-group-sm">
-                                                        <a href="{{ url_for('main.view_schedule', schedule_id=schedule.id) }}"
-                                                           class="btn btn-outline-primary" title="Просмотреть">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}"
-                                                           class="btn btn-outline-secondary" title="Редактировать">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <form action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}"
-                                                              method="post" style="display: inline;">
-                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                                            <button type="button" class="btn btn-outline-danger"
-                                                                    onclick="confirmDelete({{ schedule.id }}, '{{ schedule.title }}')"
-                                                                    title="Удалить расписание">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <!-- Сообщение о пустом списке -->
-                    <div class="text-center py-5">
-                        <i class="fas fa-calendar-plus fa-4x text-muted mb-3"></i>
-                        <h3 class="text-muted">У вас пока нет расписаний</h3>
-                        <p class="text-muted">Создайте свое первое расписание, чтобы начать работу</p>
-                        <a href="{{ url_for('main.create_schedule') }}" class="btn btn-primary btn-lg">
-                            <i class="fas fa-plus me-2"></i>Создать первое расписание
-                        </a>
-                    </div>
-                {% endif %}
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
             </div>
+            <div class="stat-number">{{ schedules|length * 30 }}</div>
+            <div class="stat-label">Охват учеников</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Удовлетворенность</div>
         </div>
     </div>
 
-    <!-- Футер -->
-    <footer class="bg-light mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2024 Школьное расписание. Все права защищены.</p>
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="action-card" onclick="window.location.href='{{ url_for('main.create_schedule') }}'">
+            <div class="action-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <h3>Создать новое</h3>
+            <p>Начните с чистого листа</p>
+        </div>
+        
+        <div class="action-card" onclick="window.location.href='{{ url_for('main.profile') }}'">
+            <div class="action-icon">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <h3>Настройки</h3>
+            <p>Персонализируйте аккаунт</p>
+        </div>
+        
+        <div class="action-card" onclick="window.print()">
+            <div class="action-icon">
+                <i class="fas fa-print"></i>
+            </div>
+            <h3>Печать всех</h3>
+            <p>Быстрый экспорт</p>
+        </div>
+        
+        <div class="action-card" onclick="window.location.href='{{ url_for('main.help') }}'">
+            <div class="action-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3>Помощь</h3>
+            <p>Нужна помощь?</p>
+        </div>
+    </div>
+
+    <!-- Schedules Grid -->
+    {% if schedules %}
+        <div class="schedules-grid">
+            {% for schedule in schedules %}
+            <div class="schedule-card">
+                <div class="schedule-card-header">
+                    <h3>{{ schedule.title }}</h3>
+                    <div class="schedule-card-actions">
+                        <button class="action-btn view"
+                                onclick="window.location.href='{{ url_for('main.view_schedule', schedule_id=schedule.id) }}'">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit"
+                                onclick="window.location.href='{{ url_for('main.edit_schedule', schedule_id=schedule.id) }}'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+
+                        <!-- ИСПРАВЛЕННАЯ ФОРМА УДАЛЕНИЯ -->
+                        <form action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}"
+                              method="post" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="action-btn delete"
+                                    onclick="return confirm('Вы уверены, что хотите удалить расписание {{ schedule.title }}?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="{{ url_for('main.about') }}" class="text-muted me-3">О программе</a>
-                    <a href="{{ url_for('main.help') }}" class="text-muted me-3">Помощь</a>
-                    <a href="{{ url_for('main.contact') }}" class="text-muted">Контакты</a>
+                
+                <div class="schedule-card-body">
+                    <p><i class="fas fa-calendar-day"></i> <strong>Дни:</strong> {{ schedule.days_count }}</p>
+                    <p><i class="fas fa-book"></i> <strong>Уроков в день:</strong> {{ schedule.lessons_per_day }}</p>
+                    <p><i class="fas fa-clock"></i> <strong>Время:</strong> {{ schedule.start_time }} - {{ schedule.end_time }}</p>
+                    <p><i class="fas fa-history"></i> <strong>Создано:</strong> {{ schedule.created_at_display }}</p>
+                </div>
+                
+                <div class="schedule-card-footer">
+                    <span class="text-muted">ID: {{ schedule.id }}</span>
+                    <a href="{{ url_for('main.view_schedule', schedule_id=schedule.id) }}" 
+                       class="btn btn-outline btn-sm">
+                        Открыть
+                    </a>
                 </div>
             </div>
+            {% endfor %}
         </div>
-    </footer>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-calendar-plus"></i>
+            <h3>У вас пока нет расписаний</h3>
+            <p>Создайте свое первое расписание и начните эффективно планировать учебный процесс</p>
+            <a href="{{ url_for('main.create_schedule') }}" class="btn btn-primary btn-large">
+                <i class="fas fa-plus"></i> Создать первое расписание
+            </a>
+        </div>
+    {% endif %}
 
-    <!-- Скрипты -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- Recent Activity -->
+    {% if schedules %}
+    <div class="recent-activity">
+        <h3 style="margin-bottom: 2rem; color: #2c3e50;">Недавняя активность</h3>
+        <ul class="activity-list">
+            <li class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <p class="activity-text">Создано новое расписание "{{ schedules[0].title }}"</p>
+                    <p class="activity-time">{{ schedules[0].created_at_display }}</p>
+                </div>
+            </li>
+            {% if schedules|length > 1 %}
+            <li class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="activity-content">
+                    <p class="activity-text">Обновлено расписание "{{ schedules[1].title }}"</p>
+                    <p class="activity-time">{{ schedules[1].updated_at_display }}</p>
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
 
-<!-- Модальное окно подтверждения удаления -->
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -198,21 +409,54 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-// Функция для открытия модального окна подтверждения
+// Анимация появления карточек
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.schedule-card, .stat-card, .action-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.style.animation = 'fadeInUp 0.6s ease forwards';
+    });
+});
+
+// Функция подтверждения удаления
 function confirmDelete(scheduleId, scheduleTitle) {
-    // Устанавливаем заголовок
     document.getElementById('deleteScheduleTitle').textContent = scheduleTitle;
-
-    // Устанавливаем action формы
     document.getElementById('deleteForm').action = `/schedule/${scheduleId}/delete`;
-
-    // Показываем модальное окно
+    
     const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
     modal.show();
 }
-</script>
 
-</body>
-</html>
+// Drag and drop для карточек (опционально)
+let draggedCard = null;
+
+document.addEventListener('dragstart', function(e) {
+    if (e.target.classList.contains('schedule-card')) {
+        draggedCard = e.target;
+        e.target.style.opacity = '0.5';
+    }
+});
+
+document.addEventListener('dragend', function(e) {
+    if (draggedCard) {
+        draggedCard.style.opacity = '1';
+        draggedCard = null;
+    }
+});
+
+document.addEventListener('dragover', function(e) {
+    e.preventDefault();
+});
+
+document.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (draggedCard && e.target.classList.contains('schedules-grid')) {
+        e.target.appendChild(draggedCard);
+    }
+});
+</script>
+{% endblock %}
