@@ -87,6 +87,60 @@ def index():
     return render_template('index.html')
 
 
+# Вход в систему - ДОБАВЛЯЕМ ЭТОТ МАРШРУТ
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    """Вход в систему"""
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            flash('Вы успешно вошли в систему!', 'success')
+            return redirect(url_for('main.dashboard'))
+        else:
+            flash('Неверное имя пользователя или пароль.', 'danger')
+    return render_template('login.html', form=form)
+
+
+# Регистрация - ДОБАВЛЯЕМ ЭТОТ МАРШРУТ
+@main.route('/register', methods=['GET', 'POST'])
+def register():
+    """Регистрация нового пользователя"""
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # Валидация username
+        if User.query.filter_by(username=form.username.data).first():
+            flash('Это имя пользователя уже занято.', 'danger')
+            return render_template('register.html', form=form)
+
+        # Валидация email
+        if User.query.filter_by(email=form.email.data).first():
+            flash('Этот email уже используется.', 'danger')
+            return render_template('register.html', form=form)
+
+        # Создание пользователя
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+
+        flash('Регистрация прошла успешно! Теперь вы можете войти.', 'success')
+        return redirect(url_for('main.login'))
+
+    return render_template('register.html', form=form)
+
+
+# Выход из системы
+@main.route('/logout')
+@login_required
+def logout():
+    """Выход из системы"""
+    logout_user()
+    flash('Вы вышли из системы.', 'info')
+    return redirect(url_for('main.index'))
+
+
 # Панель управления пользователя
 @main.route('/dashboard')
 @login_required
@@ -173,6 +227,7 @@ def create_schedule():
     return render_template('create_schedule.html', form=form)
 
 
+# Редактирование расписания
 @main.route('/schedule/<int:schedule_id>/edit')
 @login_required
 def edit_schedule(schedule_id):
@@ -235,6 +290,7 @@ def edit_schedule(schedule_id):
                            available_fonts=AVAILABLE_FONTS)
 
 
+# Сохранение расписания
 @main.route('/schedule/<int:schedule_id>/save', methods=['POST'])
 @login_required
 def save_schedule(schedule_id):
@@ -351,9 +407,7 @@ def view_schedule(schedule_id):
                            current_time=current_time)
 
 
-# (login, register, logout, profile, about, help, contact, error handlers и т.д.)
-
-# Удаление расписания - ДОБАВЬТЕ ЭТОТ МАРШРУТ
+# Удаление расписания
 @main.route('/schedule/<int:schedule_id>/delete', methods=['POST'])
 @login_required
 def delete_schedule(schedule_id):
@@ -379,16 +433,8 @@ def delete_schedule(schedule_id):
 
     return redirect(url_for('main.dashboard'))
 
-@main.route('/logout')
-@login_required
-def logout():
-    """Выход из системы"""
-    logout_user()
-    flash('Вы вышли из системы.', 'info')
-    return redirect(url_for('main.index'))
 
-
-# Страница профиля
+# Страница профиля - ДОБАВЛЯЕМ ЭТОТ МАРШРУТ
 @main.route('/profile')
 @login_required
 def profile():
@@ -396,21 +442,21 @@ def profile():
     return render_template('profile.html', user=current_user)
 
 
-# О программе
+# О программе - ДОБАВЛЯЕМ ЭТОТ МАРШРУТ
 @main.route('/about')
 def about():
     """Страница о программе"""
     return render_template('about.html')
 
 
-# Помощь
+# Помощь - ДОБАВЛЯЕМ ЭТОТ МАРШРУТ
 @main.route('/help')
 def help():
     """Страница помощи"""
     return render_template('help.html')
 
 
-# Контакты
+# Контакты - ДОБАВЛЯЕМ ЭТОТ МАРШРУТ
 @main.route('/contact')
 def contact():
     """Страница контактов"""
@@ -489,7 +535,7 @@ def fix_old_data():
     return redirect(url_for('main.dashboard'))
 
 
-@main.route('/profile')
+@main.route('/user_profile')
 @login_required
 def user_profile():
     """Страница профиля пользователя"""

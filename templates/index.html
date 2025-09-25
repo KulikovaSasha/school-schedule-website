@@ -150,8 +150,7 @@
 <!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
-        <h1>Создавайте идеальные расписания с искусственным интеллектом</h1>
-        <p>Мощный планировщик для учебных заведений с умными алгоритмами распределения нагрузки и красивыми визуализациями</p>
+        <h1>Создавайте идеальные расписания </h1>
 
         <div class="hero-buttons">
             {% if current_user.is_authenticated %}
@@ -176,73 +175,11 @@
     </div>
 </section>
 
-<!-- Stats Section -->
-<div class="hero-stats">
-    <div class="stat-card">
-        <div class="stat-number">500+</div>
-        <div class="stat-label">Активных пользователей</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number">1,200+</div>
-        <div class="stat-label">Созданных расписаний</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number">99%</div>
-        <div class="stat-label">Довольных клиентов</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">Техническая поддержка</div>
-    </div>
-</div>
-
-<!-- Features Section -->
-<section class="features">
-    <h2>Почему выбирают нас?</h2>
-    <div class="features-grid">
-        <div class="feature-card">
-            <i class="fas fa-magic"></i>
-            <h3>Умное планирование</h3>
-            <p>Искусственный интеллект автоматически оптимизирует расписание, учитывая все ограничения и предпочтения</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-palette"></i>
-            <h3>Красивый дизайн</h3>
-            <p>Современный интерфейс с поддержкой темной темы и возможностью кастомизации цветов</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-mobile-alt"></i>
-            <h3>Полная адаптивность</h3>
-            <p>Идеально работает на компьютерах, планшетах и мобильных устройствах</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-cloud"></i>
-            <h3>Облачное хранение</h3>
-            <p>Доступ к вашим расписаниям с любого устройства в любое время</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-print"></i>
-            <h3>Печать и экспорт</h3>
-            <p>Красивая печать расписаний и экспорт в PDF формате</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>Безопасность данных</h3>
-            <p>Ваши данные защищены современными методами шифрования</p>
-        </div>
-    </div>
-</section>
 
 <!-- CTA Section -->
 <section class="cta-section">
     <div class="cta-content">
         <h2>Готовы начать?</h2>
-        <p>Присоединяйтесь к тысячам учебных заведений, которые уже используют наш планировщик</p>
         {% if current_user.is_authenticated %}
             <a href="{{ url_for('main.create_schedule') }}" class="btn btn-glass btn-large">
                 <i class="fas fa-plus"></i> Создать новое расписание
@@ -252,57 +189,6 @@
                 <i class="fas fa-user-plus"></i> Зарегистрироваться бесплатно
             </a>
         {% endif %}
-    </div>
-</section>
-
-<!-- Testimonials Section -->
-<section class="testimonials">
-    <h2 style="text-align: center; font-size: 3rem; margin-bottom: 1rem; background: var(--dark-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-        Отзывы пользователей
-    </h2>
-    <p style="text-align: center; font-size: 1.2rem; color: #6c757d; max-width: 600px; margin: 0 auto 3rem;">
-        Что говорят преподаватели и администраторы о нашем сервисе
-    </p>
-
-    <div class="testimonials-grid">
-        <div class="testimonial-card">
-            <div class="testimonial-text">
-                "Этот планировщик изменил нашу работу! Теперь создание расписания занимает минуты вместо дней."
-            </div>
-            <div class="testimonial-author">
-                <div class="author-avatar">МК</div>
-                <div class="author-info">
-                    <h4>Мария Ковалева</h4>
-                    <p>Директор школы, Москва</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="testimonial-card">
-            <div class="testimonial-text">
-                "Интуитивный интерфейс и мощные функции. Ученики и преподаватели в восторге от новых расписаний!"
-            </div>
-            <div class="testimonial-author">
-                <div class="author-avatar">АС</div>
-                <div class="author-info">
-                    <h4>Алексей Смирнов</h4>
-                    <p>Завуч, Санкт-Петербург</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="testimonial-card">
-            <div class="testimonial-text">
-                "Поддержка работает оперативно, всегда помогают с настройками. Сервис стоит своих денег!"
-            </div>
-            <div class="testimonial-author">
-                <div class="author-avatar">ЕП</div>
-                <div class="author-info">
-                    <h4>Елена Петрова</h4>
-                    <p>Преподаватель, Казань</p>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 {% endblock %}
