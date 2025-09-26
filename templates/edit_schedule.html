@@ -544,7 +544,7 @@
                 <i class="fas fa-eye"></i> Просмотр
             </a>
             <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Назад
+                <i class="fas fa-calendar"></i> Мои расписания
             </a>
         </div>
     </div>
@@ -608,7 +608,7 @@
                             {% set b = clean_color[4:6] %}
                         {% endif %}
                         {% set brightness = (r|int(16) * 299 + g|int(16) * 587 + b|int(16) * 114) / 1000 %}
-                        {% set text_color = '#000000' if brightness > 160 else '#ffffff' %}
+                        {% set text_color = '#000000' if brightness > 160 else '#000000' %}
                     {% else %}
                         {% set text_color = '#000000' %}
                     {% endif %}
