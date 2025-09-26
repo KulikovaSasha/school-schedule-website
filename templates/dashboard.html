@@ -209,6 +209,379 @@
         color: #6c757d;
         font-size: 0.9rem;
     }
+
+    /* Стили для красивого модального окна удаления */
+    .modal-delete {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-delete-content {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        margin: 10% auto;
+        padding: 0;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        animation: modalSlideIn 0.4s ease;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-delete-header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        position: relative;
+    }
+
+    .modal-delete-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="warning" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.2"/></pattern></defs><rect width="100" height="100" fill="url(%23warning)"/></svg>');
+    }
+
+    .modal-delete-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+        animation: pulse 2s infinite;
+    }
+
+    .modal-delete-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    .modal-delete-body {
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .modal-delete-message {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .schedule-title-delete {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        display: inline-block;
+        margin: 0.5rem 0;
+    }
+
+    .modal-delete-warning {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1.5rem 0;
+        text-align: center;
+    }
+
+    .modal-delete-warning i {
+        color: #856404;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .modal-delete-warning p {
+        color: #856404;
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .modal-delete-footer {
+        padding: 1.5rem 2rem 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-modal {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .btn-modal-cancel {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+    }
+
+    .btn-modal-cancel:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #343a40 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-modal-delete {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .btn-modal-delete:hover {
+        background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 28px;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1;
+        background: rgba(0,0,0,0.2);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close:hover {
+        color: #ffcccc;
+        transform: rotate(90deg);
+        background: rgba(0,0,0,0.3);
+    }
+
+    /* Стили для красивого уведомления об успешном удалении */
+    .delete-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10001;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        max-width: 400px;
+        animation: slideInRight 0.5s ease, slideOutRight 0.5s ease 3.5s forwards;
+        transform: translateX(100%);
+        opacity: 0;
+        border-left: 5px solid #155724;
+        display: none; /* Скрыто по умолчанию */
+    }
+
+    .delete-notification.show {
+        display: flex;
+        animation: slideInRight 0.5s ease forwards;
+    }
+
+    .delete-notification.hide {
+        animation: slideOutRight 0.5s ease forwards;
+    }
+
+    .notification-icon {
+        font-size: 2rem;
+        animation: bounce 2s infinite;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0 0 5px 0;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .notification-message {
+        margin: 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+
+    .notification-close {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 1.1rem;
+    }
+
+    .notification-close:hover {
+        background: rgba(255,255,255,0.3);
+        transform: rotate(90deg);
+    }
+
+    .notification-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: rgba(255,255,255,0.5);
+        width: 100%;
+        border-radius: 0 0 15px 15px;
+        overflow: hidden;
+    }
+
+    .notification-progress-bar {
+        height: 100%;
+        background: white;
+        width: 100%;
+        animation: progressBar 4s linear forwards;
+        transform-origin: left;
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-5px);
+        }
+        60% {
+            transform: translateY(-3px);
+        }
+    }
+
+    @keyframes progressBar {
+        from {
+            transform: scaleX(1);
+        }
+        to {
+            transform: scaleX(0);
+        }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .modal-delete-content {
+            margin: 20% auto;
+            width: 95%;
+        }
+
+        .modal-delete-footer {
+            flex-direction: column;
+        }
+
+        .btn-modal {
+            width: 100%;
+        }
+
+        .modal-delete-header {
+            padding: 1.5rem;
+        }
+
+        .modal-delete-icon {
+            font-size: 3rem;
+        }
+
+        .modal-delete-title {
+            font-size: 1.5rem;
+        }
+
+        .delete-notification {
+            top: 10px;
+            right: 10px;
+            left: 10px;
+            max-width: none;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -225,79 +598,6 @@
         <a href="{{ url_for('main.create_schedule') }}" class="btn btn-primary btn-large">
             <i class="fas fa-plus"></i> Новое расписание
         </a>
-    </div>
-
-    <!-- Statistics -->
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="stat-number">{{ schedules|length }}</div>
-            <div class="stat-label">Всего расписаний</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-number">
-                {% set total_lessons = schedules|sum(attribute='lessons_per_day') * schedules|sum(attribute='days_count') %}
-                {{ total_lessons }}
-            </div>
-            <div class="stat-label">Всего уроков</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-number">{{ schedules|length * 30 }}</div>
-            <div class="stat-label">Охват учеников</div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="stat-number">98%</div>
-            <div class="stat-label">Удовлетворенность</div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <div class="action-card" onclick="window.location.href='{{ url_for('main.create_schedule') }}'">
-            <div class="action-icon">
-                <i class="fas fa-plus-circle"></i>
-            </div>
-            <h3>Создать новое</h3>
-            <p>Начните с чистого листа</p>
-        </div>
-        
-        <div class="action-card" onclick="window.location.href='{{ url_for('main.profile') }}'">
-            <div class="action-icon">
-                <i class="fas fa-user-cog"></i>
-            </div>
-            <h3>Настройки</h3>
-            <p>Персонализируйте аккаунт</p>
-        </div>
-        
-        <div class="action-card" onclick="window.print()">
-            <div class="action-icon">
-                <i class="fas fa-print"></i>
-            </div>
-            <h3>Печать всех</h3>
-            <p>Быстрый экспорт</p>
-        </div>
-        
-        <div class="action-card" onclick="window.location.href='{{ url_for('main.help') }}'">
-            <div class="action-icon">
-                <i class="fas fa-question-circle"></i>
-            </div>
-            <h3>Помощь</h3>
-            <p>Нужна помощь?</p>
-        </div>
     </div>
 
     <!-- Schedules Grid -->
@@ -321,24 +621,24 @@
                         <form action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}"
                               method="post" style="display: inline;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="action-btn delete"
-                                    onclick="return confirm('Вы уверены, что хотите удалить расписание {{ schedule.title }}?')">
+                            <button type="button" class="action-btn delete"
+                                    onclick="confirmDelete({{ schedule.id }}, '{{ schedule.title }}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
                     </div>
                 </div>
-                
+
                 <div class="schedule-card-body">
                     <p><i class="fas fa-calendar-day"></i> <strong>Дни:</strong> {{ schedule.days_count }}</p>
                     <p><i class="fas fa-book"></i> <strong>Уроков в день:</strong> {{ schedule.lessons_per_day }}</p>
                     <p><i class="fas fa-clock"></i> <strong>Время:</strong> {{ schedule.start_time }} - {{ schedule.end_time }}</p>
                     <p><i class="fas fa-history"></i> <strong>Создано:</strong> {{ schedule.created_at_display }}</p>
                 </div>
-                
+
                 <div class="schedule-card-footer">
                     <span class="text-muted">ID: {{ schedule.id }}</span>
-                    <a href="{{ url_for('main.view_schedule', schedule_id=schedule.id) }}" 
+                    <a href="{{ url_for('main.view_schedule', schedule_id=schedule.id) }}"
                        class="btn btn-outline btn-sm">
                         Открыть
                     </a>
@@ -356,58 +656,55 @@
             </a>
         </div>
     {% endif %}
-
-
-    <!-- Recent Activity -->
-    {% if schedules %}
-    <div class="recent-activity">
-        <h3 style="margin-bottom: 2rem; color: #2c3e50;">Недавняя активность</h3>
-        <ul class="activity-list">
-            <li class="activity-item">
-                <div class="activity-icon">
-                    <i class="fas fa-plus"></i>
-                </div>
-                <div class="activity-content">
-                    <p class="activity-text">Создано новое расписание "{{ schedules[0].title }}"</p>
-                    <p class="activity-time">{{ schedules[0].created_at_display }}</p>
-                </div>
-            </li>
-            {% if schedules|length > 1 %}
-            <li class="activity-item">
-                <div class="activity-icon">
-                    <i class="fas fa-edit"></i>
-                </div>
-                <div class="activity-content">
-                    <p class="activity-text">Обновлено расписание "{{ schedules[1].title }}"</p>
-                    <p class="activity-time">{{ schedules[1].updated_at_display }}</p>
-                </div>
-            </li>
-            {% endif %}
-        </ul>
-    </div>
-    {% endif %}
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Подтверждение удаления</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Вы уверены, что хотите удалить расписание <strong id="deleteScheduleTitle"></strong>?</p>
-                <p class="text-danger">Это действие нельзя отменить!</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="deleteForm" method="post" style="display: inline;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                </form>
+<!-- Красивое модальное окно подтверждения удаления -->
+<div id="deleteConfirmModal" class="modal-delete">
+    <div class="modal-delete-content">
+        <div class="modal-delete-header">
+            <span class="modal-close" onclick="closeDeleteModal()">&times;</span>
+            <i class="fas fa-exclamation-triangle modal-delete-icon"></i>
+            <h3 class="modal-delete-title">Подтверждение удаления</h3>
+        </div>
+
+        <div class="modal-delete-body">
+            <p class="modal-delete-message">
+                Вы собираетесь удалить расписание:
+            </p>
+            <div class="schedule-title-delete" id="deleteScheduleTitle"></div>
+
+            <div class="modal-delete-warning">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Это действие нельзя отменить!</p>
             </div>
         </div>
+
+        <div class="modal-delete-footer">
+            <button type="button" class="btn-modal btn-modal-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <form id="deleteForm" method="post" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-modal btn-modal-delete">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Красивое уведомление об успешном удалении -->
+<div id="deleteSuccessNotification" class="delete-notification">
+    <i class="fas fa-check-circle notification-icon"></i>
+    <div class="notification-content">
+        <div class="notification-title">Успешно!</div>
+        <p class="notification-message">Расписание успешно удалено</p>
+    </div>
+    <button class="notification-close" onclick="hideDeleteNotification()">
+        <i class="fas fa-times"></i>
+    </button>
+    <div class="notification-progress">
+        <div class="notification-progress-bar"></div>
     </div>
 </div>
 {% endblock %}
@@ -416,21 +713,123 @@
 <script>
 // Анимация появления карточек
 document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.schedule-card, .stat-card, .action-card');
+    const cards = document.querySelectorAll('.schedule-card');
     cards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
         card.style.animation = 'fadeInUp 0.6s ease forwards';
     });
 });
 
-// Функция подтверждения удаления
+// Функции для красивого модального окна удаления
 function confirmDelete(scheduleId, scheduleTitle) {
     document.getElementById('deleteScheduleTitle').textContent = scheduleTitle;
     document.getElementById('deleteForm').action = `/schedule/${scheduleId}/delete`;
-    
-    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-    modal.show();
+
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
 }
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Функции для красивого уведомления об удалении
+function showDeleteSuccess() {
+    const notification = document.getElementById('deleteSuccessNotification');
+
+    // Сбрасываем анимации
+    notification.style.animation = 'none';
+    notification.offsetHeight; // Trigger reflow
+    notification.style.animation = null;
+
+    // Показываем уведомление
+    notification.classList.remove('hide');
+    notification.classList.add('show');
+
+    // Перезапускаем прогресс-бар
+    const progressBar = notification.querySelector('.notification-progress-bar');
+    progressBar.style.animation = 'none';
+    progressBar.offsetHeight;
+    progressBar.style.animation = 'progressBar 4s linear forwards';
+
+    // Автоматически скрываем через 4 секунды
+    setTimeout(() => {
+        hideDeleteNotification();
+    }, 4000);
+}
+
+function hideDeleteNotification() {
+    const notification = document.getElementById('deleteSuccessNotification');
+    notification.classList.remove('show');
+    notification.classList.add('hide');
+
+    // После завершения анимации скрытия полностью убираем элемент
+    setTimeout(() => {
+        notification.classList.remove('hide');
+        notification.style.display = 'none';
+    }, 500);
+}
+
+// Закрытие модального окна при клике вне его
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (event.target === modal) {
+        closeDeleteModal();
+    }
+});
+
+// Закрытие модального окна по клавише Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDeleteModal();
+    }
+});
+
+// Обработка отправки формы удаления
+document.getElementById('deleteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const url = this.action;
+
+    // Закрываем модальное окно
+    closeDeleteModal();
+
+    // Показываем уведомление об успешном удалении
+    showDeleteSuccess();
+
+    // Отправляем форму удаления
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // После успешного удаления перезагружаем страницу через 1 секунду
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            // Если произошла ошибка, все равно перезагружаем страницу
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // В случае ошибки все равно перезагружаем страницу
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    });
+});
 
 // Drag and drop для карточек (опционально)
 let draggedCard = null;
