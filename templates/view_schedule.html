@@ -52,11 +52,72 @@
     vertical-align: middle;
     transition: all 0.2s ease;
     border: 1px solid #dee2e6;
+    cursor: pointer;
+    position: relative;
 }
 
 .subject-name {
     font-weight: bold;
     font-size: 16px;
+}
+
+/* Стили для глобального всплывающего меню */
+#global-lesson-menu {
+    display: none;
+    position: fixed;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 10000;
+    min-width: 220px;
+    padding: 8px 0;
+}
+
+#global-lesson-menu.active {
+    display: block;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 15px;
+    margin: 0;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    transition: background 0.2s ease;
+    box-sizing: border-box;
+}
+
+.menu-item:hover {
+    background: #f8f9fa;
+    text-decoration: none;
+    color: #333;
+}
+
+.menu-item i {
+    margin-right: 10px;
+    width: 16px;
+    text-align: center;
+}
+
+.menu-close {
+    background: #f8f9fa !important;
+    color: #dc3545 !important;
+    border-top: 1px solid #dee2e6 !important;
+    margin-top: 5px;
+}
+
+.menu-close:hover {
+    background: #dc3545 !important;
+    color: white !important;
 }
 
 /* Вертикальное отображение времени */
@@ -80,40 +141,6 @@
 
 .time-end {
     font-weight: bold;
-}
-
-/* Стили для ссылок и кнопок */
-.lesson-link-container {
-    margin-top: 5px;
-}
-
-.lesson-link-btn {
-    display: inline-block;
-    padding: 3px 8px;
-    background: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 3px;
-    font-size: 12px;
-    margin-right: 5px;
-}
-
-.lesson-link-btn:hover {
-    background: #0056b3;
-}
-
-.copy-link-btn {
-    padding: 3px 6px;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.copy-link-btn:hover {
-    background: #545b62;
 }
 
 .schedule-actions {
@@ -393,13 +420,13 @@
     font-weight: 600;
     font-size: 14px;
     height: 22px;
-    border: 1px solid #b7b6b6;
+    border: 1px solid #b7b7b7;
 }
 
 .pdf-table td {
     padding: 5px 0 !important;
     text-align: center;
-    border: 1px solid #b7b6b6;
+    border: 1px solid #b7b7b7;
     font-size: 12px !important;
     font-weight: normal;
     height: 30px !important;
@@ -421,7 +448,7 @@
 }
 
 .pdf-time-cell {
-    background: linear-gradient(135deg, #ffffff, #b7b6b6) !important;
+    background: linear-gradient(135deg, #ffffff, #b7b7b7) !important;
     font-weight: 600 !important;
     color: #2c3e50 !important;
     width: 125px;
@@ -643,6 +670,22 @@
         </div>
     </div>
 
+    <!-- Глобальное всплывающее меню -->
+    <div id="global-lesson-menu">
+        <a href="#" id="menu-link" class="menu-item" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-video"></i>
+            <span id="menu-link-text">Перейти к уроку</span>
+        </a>
+        <button class="menu-item" id="menu-copy">
+            <i class="fas fa-copy"></i>
+            Скопировать ссылку
+        </button>
+        <button class="menu-item menu-close" id="menu-close">
+            <i class="fas fa-times"></i>
+            Закрыть
+        </button>
+    </div>
+
     <!-- Основной контент для экрана -->
     <div class="schedule-header">
         <h1 class="schedule-title">{{ schedule.title }}</h1>
@@ -720,30 +763,14 @@
                         style="--lesson-color: {{ bg_color }};
                                background: linear-gradient(135deg, #FFFFFF 0%, {{ bg_color }} 100%);
                                color: {{ text_color }};
-                               height: 70px;">
+                               height: 70px;"
+                        data-lesson-link="{{ lesson.lesson_link if lesson and lesson.lesson_link else '' }}"
+                        data-link-text="{{ lesson.link_text if lesson and lesson.link_text else 'Перейти к уроку' }}">
                         {% if lesson and lesson.subject_name %}
                         <div class="lesson-content">
                             <div class="subject-name" style="font-family: '{{ lesson.font_family if lesson.font_family else 'Bookman Old Style' }}'; font-size: 16px;">
                                 {{ lesson.subject_name }}
                             </div>
-
-                            {% if lesson.lesson_link %}
-                            <div class="lesson-link-container">
-                                <a href="{{ lesson.lesson_link }}"
-                                   target="_blank"
-                                   rel="noopener noreferrer"
-                                   class="lesson-link-btn"
-                                   style="color: {{ text_color }} !important; background: rgba(255, 255, 255, 0.2);">
-                                    <i class="fas fa-video"></i>
-                                    {{ lesson.link_text if lesson.link_text else 'Перейти к уроку' }}
-                                </a>
-                                <button class="copy-link-btn" onclick="copyLinkToClipboard('{{ lesson.lesson_link }}')"
-                                        title="Скопировать ссылку"
-                                        style="background: rgba(255, 255, 255, 0.2); color: {{ text_color }};">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            {% endif %}
                         </div>
                         {% endif %}
                     </td>
@@ -770,6 +797,107 @@ let printOrientation = 'landscape';
 let isGeneratingPDF = false;
 let eventsInitialized = false;
 let hotkeyHandled = false;
+let currentLessonLink = '';
+
+// Функции для работы с глобальным меню
+function showLessonMenu(event, lessonLink, linkText) {
+    // Если у урока нет ссылки, не показываем меню
+    if (!lessonLink) {
+        return;
+    }
+
+    // Предотвращаем всплытие события
+    event.stopPropagation();
+
+    // Сохраняем текущую ссылку
+    currentLessonLink = lessonLink;
+
+    // Обновляем содержимое меню
+    const menuLink = document.getElementById('menu-link');
+    const menuLinkText = document.getElementById('menu-link-text');
+    const menuCopy = document.getElementById('menu-copy');
+
+    menuLink.href = lessonLink;
+    menuLinkText.textContent = linkText;
+
+    // Показываем меню рядом с курсором
+    const menu = document.getElementById('global-lesson-menu');
+    menu.classList.add('active');
+
+    // Позиционируем меню
+    positionMenu(menu, event.clientX, event.clientY);
+}
+
+function positionMenu(menu, x, y) {
+    const menuRect = menu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Корректируем позицию, чтобы меню не выходило за границы экрана
+    let finalX = x;
+    let finalY = y;
+
+    if (x + menuRect.width > viewportWidth) {
+        finalX = viewportWidth - menuRect.width - 10;
+    }
+
+    if (y + menuRect.height > viewportHeight) {
+        finalY = viewportHeight - menuRect.height - 10;
+    }
+
+    menu.style.left = finalX + 'px';
+    menu.style.top = finalY + 'px';
+}
+
+function hideLessonMenu() {
+    const menu = document.getElementById('global-lesson-menu');
+    menu.classList.remove('active');
+    currentLessonLink = '';
+}
+
+function copyCurrentLink() {
+    if (!currentLessonLink) return;
+
+    navigator.clipboard.writeText(currentLessonLink).then(function() {
+        alert('Ссылка скопирована в буфер обмена!');
+        hideLessonMenu();
+    }).catch(function(err) {
+        console.error('Ошибка при копировании:', err);
+    });
+}
+
+// Инициализация обработчиков событий для меню
+function initMenuHandlers() {
+    // Обработчик клика по ячейкам таблицы
+    const lessonCells = document.querySelectorAll('.lesson-view-cell');
+    lessonCells.forEach(cell => {
+        cell.addEventListener('click', function(event) {
+            const lessonLink = this.getAttribute('data-lesson-link');
+            const linkText = this.getAttribute('data-link-text');
+            showLessonMenu(event, lessonLink, linkText);
+        });
+    });
+
+    // Обработчик кнопки копирования
+    document.getElementById('menu-copy').addEventListener('click', copyCurrentLink);
+
+    // Обработчик кнопки закрытия
+    document.getElementById('menu-close').addEventListener('click', hideLessonMenu);
+
+    // Закрытие меню при клике вне его
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('#global-lesson-menu') && !event.target.closest('.lesson-view-cell')) {
+            hideLessonMenu();
+        }
+    });
+
+    // Закрытие меню при нажатии ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            hideLessonMenu();
+        }
+    });
+}
 
 function processWordHyphenation(text) {
     const hyphenationRules = {
@@ -1111,14 +1239,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-function copyLinkToClipboard(link) {
-    navigator.clipboard.writeText(link).then(function() {
-        alert('Ссылка скопирована в буфер обмена!');
-    }).catch(function(err) {
-        console.error('Ошибка при копировании:', err);
-    });
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     if (eventsInitialized) {
         console.log('⚠️ Events already initialized, skipping...');
@@ -1128,6 +1248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     eventsInitialized = true;
     console.log('🚀 Initializing schedule view...');
 
+    initMenuHandlers();
     setupPrintOrientation();
     setupButtonEvents();
 
