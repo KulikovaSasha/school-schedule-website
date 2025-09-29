@@ -489,7 +489,7 @@
         border: 1px solid #000 !important;
         border-collapse: collapse !important;
         font-size: 10px !important;
-        page-break-inside: avoid !important;
+        page-break-inside: auto !important;
         table-layout: fixed !important;
     }
 
@@ -598,6 +598,7 @@
 
     @page {
         margin: 5mm !important;
+        size: landscape;
     }
 }
 
@@ -632,6 +633,7 @@
     border-collapse: collapse !important;
     font-size: 14px !important;
     table-layout: fixed !important;
+    page-break-inside: auto !important;
 }
 
 .pdf-table col.time-col {
@@ -721,6 +723,29 @@
 
 .pdf-empty-cell {
     background: #FFFFFF !important;
+}
+
+/* ФИКС ДЛЯ ПЕРЕНОСА СТРАНИЦ В PDF - ГЛАВНОЕ ИЗМЕНЕНИЕ */
+.pdf-table {
+    page-break-inside: auto !important;
+}
+
+.pdf-table tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+    break-inside: avoid-page !important;
+    break-before: auto !important;
+    break-after: auto !important;
+}
+
+.pdf-table td, .pdf-table th {
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
+}
+
+/* Обеспечиваем целостность строк при переносе */
+.pdf-table tbody {
+    page-break-inside: auto !important;
 }
 
 .print-options {
@@ -1054,10 +1079,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
-// ... (остальной JavaScript код остается без изменений)
-// Весь JavaScript код из предыдущей версии остается точно таким же
-// Он не затрагивается изменениями в CSS и HTML для подсветки ссылок
-
 console.log('🔄 Schedule view script loaded - version 1.1');
 
 const { jsPDF } = window.jspdf;
@@ -1385,7 +1406,10 @@ function downloadPDF() {
                     backgroundColor: '#ffffff',
                     allowTaint: true,
                     width: 900,
-                    windowWidth: 900
+                    windowWidth: 900,
+                    height: pdfContainer.scrollHeight,
+                    windowHeight: pdfContainer.scrollHeight,
+                    scrollY: -window.scrollY
                 }).then(canvas => {
                     lessonCells.forEach((cell, index) => {
                         cell.textContent = originalTexts[index];
@@ -1403,11 +1427,54 @@ function downloadPDF() {
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-                    const imgWidth = pdfWidth - 20;
+                    const imgWidth = pdfWidth - 20; // 10mm margins on both sides
                     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
                     const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-                    pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+                    let position = 0;
+                    let remainingHeight = imgHeight;
+
+                    while (remainingHeight > 0) {
+                        if (position > 0) {
+                            pdf.addPage();
+                        }
+
+                        const pageHeight = pdfHeight;
+                        const chunkHeight = Math.min(remainingHeight, pageHeight);
+
+                        // Calculate the source Y position for the current chunk
+                        const srcY = (imgHeight - remainingHeight) * (canvas.width / imgWidth);
+
+                        // Create a temporary canvas for the current page chunk
+                        const tempCanvas = document.createElement('canvas');
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = chunkHeight * (canvas.width / imgWidth);
+
+                        // Draw the current chunk from the main canvas
+                        tempCtx.drawImage(
+                            canvas,
+                            0, srcY, // source x, y
+                            canvas.width, tempCanvas.height, // source width, height
+                            0, 0, // destination x, y
+                            canvas.width, tempCanvas.height // destination width, height
+                        );
+
+                        const chunkData = tempCanvas.toDataURL('image/jpeg', 0.95);
+
+                        pdf.addImage(
+                            chunkData,
+                            'JPEG',
+                            10, // x position
+                            10, // y position
+                            imgWidth,
+                            chunkHeight
+                        );
+
+                        position += chunkHeight;
+                        remainingHeight -= chunkHeight;
+                    }
 
                     pdf.setProperties({
                         title: 'Расписание: {{ schedule.title }}',
@@ -1418,7 +1485,7 @@ function downloadPDF() {
                     const fileName = `Расписание - {{ schedule.title }}.pdf`;
                     pdf.save(fileName);
 
-                    console.log('✅ PDF generated successfully');
+                    console.log('✅ PDF generated successfully with proper page breaks');
 
                     setTimeout(() => {
                         isGeneratingPDF = false;
